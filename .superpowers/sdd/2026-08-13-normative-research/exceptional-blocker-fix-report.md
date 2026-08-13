@@ -132,3 +132,37 @@ Fresh implementation verification:
 | `git diff --check` | Exit 0; no whitespace errors; only configured LF-to-CRLF working-copy notices. |
 
 No blocker or additional concern remains within this marker-only follow-up scope. The implementation commit is `04ba14fc326ec4b41d0e05ef4e59db0878bd488d` with subject `fix: preserve modern usage marker boundaries`.
+
+## Exceptional marker fix round 3
+
+Date: 2026-08-13
+Starting commit: `ae81d2b14aec8f8ed262bf6e47eddf2742287231`
+Implementation commit: `a7137c452bad1d7c1eec24eb64318cf785ae0c72`
+
+This follow-up changes only Markdown reference-destination recognition in `tools\validate.py` and its full-chain tests in `tests\test_usage_research.py`. It does not modify domain identity behavior, research data, schemas, normative rules, dependencies, tags, releases, pushes, or merges.
+
+### Round-3 RED evidence
+
+The focused command ran two tests and exited 1 with two expected subtest failures. Both exact `\][ժամանակակից գործածություն]` variants, without and with a matching shortcut-reference definition, bypassed custody because the destination scanner treated an escaped closing bracket as if it closed a legitimate label. The valid visible-label and hidden-reference-label controls passed during RED.
+
+### Round-3 implementation and GREEN evidence
+
+Reference and inline destination removal now requires the preceding closing bracket to have a balanced, unescaped opening bracket. Escaped brackets cannot manufacture a label opener, while valid visible labels and valid hidden reference destinations retain their existing behavior.
+
+Fresh implementation verification:
+
+| Command | Result |
+| --- | --- |
+| Targeted RED command | Exit 1; 2 tests; 2 expected subtest failures and the valid reference control passed. |
+| Four targeted and existing regression tests | Exit 0; 4 tests; `OK`. |
+| `python -m unittest tests.test_usage_research -v` | Exit 0; 47 tests; `OK`. |
+| `python -m unittest discover -s tests -q` | Exit 0; 84 tests; `OK`. |
+| `python tools\validate.py` | Exit 0; `hy-text validation passed`. |
+| Three `quick_validate.py` skill checks | Exit 0; all three skills valid. |
+| `validate_plugin.py .` | Exit 0; plugin validation passed. |
+| `python -m py_compile tools\aggregate_usage.py tools\usage_common.py tools\validate.py tests\test_usage_research.py` | Exit 0. |
+| Parse every repository `*.json` with `json.loads` | Exit 0; 14 JSON files parsed. |
+| Marker-only scope and U+2014 scan | Exit 0; only validator/test changes and no U+2014. |
+| `git diff --check` | Exit 0; no whitespace errors; only configured LF-to-CRLF working-copy notices. |
+
+No blocker or additional concern remains within this marker-only follow-up scope. The report-only commit is recorded in the controller handoff because a commit cannot contain its own hash.
