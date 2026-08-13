@@ -87,3 +87,48 @@ Fresh pre-commit evidence at implementation commit content:
 No blocker remains within the exceptional scope. Organizational independence keys are still manually supplied and audited by design; this fix prevents syntactic aliases from inflating those keys but does not infer organizational ownership. Standard-library IDNA behavior remains the repository's documented runtime authority.
 
 The implementation was committed as `fbb1e427e68828d0d9364902d53cda55c010754c` with subject `fix: close normative evidence blocker bypasses`. The report-only commit is recorded in the controller handoff because a commit cannot contain its own hash.
+
+## Exceptional marker fix round 2
+
+Date: 2026-08-13
+Starting commit: `411840c83e3d61f2c5e46d71a127d6bf847e8b54`
+Implementation commit: `04ba14fc326ec4b41d0e05ef4e59db0878bd488d`
+
+This follow-up changes only modern-usage marker detection in `tools\validate.py` and its full-chain tests in `tests\test_usage_research.py`. It does not modify `tools\usage_common.py`, domain identity behavior, research data, schemas, normative rules, dependencies, tags, releases, pushes, or merges.
+
+### Round-2 RED evidence
+
+The focused command ran four tests and exited 1 with six expected failures:
+
+- Four LF/TAB variants failed because Cc whitespace was treated as invisible glue, joining an unrelated prefix or suffix to the marker.
+- `ժամանակակից գոր[ծա][ref\]x]ծություն` failed because the reference-label regex stopped at the escaped closing bracket.
+- `<!-- ](" -->ժամանակակից գործածություն<!-- " ) -->` failed because link-destination stripping ran before hidden HTML comments were removed.
+
+The zero-width prefix and suffix negative cases passed during RED, confirming that the regression was limited to the three concrete bypass classes.
+
+### Round-2 implementation and GREEN evidence
+
+Whitespace is now classified before control and mark categories. LF, TAB, U+0085, and other actual whitespace preserve word boundaries; non-whitespace control, format, and mark characters remain soft positions so default-ignorables cannot hide an intra-word marker.
+
+HTML visible-text extraction now runs before Markdown destination stripping. The link scanner handles both balanced inline destinations and reference labels, and its reference-label closure skips escaped characters such as `\]`.
+
+Focused verification:
+
+- The four targeted full-chain tests passed.
+- `python -m unittest tests.test_usage_research -v` – exit 0; 45 tests; `OK`.
+- A direct mutation check ran five required detections and three negative boundary forms with zero misses and zero false positives.
+
+Fresh implementation verification:
+
+| Command | Result |
+| --- | --- |
+| `python -m unittest discover -s tests -v` | Exit 0; 82 tests; `OK`. |
+| `python tools\validate.py` | Exit 0; `hy-text validation passed`. |
+| Three `quick_validate.py` skill checks | Exit 0; all three skills valid. |
+| `validate_plugin.py .` | Exit 0; plugin validation passed. |
+| `python -m py_compile tools\aggregate_usage.py tools\usage_common.py tools\validate.py tests\test_usage_research.py` | Exit 0. |
+| Parse every repository `*.json` with `json.loads` | Exit 0; 14 JSON files parsed. |
+| Marker-only scope and U+2014 scan | Exit 0; only validator/test changes and no U+2014. |
+| `git diff --check` | Exit 0; no whitespace errors; only configured LF-to-CRLF working-copy notices. |
+
+No blocker or additional concern remains within this marker-only follow-up scope. The implementation commit is `04ba14fc326ec4b41d0e05ef4e59db0878bd488d` with subject `fix: preserve modern usage marker boundaries`.
