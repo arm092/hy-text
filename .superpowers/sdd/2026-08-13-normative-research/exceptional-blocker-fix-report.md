@@ -209,3 +209,44 @@ Fresh implementation verification:
 | `git diff --check` | Exit 0; no whitespace errors; only configured LF-to-CRLF working-copy notices. |
 
 No blocker or additional concern remains within this marker-only correction. The report-only commit is recorded in the controller handoff because a commit cannot contain its own hash.
+
+## Exceptional marker fix round 5
+
+Date: 2026-08-13
+Starting commit: `982f742e2c6a49bdedd026240c323caf659c019d`
+Implementation commit: `92ba281221146d30b3521c8a1f4062b7fea1923b`
+
+This final architectural correction changes only the rule-basis contract in `tools\validate.py`, its full-chain tests in `tests\test_usage_research.py`, and the contract documentation in `METHODOLOGY.md`. It does not modify domain identity behavior, research data, schemas, normative rules, dependencies, tags, releases, pushes, or merges.
+
+### Round-5 RED evidence
+
+The targeted RED command ran five tests and exited 1 with 30 expected failures. The two canonical-contract controls passed during RED: all three canonical labels accepted normal trailing prose, and canonical modern usage still required valid custody. Failures covered both entity fake-opener variants, the complete prior-obfuscation table, and malformed capitalization, line breaks, spacing, prefixes, suffixes, combining marks, and format characters. The prior signature detector classified or ignored those strings instead of reporting an invalid basis type.
+
+### Round-5 implementation and GREEN evidence
+
+Basis type is now an exact machine-readable raw-line contract. Every rule must contain one undecorated line beginning with exactly one ASCII space after `**Հիմք։**`, followed by exactly one of:
+
+- `պաշտոնական նորմ –`
+- `ժամանակակից գործածություն –`
+- `խմբագրական որոշում –`
+
+Markup, entities, control or format characters, variation selectors, links, comments, capitalization changes, line breaks, prefixes, suffixes, and malformed separators in the taxonomy position produce `invalid basis type`. Ordinary source citations and explanatory prose remain allowed after the canonical separator. Only the exact modern-usage type activates `USAGE-*` custody.
+
+The Armenian signature detector and all prior rendered-Markdown helpers are removed. `METHODOLOGY.md` documents the strict leading taxonomy and custody rule.
+
+Fresh implementation verification:
+
+| Command | Result |
+| --- | --- |
+| Targeted RED command | Exit 1; 5 tests; 30 expected failures and 2 canonical controls passed. |
+| `python -m unittest tests.test_usage_research -q` | Exit 0; 51 tests; `OK`. |
+| `python -m unittest discover -s tests -q` | Exit 0; 88 tests; `OK`. |
+| `python tools\validate.py` | Exit 0; `hy-text validation passed`. |
+| Three `quick_validate.py` skill checks | Exit 0; all three skills valid. |
+| `validate_plugin.py .` | Exit 0; plugin validation passed. |
+| `python -m py_compile tools\aggregate_usage.py tools\usage_common.py tools\validate.py tests\test_usage_research.py` | Exit 0. |
+| Parse every repository `*.json` with `json.loads` | Exit 0; 14 JSON files parsed. |
+| Scoped-file, obsolete-helper, and U+2014 scans | Exit 0; only validator, tests, methodology, and report changed; no obsolete helper and no U+2014. |
+| `git diff --check` | Exit 0; no whitespace errors; only configured LF-to-CRLF working-copy notices. |
+
+No blocker or additional concern remains within this strict basis-taxonomy correction. The report-only commit is recorded in the controller handoff because a commit cannot contain its own hash.
