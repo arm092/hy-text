@@ -86,6 +86,12 @@ class RepositoryContractTest(unittest.TestCase):
         ):
             self.assertTrue((ROOT / path).is_file(), path)
 
+    def test_typography_008_uses_compact_measurement_units(self):
+        text = (ROOT / "skills" / "hy-text" / "references" / "typography.md").read_text(encoding="utf-8")
+        rule = text.split("## HY-TYP-008", 1)[1]
+        self.assertIn("**Ճիշտ։** `5կգ`, `20°C`", rule)
+        self.assertIn("SI", rule)
+
 
 if __name__ == "__main__":
     unittest.main()
