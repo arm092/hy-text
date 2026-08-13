@@ -22,5 +22,61 @@
     "reviewed_at": "2026-08-14",
     "status": "approved",
     "through_rule": "HY-GRM-008"
+  },
+  {
+    "reference": "info-style.md",
+    "reviewed_commit": "ee481dd2c9c4313deeb14a50993025a2abdc517e",
+    "reviewer": "Arman Khachatryan",
+    "reviewed_at": "2026-08-14",
+    "status": "approved",
+    "through_rule": "HY-INF-007"
+  },
+  {
+    "reference": "ux-writing.md",
+    "reviewed_commit": "ee481dd2c9c4313deeb14a50993025a2abdc517e",
+    "reviewer": "Arman Khachatryan",
+    "reviewed_at": "2026-08-14",
+    "status": "approved",
+    "through_rule": "HY-UX-006"
+  },
+  {
+    "reference": "business-writing.md",
+    "reviewed_commit": "ee481dd2c9c4313deeb14a50993025a2abdc517e",
+    "reviewer": "Arman Khachatryan",
+    "reviewed_at": "2026-08-14",
+    "status": "approved",
+    "through_rule": "HY-BIZ-005"
+  },
+  {
+    "reference": "anti-patterns.md",
+    "reviewed_commit": "ee481dd2c9c4313deeb14a50993025a2abdc517e",
+    "reviewer": "Arman Khachatryan",
+    "reviewed_at": "2026-08-14",
+    "status": "approved",
+    "through_rule": "HY-ANT-005"
+  },
+  {
+    "reference": "addenda.md",
+    "reviewed_commit": "ee481dd2c9c4313deeb14a50993025a2abdc517e",
+    "reviewer": "Arman Khachatryan",
+    "reviewed_at": "2026-08-14",
+    "status": "approved",
+    "through_rule": "HY-ADD-006"
+  },
+  {
+    "reference": "scoring.md",
+    "reviewed_commit": "ee481dd2c9c4313deeb14a50993025a2abdc517e",
+    "reviewer": "Arman Khachatryan",
+    "reviewed_at": "2026-08-14",
+    "status": "approved",
+    "through_rule": null
+  },
+  {
+    "reference": "sources.md",
+    "reviewed_commit": "ee481dd2c9c4313deeb14a50993025a2abdc517e",
+    "reviewer": "Arman Khachatryan",
+    "reviewed_at": "2026-08-14",
+    "status": "approved",
+    "through_rule": null
   }
 ]
