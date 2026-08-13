@@ -1,5 +1,4 @@
 import json
-import re
 import unittest
 from pathlib import Path
 
@@ -14,9 +13,17 @@ class ReviewLedgerTest(unittest.TestCase):
             {"typography.md", "editorial-punctuation.md", "editorial-grammar.md"},
             set(by_name),
         )
+        expected_boundaries = {
+            "typography.md": "HY-TYP-008",
+            "editorial-punctuation.md": "HY-PUN-008",
+            "editorial-grammar.md": "HY-GRM-007",
+        }
         for row in rows:
             self.assertEqual("Arman Khachatryan", row["reviewer"])
             self.assertEqual("2026-08-13", row["reviewed_at"])
             self.assertEqual("approved", row["status"])
-            self.assertRegex(row["reviewed_commit"], re.compile(r"^[0-9a-f]{40}$"))
-        self.assertEqual("HY-GRM-007", by_name["editorial-grammar.md"]["through_rule"])
+            self.assertEqual("de16c32b402982048f5a20d225a9287c78b1e911", row["reviewed_commit"])
+        self.assertEqual(
+            expected_boundaries,
+            {reference: row["through_rule"] for reference, row in by_name.items()},
+        )
