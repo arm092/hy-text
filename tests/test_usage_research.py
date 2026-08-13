@@ -755,7 +755,7 @@ class UsageChainOfCustodyTest(unittest.TestCase):
                         errors,
                     )
 
-    def test_valid_reference_links_distinguish_visible_and_hidden_labels(self):
+    def test_reference_labels_and_metadata_carry_the_conservative_signature(self):
         with tempfile.TemporaryDirectory() as directory:
             root, _, _, source_path, rule_path = self.make_repository(directory)
             cases = (
@@ -767,7 +767,7 @@ class UsageChainOfCustodyTest(unittest.TestCase):
                 (
                     "խմբագրական [նշում][ժամանակակից գործածություն]",
                     "[ժամանակակից գործածություն]: https://example.am",
-                    False,
+                    True,
                 ),
             )
             for basis, definition, requires_usage in cases:
@@ -786,6 +786,73 @@ class UsageChainOfCustodyTest(unittest.TestCase):
                         "modern usage must reference" in error for error in errors
                     )
                     self.assertEqual(requires_usage, has_usage_error, errors)
+
+    def test_entity_fake_opener_cannot_hide_a_modern_usage_signature(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root, _, _, source_path, rule_path = self.make_repository(directory)
+            definition_forms = (
+                "",
+                "\n[ժամանակակից գործածություն]: https://example.am\n",
+            )
+            for definition in definition_forms:
+                with self.subTest(has_definition=bool(definition)):
+                    rule_path.write_text(
+                        "## HY-INF-999\n\n"
+                        "**Հիմք։** &#91;նշում][ժամանակակից գործածություն] "
+                        "– SRC-EDITORIAL-POLICY։\n\n"
+                        "**Կիրառություն։** օրինակ։\n"
+                        f"{definition}",
+                        encoding="utf-8",
+                    )
+
+                    errors = self.validate(root, source_path, rule_path)
+
+                    self.assertTrue(
+                        any("modern usage must reference" in error for error in errors),
+                        errors,
+                    )
+
+    def test_all_reviewed_markup_bypasses_retain_the_modern_usage_signature(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root, _, _, source_path, rule_path = self.make_repository(directory)
+            basis_forms = (
+                "ժամա**նակակից** գործածություն",
+                "ժամանակակից գոր__ծա__ծություն",
+                "ժամանակակից գոր[ծա](https://example.am/a((b)))ծություն",
+                "ժամանակակից գոր[ծա][ref\\]x]ծություն",
+                "ժամանակակից գոր<em title=\">\">ծա</em>ծություն",
+                "ժամանակակից գոր<em\n title=\"x\">ծա</em>ծություն",
+                "ժամանակակից գոր<?target?>ծածություն",
+                "ժամանակակից գոր<!---->ծածություն",
+                "ժամանակակից գոր&#91;ծա]ծություն",
+                "ժամանակակից գոր\u200bծածություն",
+                "ժամանակակից գոր\u2060ծածություն",
+                "ժամանակակից գոր\x00ծածություն",
+                "ժամանակակից գոր\u0085ծածություն",
+                "ժամանակակից գոր\ufe0fծածություն",
+                "ժամանակակից\u200bգործածություն",
+                "նշում\nժամանակակից գործածություն",
+                "ժամանակակից գործածություն\tհավելում",
+                "\\][ժամանակակից գործածություն]",
+                "&#91;նշում][ժամանակակից գործածություն]",
+                "<!-- ](\" -->ժամանակակից գործածություն<!-- \" ) -->",
+            )
+            for basis in basis_forms:
+                with self.subTest(basis=ascii(basis)):
+                    rule_path.write_text(
+                        "## HY-INF-999\n\n"
+                        f"**Հիմք։** {basis} – SRC-EDITORIAL-POLICY։\n\n"
+                        "**Կիրառություն։** օրինակ։\n\n"
+                        "[ref\\]x]: https://example.am\n",
+                        encoding="utf-8",
+                    )
+
+                    errors = self.validate(root, source_path, rule_path)
+
+                    self.assertTrue(
+                        any("modern usage must reference" in error for error in errors),
+                        errors,
+                    )
 
     def test_hidden_html_comment_cannot_swallow_a_visible_modern_usage_basis(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -871,6 +938,7 @@ class UsageChainOfCustodyTest(unittest.TestCase):
                 "**Հիմք։** նախ\u200bժամանակակից գործածություն։",
                 "**Հիմք։** ժամանակակից գործածությունային օրինակ։",
                 "**Հիմք։** ժամանակակից գործածություն\u200bային օրինակ։",
+                "**Հիմք։** ժամանակակից գործածություն\u0301ական օրինակ։",
             )
             for basis in basis_forms:
                 with self.subTest(basis=basis):

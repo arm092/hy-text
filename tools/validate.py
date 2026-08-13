@@ -7,7 +7,6 @@ import json
 import re
 import sys
 import unicodedata
-from html.parser import HTMLParser
 from pathlib import Path
 
 try:
@@ -44,7 +43,6 @@ USAGE_REFERENCE_RE = re.compile(r"\bUSAGE-[A-Z0-9]+(?:-[A-Z0-9]+)*\b")
 STUDY_STEM_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 MODERN_USAGE_BASIS = "ժամանակակից գործածություն"
 MODERN_USAGE_WORDS = tuple(MODERN_USAGE_BASIS.split())
-MARKDOWN_INLINE_DELIMITERS = frozenset("*_~`[]")
 TEXT_SUFFIXES = {".md", ".json", ".jsonl", ".yaml", ".yml", ".py"}
 ALLOWED_USAGE_LAYERS = ALLOWED_LAYERS
 AGGREGATE_FIELDS = {
@@ -429,186 +427,61 @@ def _rule_basis_blocks(chunk: str) -> list[str]:
     return pattern.findall(chunk)
 
 
-def _reference_destination_end(value: str, start: int) -> int | None:
-    """Return a reference-label closing bracket while honoring escapes."""
+def _armenian_basis_signature(value: str) -> list[str]:
+    """Return Armenian-only tokens from a raw basis field.
 
-    cursor = start
-    while cursor < len(value):
-        if value[cursor] == "\\" and cursor + 1 < len(value):
-            cursor += 2
-            continue
-        if value[cursor] == "]":
-            return cursor
-        if value[cursor] in "\r\n":
-            return None
-        cursor += 1
-    return None
+    This is deliberately conservative: Armenian text in comments, link metadata,
+    or other markup still creates a custody obligation. Markup, entities, URLs,
+    combining marks, and non-whitespace controls cannot hide or manufacture an
+    Armenian affix. Actual layout whitespace and adjacent Markdown labels retain
+    boundary information; every other non-Armenian character is discarded.
+    """
 
-
-def _is_markdown_escaped(value: str, index: int) -> bool:
-    backslashes = 0
-    cursor = index - 1
-    while cursor >= 0 and value[cursor] == "\\":
-        backslashes += 1
-        cursor -= 1
-    return backslashes % 2 == 1
-
-
-def _label_opener(value: str, close_index: int) -> int | None:
-    """Find the unescaped opener balanced by a Markdown label close."""
-
-    if _is_markdown_escaped(value, close_index):
-        return None
-
-    nested_closes = 0
-    cursor = close_index - 1
-    while cursor >= 0:
-        character = value[cursor]
-        if not _is_markdown_escaped(value, cursor):
-            if character == "]":
-                nested_closes += 1
-            elif character == "[":
-                if nested_closes == 0:
-                    return cursor
-                nested_closes -= 1
-        cursor -= 1
-    return None
-
-
-def _inline_destination_end(value: str, start: int) -> int | None:
-    """Return the closing parenthesis of a balanced inline destination."""
-
-    depth = 0
-    quote = None
-    angle_destination = False
-    cursor = start
-    while cursor < len(value):
-        character = value[cursor]
-        if character == "\\" and cursor + 1 < len(value):
-            cursor += 2
-            continue
-        if quote is not None:
-            if character == quote:
-                quote = None
-            cursor += 1
-            continue
-        if angle_destination:
-            if character == ">":
-                angle_destination = False
-            cursor += 1
-            continue
-        if character == "<" and depth == 1:
-            angle_destination = True
-        elif character in {'"', "'"} and depth == 1:
-            quote = character
-        elif character == "(":
-            depth += 1
-        elif character == ")":
-            depth -= 1
-            if depth == 0:
-                return cursor
-        cursor += 1
-    return None
-
-
-def _remove_link_destinations(value: str) -> str:
-    """Remove inline and reference destinations while keeping visible labels."""
-
-    output = []
-    marker = "\x00"
-    index = 0
-    while index < len(value):
-        if (
-            value[index] != "]"
-            or index + 1 >= len(value)
-            or _label_opener(value, index) is None
-        ):
-            output.append(value[index])
-            index += 1
-            continue
-
-        if value[index + 1] == "(":
-            destination_end = _inline_destination_end(value, index + 1)
-        elif value[index + 1] == "[":
-            destination_end = _reference_destination_end(value, index + 2)
-        else:
-            destination_end = None
-
-        output.append("]")
-        if destination_end is None:
-            index += 1
-            continue
-        output.append(marker)
-        index = destination_end + 1
-    return "".join(output)
-
-
-class _VisibleHTMLTextParser(HTMLParser):
-    def __init__(self) -> None:
-        super().__init__(convert_charrefs=True)
-        self.parts = []
-
-    def handle_data(self, data: str) -> None:
-        self.parts.append(data)
-
-
-def _visible_html_text(value: str) -> str:
-    parser = _VisibleHTMLTextParser()
-    parser.feed(value)
-    parser.close()
-    return "\x00".join(parser.parts)
-
-
-def _visible_basis_markdown(value: str) -> str:
-    """Keep rendered inline text while removing hidden Markdown destinations."""
-
-    return _remove_link_destinations(_visible_html_text(value))
-
-
-def _searchable_basis_words(value: str) -> list[tuple[str, frozenset[int]]]:
-    """Return visible words and positions interrupted only by invisible markup."""
-
-    normalized = unicodedata.normalize("NFKC", _visible_basis_markdown(value)).casefold()
-    words = []
-    characters = []
-    soft_boundaries = set()
-
-    def finish_word() -> None:
-        if characters:
-            words.append(("".join(characters), frozenset(soft_boundaries)))
-            characters.clear()
-            soft_boundaries.clear()
-
+    normalized = unicodedata.normalize("NFKC", value).casefold()
+    signature = []
+    gap = []
+    first_target_character = MODERN_USAGE_WORDS[0][0]
     for character in normalized:
-        category = unicodedata.category(character)
-        if category[0] in {"L", "N"}:
-            characters.append(character)
-        elif character.isspace():
-            finish_word()
-        elif category[0] in {"C", "M"} or character in MARKDOWN_INLINE_DELIMITERS:
-            if characters:
-                soft_boundaries.add(len(characters))
-        else:
-            finish_word()
-    finish_word()
-    return words
+        is_armenian_letter = (
+            "\u0531" <= character <= "\u0587"
+            and unicodedata.category(character).startswith("L")
+        )
+        if not is_armenian_letter:
+            gap.append(character)
+            continue
+
+        if signature and gap:
+            gap_text = "".join(gap)
+            has_layout_whitespace = any(
+                item in "\t\n\v\f\r"
+                or unicodedata.category(item).startswith("Z")
+                for item in gap
+            )
+            stripped_gap = gap_text.strip()
+            enclosed_markup = (
+                len(stripped_gap) >= 2
+                and (stripped_gap[0], stripped_gap[-1])
+                in {("<", ">"), ("(", ")"), ("[", "]")}
+            )
+            label_transition = "][" in gap_text and character == first_target_character
+            if (has_layout_whitespace and not enclosed_markup) or label_transition:
+                signature.append(" ")
+        signature.append(character)
+        gap.clear()
+    return "".join(signature).split()
 
 
 def _contains_modern_usage_basis(value: str) -> bool:
-    words = _searchable_basis_words(value)
+    words = _armenian_basis_signature(value)
     first_word, second_word = MODERN_USAGE_WORDS
     if any(
-        left[0] == first_word and right[0] == second_word
+        left == first_word and right == second_word
         for left, right in zip(words, words[1:])
     ):
         return True
 
     combined = first_word + second_word
-    split_position = len(first_word)
-    return any(
-        word == combined and split_position in soft_boundaries
-        for word, soft_boundaries in words
-    )
+    return combined in words
 
 
 def validate_usage_chain(root: Path, rule_paths: list[Path], source_path: Path) -> list[str]:
