@@ -170,6 +170,41 @@ class RuleCandidatesTest(unittest.TestCase):
                 self.assertEqual("published", by_id[candidate_id]["status"])
                 self.assertIn(rule_id, by_id[candidate_id]["reason"])
 
+    def test_business_usage_protocol_freezes_scope_and_taxonomy(self):
+        note = (
+            ROOT / "research" / "notes" / "business-observed-practices.md"
+        ).read_text(encoding="utf-8")
+
+        for study_id in (
+            "USAGE-BIZ-002",
+            "USAGE-BIZ-003",
+            "USAGE-BIZ-004",
+            "USAGE-BIZ-006",
+        ):
+            self.assertIn(study_id, note)
+        for threshold in ("100", "20", "three corpus layers"):
+            self.assertIn(threshold, note)
+        for boundary in (
+            "modern Eastern Armenian",
+            "reformed orthography",
+            "search snippets",
+            "machine translation",
+            "personal data",
+            "complete correspondence",
+            "not a causal",
+        ):
+            self.assertIn(boundary.lower(), note.lower())
+        for taxonomy in (
+            "<punctuation>/<layout>/<addressee>",
+            "none/phrase",
+            "question-mark/question",
+            "re/reply",
+            "localized/forward",
+            "<formula>/<relationship>",
+            "established-colleague",
+        ):
+            self.assertIn(taxonomy, note)
+
 
 if __name__ == "__main__":
     unittest.main()
