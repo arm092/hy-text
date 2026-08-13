@@ -6,6 +6,8 @@ This protocol covers `CAND-UX-001` through `CAND-UX-004` in public Armenian-lang
 
 Search engines and site search may locate candidate pages. A result is retained only after the public page, document, or interface is opened and the relevant Armenian string and context are manually verified. Search-result snippets and result counts are not observations.
 
+Product-maintained public localization resources are eligible when the resource maps an Armenian string to an explicit interface state or control. The immutable file URL is opened and verified, forks and copied locale bundles are excluded, and the hosting domain remains the conservative independence key even when several unrelated product owners use the same code host.
+
 ## Shared sampling rules
 
 - Retain at least 100 distinct relevant URLs, 20 manually verified organizational independence keys, and three corpus layers for each study.
