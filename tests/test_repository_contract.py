@@ -92,6 +92,16 @@ class RepositoryContractTest(unittest.TestCase):
         self.assertIn("**Ճիշտ։** `5կգ`, `20°C`", rule)
         self.assertIn("SI", rule)
 
+    def test_grammar_008_separates_foreign_script_from_armenian_ending(self):
+        text = (ROOT / "skills" / "hy-text" / "references" / "editorial-grammar.md").read_text(encoding="utf-8")
+        rule = text.split("## HY-GRM-008", 1)[1]
+        self.assertIn("Apricode-ում", rule)
+        self.assertIn("Apricodeում", rule)
+        self.assertIn("Apricode ընկերությունում", rule)
+        self.assertIn("SRC-EDITORIAL-POLICY", rule)
+        self.assertIn("SRC-LC-FOREIGN-INFLECTION", rule)
+        self.assertIn("SRC-UNICODE-ARMENIAN", rule)
+
 
 if __name__ == "__main__":
     unittest.main()
