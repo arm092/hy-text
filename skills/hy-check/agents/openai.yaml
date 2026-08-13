@@ -1,0 +1,4 @@
+interface:
+  display_name: "hy-check"
+  short_description: "Full Eastern Armenian text quality review"
+  default_prompt: "Use $hy-check to proofread this Eastern Armenian text."

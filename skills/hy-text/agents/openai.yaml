@@ -1,0 +1,4 @@
+interface:
+  display_name: "hy-text"
+  short_description: "Eastern Armenian text quality for AI agents"
+  default_prompt: "Use $hy-text to improve this Eastern Armenian text."
