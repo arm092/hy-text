@@ -23,6 +23,16 @@ STATUSES = {"verified", "limited", "rejected"}
 AVAILABILITY = {"direct", "legacy host unavailable", "bibliographic only"}
 BASIS_TYPES = {"պաշտոնական նորմ", "ժամանակակից գործածություն", "խմբագրական որոշում"}
 SCOPE_LIMITERS = (" not ", " only", " until ", " cannot ", "specific", "concrete")
+REGISTRY_COLUMNS = {
+    "ID": "id",
+    "Evidence type": "evidence_type",
+    "Status": "status",
+    "Authority": "authority",
+    "Title and locator": None,
+    "Scope": "scope",
+    "Availability": "availability",
+    "Provenance": "provenance",
+}
 
 
 def audit_records():
@@ -32,6 +42,43 @@ def audit_records():
 def rule_chunk(path, rule_id):
     text = path.read_text(encoding="utf-8")
     return re.search(rf"^## {rule_id}$.*?(?=^## HY-|\Z)", text, re.MULTILINE | re.DOTALL).group()
+
+
+def markdown_cells(line):
+    return [cell.strip() for cell in line.strip().strip("|").split("|")]
+
+
+def registry_records():
+    lines = (REFERENCES / "sources.md").read_text(encoding="utf-8").splitlines()
+    expected_headers = list(REGISTRY_COLUMNS)
+    header_index = next(
+        index
+        for index, line in enumerate(lines)
+        if line.startswith("| ID |") and markdown_cells(line) == expected_headers
+    )
+    headers = markdown_cells(lines[header_index])
+    records = {}
+    for line in lines[header_index + 2 :]:
+        if not line.startswith("| SRC-"):
+            break
+        cells = markdown_cells(line)
+        if len(cells) != len(headers):
+            raise ValueError(f"registry row has {len(cells)} cells, expected {len(headers)}: {line}")
+        columns = dict(zip(headers, cells))
+        title_prefix, separator, locator_suffix = columns["Title and locator"].rpartition("](")
+        if not separator or not title_prefix.startswith("[") or not locator_suffix.endswith(")"):
+            raise ValueError(f"invalid title and locator cell: {columns['Title and locator']}")
+        record = {
+            field: columns[header]
+            for header, field in REGISTRY_COLUMNS.items()
+            if field is not None
+        }
+        record["title"] = title_prefix[1:]
+        record["locator"] = locator_suffix[:-1]
+        if record["id"] in records:
+            raise ValueError(f"duplicate registry ID: {record['id']}")
+        records[record["id"]] = record
+    return records
 
 
 class SourceAuditTest(unittest.TestCase):
@@ -57,17 +104,17 @@ class SourceAuditTest(unittest.TestCase):
             self.assertEqual(record["accessed_at"], date.fromisoformat(record["accessed_at"]).isoformat())
 
     def test_audit_records_are_synchronized_with_markdown_registry(self):
-        registry = (REFERENCES / "sources.md").read_text(encoding="utf-8")
-        rows = {
-            columns[1].strip(): line
-            for line in registry.splitlines()
-            if line.startswith("| SRC-")
-            for columns in (line.split("|"),)
+        fields = ("id", "evidence_type", "status", "availability", "authority", "title", "locator", "scope", "provenance")
+        expected = {
+            record["id"]: {field: record[field] for field in fields}
+            for record in audit_records()
         }
-        for record in audit_records():
-            self.assertIn(record["id"], rows)
-            for field in ("id", "evidence_type", "status", "authority", "title", "locator", "scope", "availability", "provenance"):
-                self.assertIn(record[field], rows[record["id"]], f"{record['id']} missing {field} from sources.md")
+        actual = registry_records()
+        self.assertEqual(set(expected), set(actual))
+        for source_id, expected_record in expected.items():
+            for field, expected_value in expected_record.items():
+                with self.subTest(source_id=source_id, field=field):
+                    self.assertEqual(expected_value, actual[source_id][field])
 
     def test_rejected_sources_are_absent_from_active_rules(self):
         active_rules = "\n".join(
