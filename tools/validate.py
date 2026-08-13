@@ -42,7 +42,11 @@ SOURCE_RE = re.compile(r"\bSRC-[A-Z0-9]+(?:-[A-Z0-9]+)*\b")
 USAGE_REFERENCE_RE = re.compile(r"\bUSAGE-[A-Z0-9]+(?:-[A-Z0-9]+)*\b")
 STUDY_STEM_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 MODERN_USAGE_BASIS = "ժամանակակից գործածություն"
-MODERN_USAGE_WORDS = tuple(MODERN_USAGE_BASIS.split())
+BASIS_TYPES = (
+    "պաշտոնական նորմ",
+    MODERN_USAGE_BASIS,
+    "խմբագրական որոշում",
+)
 TEXT_SUFFIXES = {".md", ".json", ".jsonl", ".yaml", ".yml", ".py"}
 ALLOWED_USAGE_LAYERS = ALLOWED_LAYERS
 AGGREGATE_FIELDS = {
@@ -416,72 +420,22 @@ def _expected_usage_id(stem: str) -> str | None:
     return f"USAGE-{stem.upper()}"
 
 
-def _rule_basis_blocks(chunk: str) -> list[str]:
-    """Return basis field bodies independently of Markdown line decoration."""
+def _raw_rule_basis(chunk: str) -> tuple[str | None, str | None]:
+    """Return the exact machine-readable basis type and its single raw line."""
 
-    field_markers = "|".join(re.escape(field) for field in REQUIRED_FIELDS)
-    pattern = re.compile(
-        rf"\*\*Հիմք։\*\*(.*?)(?=(?:{field_markers})|\Z)",
-        flags=re.DOTALL,
-    )
-    return pattern.findall(chunk)
+    basis_lines = [line for line in chunk.splitlines() if "**Հիմք։**" in line]
+    if len(basis_lines) != 1:
+        return None, None
 
-
-def _armenian_basis_signature(value: str) -> list[str]:
-    """Return Armenian-only tokens from a raw basis field.
-
-    This is deliberately conservative: Armenian text in comments, link metadata,
-    or other markup still creates a custody obligation. Markup, entities, URLs,
-    combining marks, and non-whitespace controls cannot hide or manufacture an
-    Armenian affix. Actual layout whitespace and adjacent Markdown labels retain
-    boundary information; every other non-Armenian character is discarded.
-    """
-
-    normalized = unicodedata.normalize("NFKC", value).casefold()
-    signature = []
-    gap = []
-    first_target_character = MODERN_USAGE_WORDS[0][0]
-    for character in normalized:
-        is_armenian_letter = (
-            "\u0531" <= character <= "\u0587"
-            and unicodedata.category(character).startswith("L")
-        )
-        if not is_armenian_letter:
-            gap.append(character)
-            continue
-
-        if signature and gap:
-            gap_text = "".join(gap)
-            has_layout_whitespace = any(
-                item in "\t\n\v\f\r"
-                or unicodedata.category(item).startswith("Z")
-                for item in gap
-            )
-            stripped_gap = gap_text.strip()
-            enclosed_markup = (
-                len(stripped_gap) >= 2
-                and (stripped_gap[0], stripped_gap[-1])
-                in {("<", ">"), ("(", ")"), ("[", "]")}
-            )
-            label_transition = "][" in gap_text and character == first_target_character
-            if (has_layout_whitespace and not enclosed_markup) or label_transition:
-                signature.append(" ")
-        signature.append(character)
-        gap.clear()
-    return "".join(signature).split()
-
-
-def _contains_modern_usage_basis(value: str) -> bool:
-    words = _armenian_basis_signature(value)
-    first_word, second_word = MODERN_USAGE_WORDS
-    if any(
-        left == first_word and right == second_word
-        for left, right in zip(words, words[1:])
-    ):
-        return True
-
-    combined = first_word + second_word
-    return combined in words
+    match = re.fullmatch(r"\*\*Հիմք։\*\* ([^\r\n]+)", basis_lines[0])
+    if match is None:
+        return None, None
+    value = match.group(1)
+    for basis_type in BASIS_TYPES:
+        prefix = f"{basis_type} –"
+        if value == prefix or value.startswith(f"{prefix} "):
+            return basis_type, value
+    return None, value
 
 
 def validate_usage_chain(root: Path, rule_paths: list[Path], source_path: Path) -> list[str]:
@@ -607,15 +561,17 @@ def validate_usage_chain(root: Path, rule_paths: list[Path], source_path: Path) 
                         f"{rule_path}: {rule_id} references unregistered or missing aggregate {aggregate_id}"
                     )
 
-            basis_blocks = _rule_basis_blocks(chunk)
-            for basis_block in basis_blocks:
-                if not _contains_modern_usage_basis(basis_block):
-                    continue
-                aggregate_ids = USAGE_REFERENCE_RE.findall(basis_block)
-                if not aggregate_ids:
-                    errors.append(
-                        f"{rule_path}: {rule_id} modern usage must reference a USAGE-* aggregate"
-                    )
+            basis_type, basis_value = _raw_rule_basis(chunk)
+            if basis_type is None or basis_value is None:
+                errors.append(f"{rule_path}: {rule_id} has an invalid basis type")
+                continue
+            if basis_type != MODERN_USAGE_BASIS:
+                continue
+            aggregate_ids = USAGE_REFERENCE_RE.findall(basis_value)
+            if not aggregate_ids:
+                errors.append(
+                    f"{rule_path}: {rule_id} modern usage must reference a USAGE-* aggregate"
+                )
     return errors
 
 

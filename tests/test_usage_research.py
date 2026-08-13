@@ -586,6 +586,43 @@ class UsageChainOfCustodyTest(unittest.TestCase):
     def validate(self, root, source_path, rule_path):
         return validator.validate_usage_chain(root, [rule_path], source_path)
 
+    def test_canonical_basis_taxonomy_and_trailing_prose_are_accepted(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root, _, _, source_path, rule_path = self.make_repository(directory)
+            basis_values = (
+                "պաշտոնական նորմ – SRC-EDITORIAL-POLICY։",
+                "խմբագրական որոշում – SRC-EDITORIAL-POLICY։ Սովորական բացատրություն։",
+                "ժամանակակից գործածություն – USAGE-FOREIGN-SUFFIX։",
+            )
+            for basis_value in basis_values:
+                with self.subTest(basis_value=basis_value):
+                    rule_path.write_text(
+                        "## HY-INF-999\n\n"
+                        f"**Հիմք։** {basis_value}\n",
+                        encoding="utf-8",
+                    )
+
+                    self.assertEqual([], self.validate(root, source_path, rule_path))
+
+    def test_canonical_modern_basis_requires_valid_usage_custody(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root, _, _, source_path, rule_path = self.make_repository(directory)
+            self.assertEqual([], self.validate(root, source_path, rule_path))
+
+            rule_path.write_text(
+                "## HY-INF-999\n\n"
+                "**Հիմք։** ժամանակակից գործածություն – "
+                "SRC-EDITORIAL-POLICY։\n",
+                encoding="utf-8",
+            )
+
+            errors = self.validate(root, source_path, rule_path)
+
+        self.assertTrue(
+            any("modern usage must reference" in error for error in errors),
+            errors,
+        )
+
     def test_registered_aggregate_is_recomputed_from_same_stem_observations(self):
         with tempfile.TemporaryDirectory() as directory:
             root, aggregate_path, observation_path, source_path, rule_path = self.make_repository(directory)
@@ -666,10 +703,7 @@ class UsageChainOfCustodyTest(unittest.TestCase):
                     errors = self.validate(root, source_path, rule_path)
 
                     self.assertTrue(
-                        any(
-                            "references unregistered or missing aggregate USAGE-GHOST" in error
-                            for error in errors
-                        ),
+                        any("invalid basis type" in error for error in errors),
                         errors,
                     )
 
@@ -707,7 +741,7 @@ class UsageChainOfCustodyTest(unittest.TestCase):
                     errors = self.validate(root, source_path, rule_path)
 
                     self.assertTrue(
-                        any("modern usage must reference" in error for error in errors),
+                        any("invalid basis type" in error for error in errors),
                         errors,
                     )
 
@@ -726,7 +760,7 @@ class UsageChainOfCustodyTest(unittest.TestCase):
             errors = self.validate(root, source_path, rule_path)
 
         self.assertTrue(
-            any("modern usage must reference" in error for error in errors),
+            any("invalid basis type" in error for error in errors),
             errors,
         )
 
@@ -751,27 +785,25 @@ class UsageChainOfCustodyTest(unittest.TestCase):
                     errors = self.validate(root, source_path, rule_path)
 
                     self.assertTrue(
-                        any("modern usage must reference" in error for error in errors),
+                        any("invalid basis type" in error for error in errors),
                         errors,
                     )
 
-    def test_reference_labels_and_metadata_carry_the_conservative_signature(self):
+    def test_reference_markup_is_not_a_valid_basis_taxonomy(self):
         with tempfile.TemporaryDirectory() as directory:
             root, _, _, source_path, rule_path = self.make_repository(directory)
             cases = (
                 (
                     "[ժամանակակից գործածություն][ref]",
                     "[ref]: https://example.am",
-                    True,
                 ),
                 (
                     "խմբագրական [նշում][ժամանակակից գործածություն]",
                     "[ժամանակակից գործածություն]: https://example.am",
-                    True,
                 ),
             )
-            for basis, definition, requires_usage in cases:
-                with self.subTest(requires_usage=requires_usage):
+            for basis, definition in cases:
+                with self.subTest(basis=basis):
                     rule_path.write_text(
                         "## HY-INF-999\n\n"
                         f"**Հիմք։** {basis} – SRC-EDITORIAL-POLICY։\n\n"
@@ -782,12 +814,12 @@ class UsageChainOfCustodyTest(unittest.TestCase):
 
                     errors = self.validate(root, source_path, rule_path)
 
-                    has_usage_error = any(
-                        "modern usage must reference" in error for error in errors
+                    self.assertTrue(
+                        any("invalid basis type" in error for error in errors),
+                        errors,
                     )
-                    self.assertEqual(requires_usage, has_usage_error, errors)
 
-    def test_entity_fake_opener_cannot_hide_a_modern_usage_signature(self):
+    def test_entity_fake_opener_is_not_a_valid_basis_taxonomy(self):
         with tempfile.TemporaryDirectory() as directory:
             root, _, _, source_path, rule_path = self.make_repository(directory)
             definition_forms = (
@@ -808,11 +840,11 @@ class UsageChainOfCustodyTest(unittest.TestCase):
                     errors = self.validate(root, source_path, rule_path)
 
                     self.assertTrue(
-                        any("modern usage must reference" in error for error in errors),
+                        any("invalid basis type" in error for error in errors),
                         errors,
                     )
 
-    def test_all_reviewed_markup_bypasses_retain_the_modern_usage_signature(self):
+    def test_all_reviewed_obfuscations_are_invalid_basis_types(self):
         with tempfile.TemporaryDirectory() as directory:
             root, _, _, source_path, rule_path = self.make_repository(directory)
             basis_forms = (
@@ -850,7 +882,7 @@ class UsageChainOfCustodyTest(unittest.TestCase):
                     errors = self.validate(root, source_path, rule_path)
 
                     self.assertTrue(
-                        any("modern usage must reference" in error for error in errors),
+                        any("invalid basis type" in error for error in errors),
                         errors,
                     )
 
@@ -868,7 +900,7 @@ class UsageChainOfCustodyTest(unittest.TestCase):
             errors = self.validate(root, source_path, rule_path)
 
         self.assertTrue(
-            any("modern usage must reference" in error for error in errors),
+            any("invalid basis type" in error for error in errors),
             errors,
         )
 
@@ -893,7 +925,7 @@ class UsageChainOfCustodyTest(unittest.TestCase):
                     errors = self.validate(root, source_path, rule_path)
 
                     self.assertTrue(
-                        any("modern usage must reference" in error for error in errors),
+                        any("invalid basis type" in error for error in errors),
                         errors,
                     )
 
@@ -923,15 +955,18 @@ class UsageChainOfCustodyTest(unittest.TestCase):
                     errors = self.validate(root, source_path, rule_path)
 
                     self.assertTrue(
-                        any("modern usage must reference" in error for error in errors),
+                        any("invalid basis type" in error for error in errors),
                         errors,
                     )
 
-    def test_unrelated_text_does_not_trigger_modern_usage_custody(self):
+    def test_malformed_taxonomy_affixes_and_combining_marks_are_rejected(self):
         with tempfile.TemporaryDirectory() as directory:
             root, _, _, source_path, rule_path = self.make_repository(directory)
             basis_forms = (
                 "**Հիմք։** խմբագրական որոշում՝ ժամանակակից լեզվի գործածություն։",
+                "**Հիմք։** Ժամանակակից գործածություն – SRC-EDITORIAL-POLICY։",
+                "**Հիմք։**  խմբագրական որոշում – SRC-EDITORIAL-POLICY։",
+                "**Հիմք։** ժամանակակից\nգործածություն – SRC-EDITORIAL-POLICY։",
                 "**Հիմք։** նախաժամանակակից գործածություն։",
                 "**Հիմք։** նախ**ժամանակակից** գործածություն։",
                 "**Հիմք։** նախ\u0301ժամանակակից գործածություն։",
@@ -939,6 +974,7 @@ class UsageChainOfCustodyTest(unittest.TestCase):
                 "**Հիմք։** ժամանակակից գործածությունային օրինակ։",
                 "**Հիմք։** ժամանակակից գործածություն\u200bային օրինակ։",
                 "**Հիմք։** ժամանակակից գործածություն\u0301ական օրինակ։",
+                "**Հիմք։** ժամանակակից գործածությունական – SRC-EDITORIAL-POLICY։",
             )
             for basis in basis_forms:
                 with self.subTest(basis=basis):
@@ -951,7 +987,10 @@ class UsageChainOfCustodyTest(unittest.TestCase):
 
                     errors = self.validate(root, source_path, rule_path)
 
-                    self.assertEqual([], errors)
+                    self.assertTrue(
+                        any("invalid basis type" in error for error in errors),
+                        errors,
+                    )
 
     def test_every_usage_reference_is_resolved_even_without_a_modern_basis_label(self):
         with tempfile.TemporaryDirectory() as directory:
