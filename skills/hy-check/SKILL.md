@@ -7,7 +7,7 @@ description: Use when a user asks to proofread, correct, edit, or run a full qua
 
 Review the supplied text with the complete `hy-text` corpus. Locate the sibling `hy-text/references` directory; if it cannot be found, stop instead of checking from memory.
 
-Never modify, overwrite, or save the source. Return proposed text only. Treat code, URLs, commands, filenames, foreign-language segments, and third-party quotations as protected content.
+Never modify, overwrite, or save the source. Return proposed text only. Before applying or evaluating any rule, identify each complete protected token or span and preserve it verbatim. Do not insert, remove, normalize, or relocate characters inside it. Protected content includes code, commands, URLs, email addresses, identifiers, filenames, foreign-language segments or quotations, third-party quotations, and protected official spellings explicitly reproduced verbatim.
 
 ## Procedure
 

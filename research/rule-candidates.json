@@ -2,69 +2,56 @@
   {
     "candidate_id": "CAND-INF-001",
     "reference": "info-style.md",
-    "question": "When an Armenian case ending follows a foreign-script title enclosed in Armenian guillemets, should the ending remain outside the closing guillemet and be separated with U+002D?",
-    "required_evidence": "Page-level official guidance for quoted foreign-script titles and inspection of the separator code point in its example.",
-    "source_ids": [
-      "SRC-LC-QUOTES",
-      "SRC-LC-FOREIGN-INFLECTION"
-    ],
-    "status": "source-ready",
-    "reason": "Both verified Language Committee records cover quoted foreign-script titles; the direct archived example also establishes the exact U+002D separator without extending the claim to unquoted names."
+    "question": "For modern Eastern Armenian public-information text, does presenting the decision or required action before reasons and details improve comprehension or task completion?",
+    "required_evidence": "Controlled comparative evidence with Armenian readers, or page-level authoritative plain-language guidance directly supporting this ordering and outcome; frequency of existing page structures is insufficient.",
+    "source_ids": [],
+    "status": "insufficient",
+    "reason": "The audited registry contains no verified source or causal study for Armenian information order; SRC-EDITORIAL-POLICY is only a project preference."
   },
   {
     "candidate_id": "CAND-INF-002",
     "reference": "info-style.md",
-    "question": "In sentences containing գուցե or երևի, on which word should the Armenian question mark be placed in each of the official guidance cases?",
-    "required_evidence": "The relevant case-by-case Language Committee guidance, without generalizing beyond the constructions it discusses.",
-    "source_ids": [
-      "SRC-LC-QUESTION"
-    ],
-    "status": "source-ready",
-    "reason": "The verified source explicitly covers question-mark placement with գուցե and երևի, so a narrowly bounded rule can be drafted from official authority."
+    "question": "Does replacing an abstract evaluative claim with a verifiable fact, measure, or example improve Armenian readers' understanding or trust?",
+    "required_evidence": "Controlled comparative evidence with Armenian readers, or directly applicable authoritative guidance establishing the claimed reader outcome; frequency of either form is insufficient.",
+    "source_ids": [],
+    "status": "insufficient",
+    "reason": "No verified audited source establishes this causal outcome for Armenian information text."
   },
   {
     "candidate_id": "CAND-INF-003",
     "reference": "info-style.md",
-    "question": "Where should the Armenian question mark be placed in the affirmative and negative compound-verb constructions enumerated by the Language Committee?",
-    "required_evidence": "The exact affirmative and negative compound-verb cases in the verified Language Committee guidance.",
-    "source_ids": [
-      "SRC-LC-QUESTION"
-    ],
-    "status": "source-ready",
-    "reason": "The audited scope expressly includes affirmative and negative compound verbs, while the question avoids claiming a general punctuation rule."
+    "question": "When responsibility or the next step matters, does naming the verified actor improve Armenian readers' understanding of who must act?",
+    "required_evidence": "Controlled comparative evidence or authoritative guidance covering accountability, unknown actors, privacy, and the prohibition on inventing an actor; frequency alone is insufficient.",
+    "source_ids": [],
+    "status": "insufficient",
+    "reason": "The registry contains no verified source establishing the claimed comprehension or accountability effect."
   },
   {
     "candidate_id": "CAND-INF-004",
     "reference": "info-style.md",
-    "question": "Should unfinished thought use three suspension points while an omission inside quoted text uses the four-dot or angle-bracketed convention described by the Language Committee?",
-    "required_evidence": "Official guidance distinguishing unfinished thought from omission in quoted material, including its stated spacing.",
-    "source_ids": [
-      "SRC-LC-ELLIPSIS"
-    ],
-    "status": "source-ready",
-    "reason": "The verified source narrowly supports the functional distinction and spacing for these two cases, not every ellipsis-like sequence."
+    "question": "In non-legal Armenian administrative prose, do simple finite verbs improve comprehension compared with meaning-equivalent nominalized constructions?",
+    "required_evidence": "Controlled Armenian readability evidence or a page-level academic or official source with matched constructions and a legal-terminology boundary; frequency alone is insufficient.",
+    "source_ids": [],
+    "status": "insufficient",
+    "reason": "SRC-LC-MEDIA-ANALYSIS covers only specific examples and cannot support a general causal reader-outcome rule."
   },
   {
     "candidate_id": "CAND-INF-005",
     "reference": "info-style.md",
-    "question": "In repeated conjunctions and the prohibitive imperative particle, where should the Armenian stress mark be placed?",
-    "required_evidence": "The specific repeated-conjunction and prohibitive-imperative cases in the Language Committee stress guidance.",
-    "source_ids": [
-      "SRC-LC-STRESS"
-    ],
-    "status": "source-ready",
-    "reason": "The audited official source explicitly includes both constructions, allowing a rule restricted to those stated exceptions."
+    "question": "Does keeping one main idea per paragraph improve scanning and comprehension of Armenian informational text?",
+    "required_evidence": "Controlled comparative evidence with Armenian readers or directly applicable authoritative guidance establishing the reader outcome; paragraph-frequency data alone is insufficient.",
+    "source_ids": [],
+    "status": "insufficient",
+    "reason": "No verified audited source establishes this causal claim for Armenian informational prose."
   },
   {
     "candidate_id": "CAND-INF-006",
     "reference": "info-style.md",
-    "question": "In encoded Armenian text, should U+058A be reserved for end-of-line word splitting while U+002D or U+2010 represents lexical word joining?",
-    "required_evidence": "Versioned Unicode semantics for U+058A, U+002D, and U+2010; no editorial preference between U+002D and U+2010 is required.",
-    "source_ids": [
-      "SRC-UNICODE-ARMENIAN"
-    ],
-    "status": "source-ready",
-    "reason": "Unicode's verified Armenian chapter distinguishes line-splitting from word-joining semantics, and the question deliberately leaves the unsupported U+002D-versus-U+2010 preference open."
+    "question": "Do descriptive Armenian link labels improve destination prediction or task success compared with generic labels such as «սեղմեք այստեղ»?",
+    "required_evidence": "Controlled Armenian accessibility or usability evidence, or directly applicable authoritative accessibility guidance whose language scope has been verified; label-frequency data alone is insufficient.",
+    "source_ids": [],
+    "status": "insufficient",
+    "reason": "The audited registry currently contains no verified accessibility source covering this outcome and Armenian-language scope."
   },
   {
     "candidate_id": "CAND-UX-001",

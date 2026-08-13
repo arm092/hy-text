@@ -7,22 +7,42 @@ import json
 import re
 import sys
 import unicodedata
-from datetime import date
 from pathlib import Path
-from urllib.parse import urlsplit, urlunsplit
+
+try:
+    from usage_common import (
+        ALLOWED_LAYERS,
+        REQUIRED_FIELDS as USAGE_OBSERVATION_FIELDS,
+        USAGE_ID_RE,
+        build_aggregate,
+        canonical_usage_domain,
+        load_observations,
+        normalize_evidence_text,
+        normalize_verification_example,
+        normalized_public_url,
+        parse_usage_date,
+    )
+except ModuleNotFoundError:
+    from tools.usage_common import (
+        ALLOWED_LAYERS,
+        REQUIRED_FIELDS as USAGE_OBSERVATION_FIELDS,
+        USAGE_ID_RE,
+        build_aggregate,
+        canonical_usage_domain,
+        load_observations,
+        normalize_evidence_text,
+        normalize_verification_example,
+        normalized_public_url,
+        parse_usage_date,
+    )
 
 
 RULE_RE = re.compile(r"^## (HY-[A-Z]{2,4}-\d{3})$", re.MULTILINE)
-SOURCE_RE = re.compile(r"\bSRC-[A-Z0-9-]+\b")
-USAGE_ID_RE = re.compile(r"^USAGE-[A-Z0-9-]+$")
-TEXT_SUFFIXES = {".md", ".json", ".yaml", ".yml", ".py"}
-ALLOWED_USAGE_LAYERS = {
-    "commercial",
-    "community",
-    "government",
-    "media",
-    "professional",
-}
+SOURCE_RE = re.compile(r"\bSRC-[A-Z0-9]+(?:-[A-Z0-9]+)*\b")
+USAGE_REFERENCE_RE = re.compile(r"\bUSAGE-[A-Z0-9]+(?:-[A-Z0-9]+)*\b")
+STUDY_STEM_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+TEXT_SUFFIXES = {".md", ".json", ".jsonl", ".yaml", ".yml", ".py"}
+ALLOWED_USAGE_LAYERS = ALLOWED_LAYERS
 AGGREGATE_FIELDS = {
     "collected_at",
     "domains",
@@ -34,7 +54,15 @@ AGGREGATE_FIELDS = {
     "total",
     "variants",
 }
-OBSERVATION_FIELDS = {"domain", "example", "layer", "observed_at", "url", "variant"}
+OBSERVATION_FIELDS = USAGE_OBSERVATION_FIELDS
+DERIVED_AGGREGATE_FIELDS = {
+    "collected_at",
+    "domains",
+    "examples",
+    "layers",
+    "total",
+    "variants",
+}
 REQUIRED_FIELDS = (
     "**Կանոն։**",
     "**Կիրառություն։**",
@@ -60,7 +88,14 @@ def text_files(root: Path) -> list[Path]:
 def validate_nfc(paths: list[Path]) -> list[str]:
     errors = []
     for path in paths:
-        text = path.read_text(encoding="utf-8")
+        try:
+            text = path.read_text(encoding="utf-8")
+        except UnicodeDecodeError:
+            errors.append(f"{path}: text is not valid UTF-8")
+            continue
+        except OSError as error:
+            errors.append(f"{path}: cannot read text: {error}")
+            continue
         if text != unicodedata.normalize("NFC", text):
             errors.append(f"{path}: text is not Unicode NFC")
     return errors
@@ -125,51 +160,9 @@ def validate_placeholders(paths: list[Path]) -> list[str]:
     return errors
 
 
-def canonical_usage_domain(value: object) -> str:
-    if not isinstance(value, str) or not value.strip():
-        raise ValueError("domain must be a non-empty string")
-    parsed = urlsplit(f"//{value.strip()}")
-    if (
-        parsed.username
-        or parsed.password
-        or parsed.port
-        or not parsed.hostname
-        or parsed.path
-        or parsed.query
-        or parsed.fragment
-    ):
-        raise ValueError("domain must be a hostname without a port or path")
-    return parsed.hostname.lower().rstrip(".").removeprefix("www.")
-
-
-def normalized_public_url(value: object) -> tuple[str, str]:
-    if not isinstance(value, str):
-        raise ValueError("URL must be a string")
-    parsed = urlsplit(value.strip())
-    if (
-        parsed.scheme.lower() not in {"http", "https"}
-        or not parsed.hostname
-        or parsed.username
-        or parsed.password
-    ):
-        raise ValueError("URL must be public HTTP or HTTPS")
-    hostname = canonical_usage_domain(parsed.hostname)
-    port = parsed.port
-    default_port = (parsed.scheme.lower() == "http" and port == 80) or (
-        parsed.scheme.lower() == "https" and port == 443
-    )
-    netloc = hostname if port is None or default_port else f"{hostname}:{port}"
-    normalized = urlunsplit(
-        (parsed.scheme.lower(), netloc, parsed.path or "/", parsed.query, "")
-    )
-    return normalized, hostname
-
-
 def valid_usage_date(value: object) -> bool:
-    if not isinstance(value, str) or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", value):
-        return False
     try:
-        date.fromisoformat(value)
+        parse_usage_date(value, "date")
     except ValueError:
         return False
     return True
@@ -181,6 +174,9 @@ def validate_usage_observations(paths: list[Path]) -> list[str]:
         seen_urls = set()
         try:
             lines = path.read_text(encoding="utf-8").splitlines()
+        except UnicodeDecodeError:
+            errors.append(f"{path}: usage observations are not valid UTF-8")
+            continue
         except OSError as error:
             errors.append(f"{path}: cannot read usage observations: {error}")
             continue
@@ -222,18 +218,19 @@ def validate_usage_observations(paths: list[Path]) -> list[str]:
 
             if observation.get("layer") not in ALLOWED_USAGE_LAYERS:
                 errors.append(f"{location}: observation has an invalid layer")
-            variant = observation.get("variant")
-            if not isinstance(variant, str) or not variant.strip():
-                errors.append(f"{location}: observation has an invalid variant")
+            try:
+                normalize_evidence_text(observation.get("variant"), "variant")
+            except ValueError as error:
+                errors.append(f"{location}: {error}")
             if not valid_usage_date(observation.get("observed_at")):
                 errors.append(f"{location}: observation has a malformed date")
-            example = observation.get("example")
-            if (
-                not isinstance(example, str)
-                or not example.strip()
-                or len(example) > 240
-            ):
-                errors.append(f"{location}: example must contain 1 to 240 characters")
+            try:
+                normalize_verification_example(
+                    observation.get("example"),
+                    "example",
+                )
+            except ValueError as error:
+                errors.append(f"{location}: {error}")
     return errors
 
 
@@ -242,6 +239,9 @@ def validate_usage_aggregates(paths: list[Path]) -> list[str]:
     for path in paths:
         try:
             aggregate = json.loads(path.read_text(encoding="utf-8"))
+        except UnicodeDecodeError:
+            errors.append(f"{path}: usage aggregate is not valid UTF-8")
+            continue
         except (OSError, json.JSONDecodeError) as error:
             errors.append(f"{path}: cannot read usage aggregate: {error}")
             continue
@@ -261,8 +261,13 @@ def validate_usage_aggregates(paths: list[Path]) -> list[str]:
             errors.append(f"{path}: usage aggregate has an invalid ID")
 
         query = aggregate.get("query")
-        if not isinstance(query, str) or not query.strip():
-            errors.append(f"{path}: usage aggregate query must be a non-empty string")
+        try:
+            normalized_query = normalize_evidence_text(query, "query")
+        except ValueError as error:
+            errors.append(f"{path}: usage aggregate {error}")
+        else:
+            if query != normalized_query:
+                errors.append(f"{path}: usage aggregate query must be canonical NFC text")
 
         exclusions = aggregate.get("exclusions")
         if not isinstance(exclusions, list) or not all(
@@ -294,13 +299,13 @@ def validate_usage_aggregates(paths: list[Path]) -> list[str]:
             not isinstance(layers, dict)
             or not set(layers).issubset(ALLOWED_USAGE_LAYERS)
             or not all(
-                isinstance(count, int) and not isinstance(count, bool) and count >= 0
+                isinstance(count, int) and not isinstance(count, bool) and count > 0
                 for count in layers.values()
             )
         ):
-            errors.append(f"{path}: usage aggregate layers must contain non-negative counts")
+            errors.append(f"{path}: usage aggregate layers must contain positive counts")
         else:
-            if sum(count > 0 for count in layers.values()) < 3:
+            if len(layers) < 3:
                 errors.append(f"{path}: usage aggregate requires three positive layers")
             if (
                 isinstance(total, int)
@@ -310,11 +315,26 @@ def validate_usage_aggregates(paths: list[Path]) -> list[str]:
                 errors.append(f"{path}: usage aggregate total differs from layer counts")
 
         variants = aggregate.get("variants")
-        if not isinstance(variants, dict) or not all(
-            isinstance(count, int) and not isinstance(count, bool) and count >= 0
-            for count in variants.values()
-        ):
-            errors.append(f"{path}: usage aggregate variants must contain non-negative counts")
+        variants_valid = isinstance(variants, dict) and bool(variants)
+        if variants_valid:
+            for label, count in variants.items():
+                try:
+                    normalized_label = normalize_evidence_text(label, "variant label")
+                except ValueError:
+                    variants_valid = False
+                    break
+                if (
+                    label != normalized_label
+                    or not isinstance(count, int)
+                    or isinstance(count, bool)
+                    or count <= 0
+                ):
+                    variants_valid = False
+                    break
+        if not variants_valid:
+            errors.append(
+                f"{path}: usage aggregate variants require canonical meaningful labels and positive counts"
+            )
         elif (
             isinstance(total, int)
             and not isinstance(total, bool)
@@ -326,10 +346,230 @@ def validate_usage_aggregates(paths: list[Path]) -> list[str]:
             errors.append(f"{path}: usage aggregate has a malformed collection date")
 
         examples = aggregate.get("examples")
-        if not isinstance(examples, list) or not all(
-            isinstance(example, str) and len(example) <= 240 for example in examples
+        examples_valid = isinstance(examples, list) and bool(examples)
+        if examples_valid:
+            for example in examples:
+                try:
+                    normalized_example = normalize_verification_example(
+                        example,
+                        "example",
+                    )
+                except ValueError:
+                    examples_valid = False
+                    break
+                if example != normalized_example:
+                    examples_valid = False
+                    break
+        if not examples_valid:
+            errors.append(
+                f"{path}: usage aggregate requires canonical short verification examples"
+            )
+    return errors
+
+
+def _usage_registry(source_path: Path) -> tuple[list[dict[str, str]], list[str]]:
+    errors = []
+    try:
+        lines = source_path.read_text(encoding="utf-8").splitlines()
+    except UnicodeDecodeError:
+        return [], [f"{source_path}: usage registry is not valid UTF-8"]
+    except OSError as error:
+        return [], [f"{source_path}: cannot read usage registry: {error}"]
+
+    header = "| Usage ID | Aggregate | Observations | Scope |"
+    try:
+        header_index = lines.index(header)
+    except ValueError:
+        return [], [f"{source_path}: missing usage aggregate registry table"]
+
+    rows = []
+    for line_number, line in enumerate(lines[header_index + 2 :], header_index + 3):
+        if not line.startswith("| USAGE-"):
+            break
+        cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
+        if len(cells) != 4:
+            errors.append(f"{source_path}:{line_number}: malformed usage registry row")
+            continue
+        aggregate_id, aggregate_cell, observation_cell, scope = cells
+        if not aggregate_cell.startswith("`") or not aggregate_cell.endswith("`"):
+            errors.append(f"{source_path}:{line_number}: aggregate path must be in backticks")
+            continue
+        if not observation_cell.startswith("`") or not observation_cell.endswith("`"):
+            errors.append(f"{source_path}:{line_number}: observation path must be in backticks")
+            continue
+        rows.append(
+            {
+                "id": aggregate_id,
+                "aggregate": aggregate_cell[1:-1],
+                "observations": observation_cell[1:-1],
+                "scope": scope,
+            }
+        )
+    return rows, errors
+
+
+def _expected_usage_id(stem: str) -> str | None:
+    if not STUDY_STEM_RE.fullmatch(stem):
+        return None
+    return f"USAGE-{stem.upper()}"
+
+
+def _rule_basis_blocks(chunk: str) -> list[str]:
+    """Return basis field bodies independently of Markdown line decoration."""
+
+    field_markers = "|".join(re.escape(field) for field in REQUIRED_FIELDS)
+    pattern = re.compile(
+        rf"\*\*Հիմք։\*\*(.*?)(?=(?:{field_markers})|\Z)",
+        flags=re.DOTALL,
+    )
+    return pattern.findall(chunk)
+
+
+def _searchable_basis_text(value: str) -> str:
+    """Normalize Unicode whitespace and Markdown punctuation for basis labels."""
+
+    normalized = unicodedata.normalize("NFKC", value).casefold()
+    characters = []
+    for character in normalized:
+        if unicodedata.category(character)[0] in {"L", "N"}:
+            characters.append(character)
+        else:
+            characters.append(" ")
+    return " ".join("".join(characters).split())
+
+
+def validate_usage_chain(root: Path, rule_paths: list[Path], source_path: Path) -> list[str]:
+    """Connect modern-usage rules to registered, reproducible evidence pairs."""
+
+    errors = []
+    registry_rows, registry_errors = _usage_registry(source_path)
+    errors.extend(registry_errors)
+    registry_by_id: dict[str, dict[str, str]] = {}
+    for row in registry_rows:
+        aggregate_id = row["id"]
+        if not USAGE_ID_RE.fullmatch(aggregate_id):
+            errors.append(f"{source_path}: invalid usage registry ID {aggregate_id}")
+            continue
+        if aggregate_id in registry_by_id:
+            errors.append(f"{source_path}: duplicate usage registry ID {aggregate_id}")
+            continue
+        registry_by_id[aggregate_id] = row
+
+        stem = aggregate_id.removeprefix("USAGE-").lower()
+        expected_aggregate = f"research/aggregates/{stem}.json"
+        expected_observations = f"research/observations/{stem}.jsonl"
+        if row["aggregate"] != expected_aggregate or row["observations"] != expected_observations:
+            errors.append(
+                f"{source_path}: {aggregate_id} registry paths must be "
+                f"{expected_aggregate} and {expected_observations}"
+            )
+        if not row["scope"].strip():
+            errors.append(f"{source_path}: {aggregate_id} registry scope must be non-empty")
+
+    aggregate_paths = sorted((root / "research" / "aggregates").glob("*.json"))
+    observation_directory = root / "research" / "observations"
+    aggregate_by_id: dict[str, Path] = {}
+    for aggregate_path in aggregate_paths:
+        expected_id = _expected_usage_id(aggregate_path.stem)
+        try:
+            aggregate = json.loads(aggregate_path.read_text(encoding="utf-8"))
+        except UnicodeDecodeError:
+            errors.append(f"{aggregate_path}: usage aggregate is not valid UTF-8")
+            continue
+        except (OSError, json.JSONDecodeError) as error:
+            errors.append(f"{aggregate_path}: cannot inspect usage aggregate custody: {error}")
+            continue
+        if not isinstance(aggregate, dict):
+            continue
+        aggregate_id = aggregate.get("id")
+        if not isinstance(aggregate_id, str) or not USAGE_ID_RE.fullmatch(aggregate_id):
+            continue
+        if aggregate_id in aggregate_by_id:
+            errors.append(
+                f"{aggregate_path}: duplicate aggregate ID {aggregate_id}; "
+                f"already used by {aggregate_by_id[aggregate_id]}"
+            )
+        else:
+            aggregate_by_id[aggregate_id] = aggregate_path
+
+        if expected_id is None or aggregate_id != expected_id:
+            errors.append(
+                f"{aggregate_path}: filename must map to {aggregate_id} by the lowercase kebab convention"
+            )
+
+        observation_path = observation_directory / f"{aggregate_path.stem}.jsonl"
+        if not observation_path.is_file():
+            errors.append(f"{aggregate_path}: missing paired observations {observation_path}")
+        else:
+            try:
+                rebuilt = build_aggregate(
+                    load_observations(observation_path),
+                    aggregate_id,
+                    aggregate.get("query"),
+                )
+            except (OSError, ValueError) as error:
+                errors.append(f"{aggregate_path}: cannot recompute from paired observations: {error}")
+            else:
+                mismatches = sorted(
+                    field
+                    for field in DERIVED_AGGREGATE_FIELDS
+                    if aggregate.get(field) != rebuilt[field]
+                )
+                if mismatches:
+                    errors.append(
+                        f"{aggregate_path}: committed aggregate differs from recomputed "
+                        f"fields {mismatches}"
+                    )
+
+        if aggregate_id not in registry_by_id:
+            errors.append(f"{aggregate_path}: aggregate {aggregate_id} is not registered")
+
+    for aggregate_id, row in registry_by_id.items():
+        stem = aggregate_id.removeprefix("USAGE-").lower()
+        expected_aggregate_relative = f"research/aggregates/{stem}.json"
+        expected_observation_relative = f"research/observations/{stem}.jsonl"
+        if (
+            row["aggregate"] != expected_aggregate_relative
+            or row["observations"] != expected_observation_relative
         ):
-            errors.append(f"{path}: usage aggregate examples must not exceed 240 characters")
+            continue
+        aggregate_path = root / Path(row["aggregate"])
+        observation_path = root / Path(row["observations"])
+        if not aggregate_path.is_file():
+            errors.append(
+                f"{source_path}: registered aggregate {aggregate_id} does not exist at {aggregate_path}"
+            )
+        if not observation_path.is_file():
+            errors.append(
+                f"{source_path}: registered observations for {aggregate_id} do not exist at {observation_path}"
+            )
+        if aggregate_id not in aggregate_by_id and aggregate_path.is_file():
+            errors.append(f"{aggregate_path}: registered ID {aggregate_id} does not match file content")
+
+    for rule_path in rule_paths:
+        try:
+            text = rule_path.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            continue
+        chunks = re.split(r"(?=^## HY-)", text, flags=re.MULTILINE)[1:]
+        for chunk in chunks:
+            rule_id = chunk.splitlines()[0].removeprefix("## ")
+            rule_aggregate_ids = set(USAGE_REFERENCE_RE.findall(chunk))
+            for aggregate_id in sorted(rule_aggregate_ids):
+                if aggregate_id not in registry_by_id or aggregate_id not in aggregate_by_id:
+                    errors.append(
+                        f"{rule_path}: {rule_id} references unregistered or missing aggregate {aggregate_id}"
+                    )
+
+            basis_blocks = _rule_basis_blocks(chunk)
+            for basis_block in basis_blocks:
+                if "ժամանակակից գործածություն" not in _searchable_basis_text(basis_block):
+                    continue
+                aggregate_ids = USAGE_REFERENCE_RE.findall(basis_block)
+                if not aggregate_ids:
+                    errors.append(
+                        f"{rule_path}: {rule_id} modern usage must reference a USAGE-* aggregate"
+                    )
     return errors
 
 
@@ -342,7 +582,10 @@ def validate_repository(root: Path) -> list[str]:
         if path.name not in {"scoring.md", "sources.md"}
     ]
     errors = []
-    errors.extend(validate_nfc(files))
+    nfc_errors = validate_nfc(files)
+    errors.extend(nfc_errors)
+    if any("not valid UTF-8" in error for error in nfc_errors):
+        return errors
     errors.extend(validate_rule_ids(rule_paths))
     errors.extend(validate_rule_fields(rule_paths))
     errors.extend(validate_source_ids(rule_paths, references / "sources.md"))
@@ -352,6 +595,13 @@ def validate_repository(root: Path) -> list[str]:
     observation_paths = sorted((root / "research" / "observations").glob("*.jsonl"))
     errors.extend(validate_usage_aggregates(aggregate_paths))
     errors.extend(validate_usage_observations(observation_paths))
+    errors.extend(
+        validate_usage_chain(
+            root,
+            rule_paths,
+            references / "sources.md",
+        )
+    )
     return errors
 
 

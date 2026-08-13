@@ -90,7 +90,20 @@ class RepositoryContractTest(unittest.TestCase):
         text = (ROOT / "skills" / "hy-text" / "references" / "typography.md").read_text(encoding="utf-8")
         rule = text.split("## HY-TYP-008", 1)[1]
         self.assertIn("**Ճիշտ։** `5կգ`, `20°C`", rule)
-        self.assertIn("SI", rule)
+        self.assertIn("`5 kg`, `20 °C`", rule)
+        self.assertIn("`30°`", rule)
+        self.assertIn("SRC-BIPM-SI-BROCHURE", rule)
+        self.assertIn("ընթերցողական ոճային ընտրությունն են", rule)
+
+        skill = (ROOT / "skills" / "hy-text" / "SKILL.md").read_text(encoding="utf-8")
+        safe_pass = skill.split("## Safe always-on pass", 1)[1].split("## Load references by task", 1)[0]
+        self.assertFalse(
+            any(
+                line.startswith("|") and line.rstrip().endswith("| HY-TYP-008 |")
+                for line in safe_pass.splitlines()
+            )
+        )
+        self.assertIn("contextual", safe_pass.lower())
 
     def test_grammar_008_separates_foreign_script_from_armenian_ending(self):
         text = (ROOT / "skills" / "hy-text" / "references" / "editorial-grammar.md").read_text(encoding="utf-8")
@@ -102,8 +115,18 @@ class RepositoryContractTest(unittest.TestCase):
         self.assertIn("Apricodeում", rule)
         self.assertIn("Մենք ընտրեցինք Apricode։", rule)
         self.assertIn("Apricode ընկերությունում", rule)
-        self.assertIn("կոդի, URL-ի կամ ֆայլի անվան ներսը", rule)
-        self.assertIn("օտարալեզու մեջբերման ներսում", rule)
+        for protected_class in (
+            "կոդը",
+            "հրամանները",
+            "URL-ները",
+            "էլեկտրոնային փոստի հասցեները",
+            "նույնացուցիչները",
+            "ֆայլերի անունները",
+            "օտարալեզու մեջբերումները",
+            "պաշտպանված պաշտոնական գրությունները",
+        ):
+            self.assertIn(protected_class, rule)
+        self.assertIn("ամբողջությամբ անփոփոխ պահել", rule)
         self.assertIn("**Խստություն։** medium", rule)
         self.assertIn("**Հիմք։** խմբագրական որոշում – SRC-EDITORIAL-POLICY։", rule)
         self.assertIn("Նորմատիվ զուգահեռի աղբյուրն է SRC-LC-FOREIGN-INFLECTION։", rule)
@@ -117,6 +140,46 @@ class RepositoryContractTest(unittest.TestCase):
 
         for disallowed_separator in ("\u058a", "\u2010", "\u2014"):
             self.assertNotIn(disallowed_separator, rule)
+
+    def test_all_runtime_skills_preserve_complete_protected_spans(self):
+        required_classes = (
+            "code",
+            "commands",
+            "URLs",
+            "email addresses",
+            "identifiers",
+            "filenames",
+            "foreign-language segments or quotations",
+            "third-party quotations",
+            "protected official spellings",
+        )
+        for skill_name in SKILLS:
+            text = (ROOT / "skills" / skill_name / "SKILL.md").read_text(encoding="utf-8")
+            with self.subTest(skill=skill_name):
+                self.assertIn("complete protected token or span", text)
+                self.assertIn("preserve it verbatim", text)
+                for protected_class in required_classes:
+                    self.assertIn(protected_class, text)
+        score = (ROOT / "skills" / "hy-score" / "SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("exclude the complete span from deductions", score)
+
+    def test_punctuation_005_keeps_approved_prescription_with_honest_basis(self):
+        path = ROOT / "skills" / "hy-text" / "references" / "editorial-punctuation.md"
+        after_heading = path.read_text(encoding="utf-8").split("## HY-PUN-005", 1)[1]
+        rule = re.split(r"(?=^## HY-)", after_heading, maxsplit=1, flags=re.MULTILINE)[0]
+        for approved_fragment in (
+            "Շեշտի նշանը `՛` դնել շեշտվող բառի համապատասխան ձայնավորի վրա։",
+            "Հակադրություն, կրկնադիր շաղկապներ և հատուկ իմաստային շեշտ։",
+            "`թե սա, թե նա`",
+            "`թե՛ սա, թե՛ նա`",
+            "Սովորական բառային շեշտը գրավոր խոսքում պարտադիր չի նշվում։",
+            "**Խստություն։** medium",
+        ):
+            self.assertIn(approved_fragment, rule)
+        self.assertIn("**Հիմք։** խմբագրական որոշում – SRC-EDITORIAL-POLICY։", rule)
+        self.assertIn("SRC-LC-STRESS", rule)
+        self.assertIn("կրկնադիր շաղկապի", rule)
+        self.assertIn("ոչ հակադրության կամ հատուկ իմաստային շեշտի բոլոր դեպքերը", rule)
 
 
 if __name__ == "__main__":

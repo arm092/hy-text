@@ -21,6 +21,32 @@ class GoldenContractTest(unittest.TestCase):
         for case in cases:
             self.assertIn(case["protected"], case["input"])
 
+    def test_grammar_008_golden_cases_preserve_every_protected_class(self):
+        cases = json.loads(
+            (ROOT / "tests" / "golden" / "hy-grm-008-protected.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        self.assertEqual(
+            {
+                "code",
+                "command",
+                "url",
+                "email",
+                "identifier",
+                "filename",
+                "foreign-quotation",
+                "protected-official-spelling",
+            },
+            {case["type"] for case in cases},
+        )
+        for case in cases:
+            with self.subTest(case=case["id"]):
+                self.assertEqual(case["input"], case["expected"])
+                self.assertIn("Apricodeում", case["protected"])
+                self.assertIn(case["protected"], case["input"])
+                self.assertEqual([], case["expected_findings"])
+
     def test_ci_covers_three_operating_systems(self):
         workflow = (ROOT / ".github" / "workflows" / "validate.yml").read_text(encoding="utf-8")
         for runner in ("windows-latest", "macos-latest", "ubuntu-latest"):

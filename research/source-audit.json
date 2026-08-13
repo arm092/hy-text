@@ -24,6 +24,18 @@
     "status": "verified"
   },
   {
+    "id": "SRC-BIPM-SI-BROCHURE",
+    "evidence_type": "technical standard",
+    "authority": "Bureau International des Poids et Mesures (BIPM)",
+    "title": "The International System of Units (SI), 9th edition, Version 4.01",
+    "locator": "https://www.bipm.org/documents/d/guest/si-brochure-9-en-pdf",
+    "scope": "Section 5.4.3 formatting of SI quantity values: a space separates the numerical value from the unit symbol, including °C; the stated no-space exceptions are °, ′, and ″ for plane angle; not support for compact Armenian reader-facing abbreviations, spelled-out unit names, or a general no-space house style.",
+    "accessed_at": "2026-08-13",
+    "availability": "direct",
+    "provenance": "Direct official BIPM English PDF, Version 4.01 (June 2026), cover and Section 5.4.3 inspected on 2026-08-13; the official BIPM publication page and DOI identify the current 9th edition.",
+    "status": "verified"
+  },
+  {
     "id": "SRC-LC-QUESTION",
     "evidence_type": "official norm",
     "authority": "ՀՀ լեզվի կոմիտե",

@@ -4,7 +4,12 @@
   "type": "object",
   "required": ["url", "domain", "layer", "variant", "observed_at", "example"],
   "properties": {
-    "url": {"type": "string", "format": "uri", "pattern": "^https?://"},
+    "url": {
+      "type": "string",
+      "format": "iri",
+      "pattern": "^[Hh][Tt][Tt][Pp][Ss]?://[^/@\\s]+(?:[/?#][^\\s]*)?$",
+      "description": "Public HTTP(S) IRI. Runtime normalized_public_url validation is authoritative for IDNA canonicalization and rejection of non-public hosts and addresses."
+    },
     "domain": {
       "type": "string",
       "minLength": 1,
@@ -14,9 +19,15 @@
       "type": "string",
       "enum": ["government", "media", "commercial", "professional", "community"]
     },
-    "variant": {"type": "string", "minLength": 1},
+    "variant": {"type": "string", "minLength": 1, "pattern": "\\S"},
     "observed_at": {"type": "string", "format": "date"},
-    "example": {"type": "string", "minLength": 1, "maxLength": 240}
+    "example": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 240,
+      "pattern": "\\S",
+      "description": "A short verification example; runtime validation requires at least one Unicode letter or number."
+    }
   },
   "additionalProperties": false
 }

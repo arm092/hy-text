@@ -28,6 +28,28 @@ class ValidatorTest(unittest.TestCase):
             errors = validator.validate_nfc([path])
         self.assertTrue(any("NFC" in error for error in errors))
 
+    def test_jsonl_is_included_in_nfc_validation(self):
+        validator = load_validator()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            path = root / "observations.jsonl"
+            path.write_text('{"variant":"e\u0301"}\n', encoding="utf-8")
+
+            self.assertIn(path, validator.text_files(root))
+            errors = validator.validate_nfc([path])
+
+        self.assertTrue(any("NFC" in error for error in errors), errors)
+
+    def test_invalid_utf8_is_a_validation_error_not_an_exception(self):
+        validator = load_validator()
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "bad.jsonl"
+            path.write_bytes(b"\xff\xfe\n")
+
+            errors = validator.validate_nfc([path])
+
+        self.assertTrue(any("UTF-8" in error for error in errors), errors)
+
     def test_duplicate_rule_id_is_rejected(self):
         validator = load_validator()
         with tempfile.TemporaryDirectory() as directory:

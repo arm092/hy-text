@@ -11,11 +11,15 @@ User instructions about register, voice, genre, and terminology override editori
 
 ## Protected content
 
-Preserve code, URLs, commands, filenames, foreign-language segments, and third-party quotations verbatim. You may report a consequential problem in a quotation, but never rewrite it.
+Before applying or evaluating any rule, identify each complete protected token or span and preserve it verbatim. Do not insert, remove, normalize, or relocate characters inside it. Protected content includes code, commands, URLs, email addresses, identifiers, filenames, foreign-language segments or quotations, third-party quotations, and protected official spellings explicitly reproduced verbatim.
+
+You may report a consequential problem in a quotation, but never rewrite it.
 
 When checking an existing text, return a proposed corrected version and findings. Never modify the source unless the user explicitly requests an edit. The `hy-check` and `hy-score` skills are always read-only.
 
 ## Safe always-on pass
+
+`HY-TYP-008` is contextual because regulated SI notation has a different spacing requirement. Load `references/typography.md` before applying it; it is not part of this safe pass.
 
 Apply only unambiguous fixes silently in Armenian output:
 
@@ -26,7 +30,6 @@ Apply only unambiguous fixes silently in Armenian output:
 | Exclamation mark position | `Ինչ հրաշալի!` | `Ի՜նչ հրաշալի` | HY-PUN-004 |
 | Guillemets | `"Անուշ"` | `«Անուշ»` | HY-TYP-003 |
 | Ellipsis | `...` | `…` | HY-TYP-005 |
-| Number and unit | `5կգ` | `5 կգ` | HY-TYP-008 |
 
 Do not silently apply contextual grammar, style, or vocabulary judgments.
 

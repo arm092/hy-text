@@ -1,0 +1,66 @@
+[
+  {
+    "id": "grm008-protected-code",
+    "type": "code",
+    "input": "Կոդը `const Apricodeում = true;` է։",
+    "protected": "const Apricodeում = true;",
+    "expected": "Կոդը `const Apricodeում = true;` է։",
+    "expected_findings": []
+  },
+  {
+    "id": "grm008-protected-command",
+    "type": "command",
+    "input": "Գործարկեք `Apricodeում --sync` հրամանը։",
+    "protected": "Apricodeում --sync",
+    "expected": "Գործարկեք `Apricodeում --sync` հրամանը։",
+    "expected_findings": []
+  },
+  {
+    "id": "grm008-protected-url",
+    "type": "url",
+    "input": "Բացեք https://example.am/Apricodeում էջը։",
+    "protected": "https://example.am/Apricodeում",
+    "expected": "Բացեք https://example.am/Apricodeում էջը։",
+    "expected_findings": []
+  },
+  {
+    "id": "grm008-protected-email",
+    "type": "email",
+    "input": "Գրեք Apricodeում@example.am հասցեին։",
+    "protected": "Apricodeում@example.am",
+    "expected": "Գրեք Apricodeում@example.am հասցեին։",
+    "expected_findings": []
+  },
+  {
+    "id": "grm008-protected-identifier",
+    "type": "identifier",
+    "input": "API-ի նույնացուցիչը Apricodeում_v2 է։",
+    "protected": "Apricodeում_v2",
+    "expected": "API-ի նույնացուցիչը Apricodeում_v2 է։",
+    "expected_findings": []
+  },
+  {
+    "id": "grm008-protected-filename",
+    "type": "filename",
+    "input": "Պահպանեք Apricodeում.json ֆայլը։",
+    "protected": "Apricodeում.json",
+    "expected": "Պահպանեք Apricodeում.json ֆայլը։",
+    "expected_findings": []
+  },
+  {
+    "id": "grm008-protected-foreign-quotation",
+    "type": "foreign-quotation",
+    "input": "Մեջբերումը պահեք բառացի՝ «Deploy Apricodeում now»։",
+    "protected": "«Deploy Apricodeում now»",
+    "expected": "Մեջբերումը պահեք բառացի՝ «Deploy Apricodeում now»։",
+    "expected_findings": []
+  },
+  {
+    "id": "grm008-protected-official-spelling",
+    "type": "protected-official-spelling",
+    "input": "Պաշտոնական գրությունը «Apricodeում™» է։",
+    "protected": "Apricodeում™",
+    "expected": "Պաշտոնական գրությունը «Apricodeում™» է։",
+    "expected_findings": []
+  }
+]

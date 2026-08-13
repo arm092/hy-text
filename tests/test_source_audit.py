@@ -142,3 +142,20 @@ class SourceAuditTest(unittest.TestCase):
         self.assertIn(expected_basis, rule_chunk(grammar, "HY-GRM-002"))
         self.assertIn(expected_basis, rule_chunk(typography, "HY-TYP-005"))
         self.assertIn(expected_basis, rule_chunk(typography, "HY-TYP-007"))
+
+    def test_bipm_source_supports_only_regulated_si_spacing(self):
+        by_id = {record["id"]: record for record in audit_records()}
+        source = by_id["SRC-BIPM-SI-BROCHURE"]
+        self.assertEqual("technical standard", source["evidence_type"])
+        self.assertEqual("verified", source["status"])
+        self.assertEqual("Bureau International des Poids et Mesures (BIPM)", source["authority"])
+        self.assertEqual(
+            "The International System of Units (SI), 9th edition, Version 4.01",
+            source["title"],
+        )
+        self.assertEqual(
+            "https://www.bipm.org/documents/d/guest/si-brochure-9-en-pdf",
+            source["locator"],
+        )
+        for fragment in ("Section 5.4.3", "including °C", "°", "′", "″", "not support for compact Armenian"):
+            self.assertIn(fragment, source["scope"])

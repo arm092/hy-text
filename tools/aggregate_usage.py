@@ -5,156 +5,62 @@ from __future__ import annotations
 
 import argparse
 import json
-import re
+import os
 import sys
-from collections import Counter
-from datetime import date
 from pathlib import Path
-from urllib.parse import urlsplit, urlunsplit
+import tempfile
 
-
-ALLOWED_LAYERS = {
-    "commercial",
-    "community",
-    "government",
-    "media",
-    "professional",
-}
-REQUIRED_FIELDS = {"url", "domain", "layer", "variant", "observed_at", "example"}
-USAGE_ID_RE = re.compile(r"^USAGE-[A-Z0-9-]+$")
-
-
-def load_observations(path: Path) -> list[dict]:
-    observations = []
-    for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
-        if not line.strip():
-            continue
-        try:
-            observation = json.loads(line)
-        except json.JSONDecodeError as error:
-            raise ValueError(f"{path}:{line_number}: invalid JSON: {error.msg}") from error
-        if not isinstance(observation, dict):
-            raise ValueError(f"{path}:{line_number}: observation must be an object")
-        observations.append(observation)
-    return observations
-
-
-def _normalize_domain(value: str) -> str:
-    if not isinstance(value, str) or not value.strip():
-        raise ValueError("domain must be a non-empty string")
-    parsed = urlsplit(f"//{value.strip()}")
-    if (
-        parsed.username
-        or parsed.password
-        or parsed.port
-        or not parsed.hostname
-        or parsed.path
-        or parsed.query
-        or parsed.fragment
-    ):
-        raise ValueError(f"invalid domain: {value!r}")
-    domain = parsed.hostname.lower().rstrip(".")
-    return domain.removeprefix("www.")
-
-
-def _normalize_url(value: str) -> tuple[str, str]:
-    if not isinstance(value, str):
-        raise ValueError("url must be a string")
-    parsed = urlsplit(value.strip())
-    if parsed.scheme.lower() not in {"http", "https"} or not parsed.hostname:
-        raise ValueError(f"invalid public URL: {value!r}")
-    if parsed.username or parsed.password:
-        raise ValueError(f"invalid public URL: {value!r}")
-
-    domain = _normalize_domain(parsed.hostname)
-    port = parsed.port
-    default_port = (parsed.scheme.lower() == "http" and port == 80) or (
-        parsed.scheme.lower() == "https" and port == 443
+try:
+    from usage_common import (
+        ALLOWED_LAYERS,
+        REQUIRED_FIELDS,
+        USAGE_ID_RE,
+        build_aggregate,
+        canonical_usage_domain,
+        load_observations,
+        normalized_public_url,
     )
-    netloc = domain if port is None or default_port else f"{domain}:{port}"
-    normalized = urlunsplit(
-        (parsed.scheme.lower(), netloc, parsed.path or "/", parsed.query, "")
+except ModuleNotFoundError:
+    from tools.usage_common import (
+        ALLOWED_LAYERS,
+        REQUIRED_FIELDS,
+        USAGE_ID_RE,
+        build_aggregate,
+        canonical_usage_domain,
+        load_observations,
+        normalized_public_url,
     )
-    return normalized, domain
 
 
-def _parse_date(value: object, field: str) -> date:
-    if not isinstance(value, str) or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", value):
-        raise ValueError(f"{field} must be a YYYY-MM-DD date")
+def paths_refer_to_same_file(input_path: Path, output_path: Path) -> bool:
+    if input_path.resolve() == output_path.resolve():
+        return True
+    if input_path.exists() and output_path.exists():
+        return os.path.samefile(input_path, output_path)
+    return False
+
+
+def write_aggregate_atomic(path: Path, aggregate: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary_path = None
     try:
-        return date.fromisoformat(value)
-    except ValueError as error:
-        raise ValueError(f"{field} must be a valid date") from error
-
-
-def build_aggregate(observations: list[dict], aggregate_id: str, query: str) -> dict:
-    if not USAGE_ID_RE.fullmatch(aggregate_id):
-        raise ValueError("aggregate ID must match USAGE-[A-Z0-9-]+")
-    if not isinstance(query, str) or not query.strip():
-        raise ValueError("query must be a non-empty string")
-
-    domains = set()
-    seen_urls = set()
-    variants = Counter()
-    layers = Counter()
-    examples = []
-    observed_dates = []
-
-    for index, observation in enumerate(observations, 1):
-        if not isinstance(observation, dict):
-            raise ValueError(f"observation {index} must be an object")
-        missing = REQUIRED_FIELDS - observation.keys()
-        if missing:
-            raise ValueError(f"observation {index} is missing {sorted(missing)}")
-        extra = observation.keys() - REQUIRED_FIELDS
-        if extra:
-            raise ValueError(f"observation {index} has unexpected fields: {sorted(extra)}")
-
-        normalized_url, url_hostname = _normalize_url(observation["url"])
-        independence_key = _normalize_domain(observation["domain"])
-        if url_hostname != independence_key and not url_hostname.endswith(
-            f".{independence_key}"
-        ):
-            raise ValueError(f"observation {index} domain does not match its URL")
-        if normalized_url in seen_urls:
-            raise ValueError(f"duplicate URL: {normalized_url}")
-        seen_urls.add(normalized_url)
-        domains.add(independence_key)
-
-        layer = observation["layer"]
-        if layer not in ALLOWED_LAYERS:
-            raise ValueError(f"observation {index} has an invalid layer")
-        layers[layer] += 1
-
-        variant = observation["variant"]
-        if not isinstance(variant, str) or not variant.strip():
-            raise ValueError(f"observation {index} has an invalid variant")
-        variants[variant.strip()] += 1
-
-        example = observation["example"]
-        if not isinstance(example, str) or not example.strip() or len(example) > 240:
-            raise ValueError(f"observation {index} example must contain 1 to 240 characters")
-        examples.append(example.strip())
-        observed_dates.append(_parse_date(observation["observed_at"], "observed_at"))
-
-    if len(observations) < 100:
-        raise ValueError("usage aggregate requires at least 100 observations")
-    if len(domains) < 20:
-        raise ValueError("usage aggregate requires at least 20 domains")
-    if len(layers) < 3:
-        raise ValueError("usage aggregate requires at least three layers")
-
-    return {
-        "id": aggregate_id,
-        "collected_at": max(observed_dates).isoformat(),
-        "query": query.strip(),
-        "variants": dict(sorted(variants.items())),
-        "total": len(observations),
-        "domains": sorted(domains),
-        "layers": dict(sorted(layers.items())),
-        "exclusions": [],
-        "examples": sorted(examples),
-    }
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            newline="\n",
+            dir=path.parent,
+            prefix=f".{path.name}.",
+            suffix=".tmp",
+            delete=False,
+        ) as handle:
+            temporary_path = Path(handle.name)
+            json.dump(aggregate, handle, ensure_ascii=False, indent=2, sort_keys=True)
+            handle.write("\n")
+        os.replace(temporary_path, path)
+        temporary_path = None
+    finally:
+        if temporary_path is not None:
+            temporary_path.unlink(missing_ok=True)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -166,16 +72,14 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     try:
+        if paths_refer_to_same_file(args.input, args.output):
+            raise ValueError("input and output refer to the same file")
         aggregate = build_aggregate(
             load_observations(args.input),
             args.aggregate_id,
             args.query,
         )
-        args.output.parent.mkdir(parents=True, exist_ok=True)
-        args.output.write_text(
-            json.dumps(aggregate, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
-            encoding="utf-8",
-        )
+        write_aggregate_atomic(args.output, aggregate)
     except (OSError, ValueError) as error:
         print(f"ERROR: {error}", file=sys.stderr)
         return 1
