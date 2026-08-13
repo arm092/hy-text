@@ -14,7 +14,7 @@
 
 **Խստություն։** medium
 
-**Հիմք։** պաշտոնական դիտարկում և խմբագրական որոշում – SRC-LC-MEDIA-ANALYSIS, SRC-EDITORIAL-POLICY։
+**Հիմք։** խմբագրական որոշում – SRC-LC-MEDIA-ANALYSIS, SRC-EDITORIAL-POLICY։
 
 ## HY-ANT-002
 

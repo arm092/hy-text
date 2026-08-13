@@ -7,6 +7,8 @@
     "locator": "https://www.unicode.org/versions/Unicode17.0.0/core-spec/chapter-7/#G3407",
     "scope": "Armenian punctuation code points and character semantics, including tonal-mark placement and the distinction between word-joining and word-splitting hyphens; not Armenian grammar or editorial house style.",
     "accessed_at": "2026-08-13",
+    "availability": "direct",
+    "provenance": "Direct official versioned standard.",
     "status": "verified"
   },
   {
@@ -17,6 +19,8 @@
     "locator": "https://www.unicode.org/cldr/charts/48/by_type/core_data.alphabetic_information.punctuation.html",
     "scope": "Characters listed in the Armenian (hy) locale punctuation exemplar set; not punctuation placement, spacing, frequency, or grammatical preference.",
     "accessed_at": "2026-08-13",
+    "availability": "direct",
+    "provenance": "Direct official versioned CLDR chart.",
     "status": "verified"
   },
   {
@@ -27,6 +31,8 @@
     "locator": "https://old.langcom.am/%D5%B0%D5%A1%D6%80%D6%81%D5%A1%D5%AF%D5%A1%D5%B6-%D5%B6%D5%B7%D5%A1%D5%B6%D5%AB-%D5%A3%D5%B8%D6%80%D5%AE%D5%A1%D5%AE%D5%B8%D6%82%D5%A9%D5%B5%D5%A1%D5%B6-%D5%A4%D5%AA%D5%BE%D5%A1%D6%80%D5%B8%D6%82/",
     "scope": "Question-mark placement in the fourteen cases discussed on the page, including -երորդ forms, affirmative and negative compound verbs, and գուցե/երևի; not a general source for all Armenian punctuation.",
     "accessed_at": "2026-08-13",
+    "availability": "legacy host unavailable",
+    "provenance": "Official-domain indexed content; direct legacy host returned HTTP 500 on 2026-08-13.",
     "status": "verified"
   },
   {
@@ -37,6 +43,8 @@
     "locator": "https://old.langcom.am/%D5%B0%D5%A1%D5%B5%D5%A5%D6%80%D5%A5%D5%B6%D5%AB-%D5%B7%D5%A5%D5%B7%D5%BF%D5%AB-%D5%B4%D5%A1%D5%BD%D5%AB%D5%B6/",
     "scope": "Ordinary Armenian word stress, stated exceptions, stress marks on repeated conjunctions, and the prohibitive imperative particle; not every semantic use of emphasis punctuation.",
     "accessed_at": "2026-08-13",
+    "availability": "legacy host unavailable",
+    "provenance": "Official-domain indexed content; direct legacy host returned HTTP 500 on 2026-08-13.",
     "status": "verified"
   },
   {
@@ -47,6 +55,8 @@
     "locator": "https://old.langcom.am/%D5%B9%D5%A1%D5%AF%D5%A5%D6%80%D5%BF%D5%B6%D5%A5%D6%80%D5%AB-%D5%A3%D5%B8%D6%80%D5%AE%D5%A1%D5%AE%D5%B8%D6%82%D5%A9%D5%B5%D5%A1%D5%B6-%D5%B4%D5%A1%D5%BD%D5%AB%D5%B6/",
     "scope": "Armenian guillemets, quoted names, and placement of Armenian articles or case endings relative to quoted Armenian and foreign-script titles; not unquoted foreign-script inflection generally.",
     "accessed_at": "2026-08-13",
+    "availability": "legacy host unavailable",
+    "provenance": "Official-domain indexed content; direct legacy host returned HTTP 500 on 2026-08-13.",
     "status": "verified"
   },
   {
@@ -55,8 +65,10 @@
     "authority": "ՀՀ լեզվի կոմիտե",
     "title": "Հորդորակ կախման կետերի եվ բազմակետի գործածության մասին",
     "locator": "https://old.langcom.am/%D5%B0%D5%B8%D6%80%D5%A4%D5%B8%D6%80%D5%A1%D5%AF-%D5%AF%D5%A1%D5%AD%D5%B4%D5%A1%D5%B6-%D5%AF%D5%A5%D5%BF%D5%A5%D6%80%D5%AB-%D5%A5%D5%BE-%D5%A2%D5%A1%D5%A6%D5%B4%D5%A1%D5%AF%D5%A5%D5%BF%D5%AB-%D5%A3/",
-    "scope": "Functional distinction between three-dot suspension points for unfinished thought and the four-dot or <…> omission convention in quoted text, including the spacing stated on the page.",
+    "scope": "Functional distinction between three-dot suspension points for unfinished thought and the four-dot or <…> omission convention in quoted text, including the spacing stated on the page; not a general rule for every ellipsis-like sequence.",
     "accessed_at": "2026-08-13",
+    "availability": "legacy host unavailable",
+    "provenance": "Official-domain indexed content; direct legacy host returned HTTP 500 on 2026-08-13.",
     "status": "verified"
   },
   {
@@ -67,6 +79,8 @@
     "locator": "https://old.langcom.am/%D5%B4%D5%A5%D5%AE%D5%A1%D5%BF%D5%A1%D5%9E%D5%BC-%D5%A9%D5%A5%D5%9E-%D6%83%D5%B8%D6%84%D6%80%D5%A1%D5%BF%D5%A1%D5%BC/",
     "scope": "Capitalization contrasts and the compound-name cases presented on the page, including Ամենայն հայոց կաթողիկոս variants; not a complete capitalization code for every class of proper name.",
     "accessed_at": "2026-08-13",
+    "availability": "legacy host unavailable",
+    "provenance": "Official-domain indexed content; direct legacy host returned HTTP 500 on 2026-08-13.",
     "status": "verified"
   },
   {
@@ -77,6 +91,8 @@
     "locator": "https://old.langcom.am/%D5%BF%D5%A1%D5%BC%D5%A1%D5%B5%D5%AB%D5%B6-%D5%B0%D5%A1%D5%BA%D5%A1%D5%BE%D5%B8%D6%82%D5%B4%D5%B6%D5%A5%D6%80%D5%AB-%D5%B0%D5%A1%D5%B5%D5%A5%D6%80%D5%A5%D5%B6-%D5%A1%D5%BC%D6%81%D5%A1%D5%B6%D6%81/",
     "scope": "Attested Armenian letter abbreviations and usage labels in the online dictionary based on Դավիթ Գյուրջինյան and Նարինե Հեքեքյան (2007); not a general rule for creating new abbreviations.",
     "accessed_at": "2026-08-13",
+    "availability": "legacy host unavailable",
+    "provenance": "Official-domain indexed content; direct legacy host returned HTTP 500 on 2026-08-13.",
     "status": "verified"
   },
   {
@@ -87,6 +103,8 @@
     "locator": "https://old.langcom.am/%D5%B0%D5%B8%D6%80%D5%A4%D5%B8%D6%80%D5%A1%D5%AF/",
     "scope": "Index of Language Committee guidance and its linked recommendations on particular usage questions; a concrete replacement must be checked against the relevant individual guidance item.",
     "accessed_at": "2026-08-13",
+    "availability": "legacy host unavailable",
+    "provenance": "Official-domain indexed content; direct legacy host returned HTTP 500 on 2026-08-13.",
     "status": "verified"
   },
   {
@@ -97,6 +115,8 @@
     "locator": "https://old.langcom.am/%D5%A1%D5%B4%D6%83%D5%B8%D6%83%D5%A1%D5%A3%D5%AB%D6%80-168-%D5%A7%D5%B5%D5%A7%D5%B4-%D5%AF%D5%A1%D5%B5%D6%84%D5%AB-%D5%B0%D5%A1%D5%BD%D5%A1%D6%80%D5%A1%D5%AF%D5%B8%D6%82%D5%A9%D5%B5/",
     "scope": "Committee observations about the specific media examples reviewed, including unnecessary bureaucratic verbs and selected agreement errors; descriptive examples, not a complete general grammar or style norm.",
     "accessed_at": "2026-08-13",
+    "availability": "legacy host unavailable",
+    "provenance": "Official-domain indexed content; direct legacy host returned HTTP 500 on 2026-08-13.",
     "status": "limited"
   },
   {
@@ -107,6 +127,8 @@
     "locator": "https://language.sci.am/hy/bibliography/menagrowtyownner.html",
     "scope": "Bibliographic identity of an academic grammar of modern Armenian; no corpus prescription may rely on it until the relevant edition and page-level proposition are inspected.",
     "accessed_at": "2026-08-13",
+    "availability": "bibliographic only",
+    "provenance": "Direct official institute bibliography; edition pages were not inspected.",
     "status": "limited"
   },
   {
@@ -117,6 +139,8 @@
     "locator": "https://language.sci.am/hy/bibliography/menagrowtyownner.html",
     "scope": "Rejected former placeholder: it did not identify a publication, edition, page, or proposition and cannot support an active rule.",
     "accessed_at": "2026-08-13",
+    "availability": "bibliographic only",
+    "provenance": "Former project placeholder assessed against the direct official institute bibliography; no specific source was identified.",
     "status": "rejected"
   }
 ]

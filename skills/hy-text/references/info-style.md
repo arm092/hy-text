@@ -112,4 +112,4 @@
 
 **Խստություն։** low
 
-**Հիմք։** պաշտոնական նորմ և խմբագրական ընտրություն – SRC-LC-GUIDANCE, SRC-EDITORIAL-POLICY։
+**Հիմք։** խմբագրական որոշում – SRC-LC-GUIDANCE, SRC-EDITORIAL-POLICY։

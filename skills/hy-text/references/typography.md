@@ -80,7 +80,7 @@
 
 **Խստություն։** medium
 
-**Հիմք։** պաշտոնական նորմ – SRC-LC-ELLIPSIS։
+**Հիմք։** խմբագրական որոշում – SRC-EDITORIAL-POLICY։
 
 ## HY-TYP-006
 
@@ -112,7 +112,7 @@
 
 **Խստություն։** low
 
-**Հիմք։** խմբագրական որոշում – SRC-CLDR-HY, SRC-EDITORIAL-POLICY։
+**Հիմք։** խմբագրական որոշում – SRC-EDITORIAL-POLICY։
 
 ## HY-TYP-008
 
