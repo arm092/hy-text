@@ -711,15 +711,77 @@ class UsageChainOfCustodyTest(unittest.TestCase):
                         errors,
                     )
 
+    def test_escaped_reference_label_cannot_hide_a_modern_usage_basis(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root, _, _, source_path, rule_path = self.make_repository(directory)
+            rule_path.write_text(
+                "## HY-INF-999\n\n"
+                "**Հիմք։** ժամանակակից գոր[ծա][ref\\]x]ծություն "
+                "– SRC-EDITORIAL-POLICY։\n\n"
+                "[ref\\]x]: https://example.am\n\n"
+                "**Կիրառություն։** օրինակ։\n",
+                encoding="utf-8",
+            )
+
+            errors = self.validate(root, source_path, rule_path)
+
+        self.assertTrue(
+            any("modern usage must reference" in error for error in errors),
+            errors,
+        )
+
+    def test_hidden_html_comment_cannot_swallow_a_visible_modern_usage_basis(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root, _, _, source_path, rule_path = self.make_repository(directory)
+            rule_path.write_text(
+                "## HY-INF-999\n\n"
+                "**Հիմք։** <!-- ](\" -->ժամանակակից գործածություն<!-- \" ) --> "
+                "– SRC-EDITORIAL-POLICY։\n\n"
+                "**Կիրառություն։** օրինակ։\n",
+                encoding="utf-8",
+            )
+
+            errors = self.validate(root, source_path, rule_path)
+
+        self.assertTrue(
+            any("modern usage must reference" in error for error in errors),
+            errors,
+        )
+
+    def test_whitespace_controls_preserve_modern_usage_word_boundaries(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root, _, _, source_path, rule_path = self.make_repository(directory)
+            basis_forms = (
+                "նշում\nժամանակակից գործածություն – SRC-EDITORIAL-POLICY։",
+                "նշում\tժամանակակից գործածություն – SRC-EDITORIAL-POLICY։",
+                "ժամանակակից գործածություն\nհավելում – SRC-EDITORIAL-POLICY։",
+                "ժամանակակից գործածություն\tհավելում – SRC-EDITORIAL-POLICY։",
+            )
+            for basis in basis_forms:
+                with self.subTest(basis=ascii(basis)):
+                    rule_path.write_text(
+                        "## HY-INF-999\n\n"
+                        f"**Հիմք։** {basis}\n\n"
+                        "**Կիրառություն։** օրինակ։\n",
+                        encoding="utf-8",
+                    )
+
+                    errors = self.validate(root, source_path, rule_path)
+
+                    self.assertTrue(
+                        any("modern usage must reference" in error for error in errors),
+                        errors,
+                    )
+
     def test_format_controls_cannot_hide_a_modern_usage_basis(self):
         with tempfile.TemporaryDirectory() as directory:
             root, _, _, source_path, rule_path = self.make_repository(directory)
             basis_forms = [
                 f"ժամանակակից գոր{character}ծածություն"
-                for character in ("\u200b", "\u2060", "\x00", "\u0085", "\x1c", "\ufe0f")
+                for character in ("\u200b", "\u2060", "\x00", "\ufe0f")
             ] + [
                 f"ժամա{character}նակակից գործածություն"
-                for character in ("\u200b", "\u2060", "\x00", "\u0085", "\x1c", "\ufe0f")
+                for character in ("\u200b", "\u2060", "\x00", "\ufe0f")
             ] + [
                 f"ժամանակակից{character}գործածություն"
                 for character in ("\u200b", "\u2060", "\x00")
@@ -749,7 +811,9 @@ class UsageChainOfCustodyTest(unittest.TestCase):
                 "**Հիմք։** նախաժամանակակից գործածություն։",
                 "**Հիմք։** նախ**ժամանակակից** գործածություն։",
                 "**Հիմք։** նախ\u0301ժամանակակից գործածություն։",
+                "**Հիմք։** նախ\u200bժամանակակից գործածություն։",
                 "**Հիմք։** ժամանակակից գործածությունային օրինակ։",
+                "**Հիմք։** ժամանակակից գործածություն\u200bային օրինակ։",
             )
             for basis in basis_forms:
                 with self.subTest(basis=basis):

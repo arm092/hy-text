@@ -45,7 +45,6 @@ STUDY_STEM_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 MODERN_USAGE_BASIS = "ժամանակակից գործածություն"
 MODERN_USAGE_WORDS = tuple(MODERN_USAGE_BASIS.split())
 MARKDOWN_INLINE_DELIMITERS = frozenset("*_~`[]")
-MARKDOWN_REFERENCE_LINK_RE = re.compile(r"\[([^\]\r\n]*)\]\[[^\]\r\n]*\]")
 TEXT_SUFFIXES = {".md", ".json", ".jsonl", ".yaml", ".yml", ".py"}
 ALLOWED_USAGE_LAYERS = ALLOWED_LAYERS
 AGGREGATE_FIELDS = {
@@ -430,50 +429,76 @@ def _rule_basis_blocks(chunk: str) -> list[str]:
     return pattern.findall(chunk)
 
 
-def _remove_inline_link_destinations(value: str) -> str:
-    """Remove balanced inline-link destinations while keeping their labels."""
+def _reference_destination_end(value: str, start: int) -> int | None:
+    """Return a reference-label closing bracket while honoring escapes."""
+
+    cursor = start
+    while cursor < len(value):
+        if value[cursor] == "\\" and cursor + 1 < len(value):
+            cursor += 2
+            continue
+        if value[cursor] == "]":
+            return cursor
+        if value[cursor] in "\r\n":
+            return None
+        cursor += 1
+    return None
+
+
+def _inline_destination_end(value: str, start: int) -> int | None:
+    """Return the closing parenthesis of a balanced inline destination."""
+
+    depth = 0
+    quote = None
+    angle_destination = False
+    cursor = start
+    while cursor < len(value):
+        character = value[cursor]
+        if character == "\\" and cursor + 1 < len(value):
+            cursor += 2
+            continue
+        if quote is not None:
+            if character == quote:
+                quote = None
+            cursor += 1
+            continue
+        if angle_destination:
+            if character == ">":
+                angle_destination = False
+            cursor += 1
+            continue
+        if character == "<" and depth == 1:
+            angle_destination = True
+        elif character in {'"', "'"} and depth == 1:
+            quote = character
+        elif character == "(":
+            depth += 1
+        elif character == ")":
+            depth -= 1
+            if depth == 0:
+                return cursor
+        cursor += 1
+    return None
+
+
+def _remove_link_destinations(value: str) -> str:
+    """Remove inline and reference destinations while keeping visible labels."""
 
     output = []
     marker = "\x00"
     index = 0
     while index < len(value):
-        if value[index] != "]" or index + 1 >= len(value) or value[index + 1] != "(":
+        if value[index] != "]" or index + 1 >= len(value):
             output.append(value[index])
             index += 1
             continue
 
-        depth = 0
-        quote = None
-        angle_destination = False
-        destination_end = None
-        cursor = index + 1
-        while cursor < len(value):
-            character = value[cursor]
-            if character == "\\" and cursor + 1 < len(value):
-                cursor += 2
-                continue
-            if quote is not None:
-                if character == quote:
-                    quote = None
-                cursor += 1
-                continue
-            if angle_destination:
-                if character == ">":
-                    angle_destination = False
-                cursor += 1
-                continue
-            if character == "<" and depth == 1:
-                angle_destination = True
-            elif character in {'"', "'"} and depth == 1:
-                quote = character
-            elif character == "(":
-                depth += 1
-            elif character == ")":
-                depth -= 1
-                if depth == 0:
-                    destination_end = cursor
-                    break
-            cursor += 1
+        if value[index + 1] == "(":
+            destination_end = _inline_destination_end(value, index + 1)
+        elif value[index + 1] == "[":
+            destination_end = _reference_destination_end(value, index + 2)
+        else:
+            destination_end = None
 
         output.append("]")
         if destination_end is None:
@@ -503,13 +528,7 @@ def _visible_html_text(value: str) -> str:
 def _visible_basis_markdown(value: str) -> str:
     """Keep rendered inline text while removing hidden Markdown destinations."""
 
-    marker = "\x00"
-    visible = _remove_inline_link_destinations(value)
-    visible = MARKDOWN_REFERENCE_LINK_RE.sub(
-        lambda match: f"{marker}{match.group(1)}{marker}",
-        visible,
-    )
-    return _visible_html_text(visible)
+    return _remove_link_destinations(_visible_html_text(value))
 
 
 def _searchable_basis_words(value: str) -> list[tuple[str, frozenset[int]]]:
@@ -530,6 +549,8 @@ def _searchable_basis_words(value: str) -> list[tuple[str, frozenset[int]]]:
         category = unicodedata.category(character)
         if category[0] in {"L", "N"}:
             characters.append(character)
+        elif character.isspace():
+            finish_word()
         elif category[0] in {"C", "M"} or character in MARKDOWN_INLINE_DELIMITERS:
             if characters:
                 soft_boundaries.add(len(characters))
