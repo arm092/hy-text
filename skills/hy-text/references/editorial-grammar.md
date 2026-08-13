@@ -62,7 +62,7 @@
 
 **Խստություն։** high
 
-**Հիմք։** պաշտոնական նորմ – SRC-NORMATIVE-GRAMMAR։
+**Հիմք։** խմբագրական որոշում – SRC-EDITORIAL-POLICY։
 
 ## HY-GRM-005
 
