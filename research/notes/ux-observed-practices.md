@@ -81,14 +81,14 @@ All four observation sets passed the mechanical sample gates. The registered agg
 | `CAND-UX-003` | 100 | 32 | 4 | 80 formal; 12 impersonal; 8 informal | Formal address dominates this slice, but 72 uses come from the community layer. Audience and product voice remain required context. |
 | `CAND-UX-004` | 100 | 20 | 5 | 41 finite; 44 verbal-noun; 15 ellipsis-label; 9 determinate | No form reaches 70 percent, and 85 uses come from the community layer. Retain contextual variants; the sample does not justify one universal loading formula. |
 
-### Proposals for Arman's review
+### Approved publication decisions
 
-1. Promote `CAND-UX-002` to a new rule after approval: omit a colon after a short visible field label in both stacked and inline form layouts. Preserve punctuation required by a full question or sentence and do not alter protected fragments.
-2. Keep the draft for `CAND-UX-001` narrow: use an infinitive for a destructive control when the button names the action directly. Do not claim that this is safer or clearer, and do not generalize from content deletion to every destructive context without additional balanced sampling.
-3. Keep the draft for `CAND-UX-003` audience-sensitive: use formal address as the default in a general public interface unless the product has an intentionally informal voice; an impersonal construction remains valid when no direct address is needed. The layer concentration must be disclosed in the rule basis.
-4. Do not create a universal preference rule from `CAND-UX-004`. A contextual note may allow a finite form for an active state and a verbal noun for a compact status label; determinate progress should retain its numeric or bounded indicator. Ellipsis is presentation, not proof of a separate grammatical preference.
+Arman approved all four decisions on 2026-08-14. They are published in the normative UX reference without expanding the claims supported by the aggregates:
 
-No proposal is included in the normative corpus before Arman's explicit approval.
+1. `CAND-UX-001` became `HY-UX-007`: use an infinitive when a destructive control directly names the action. The rule discloses the sample concentration and makes no safety or clarity claim.
+2. `CAND-UX-002` became `HY-UX-008`: omit a colon after a short visible field label in stacked and inline layouts. Full questions and sentences retain required punctuation, and protected fragments remain unchanged.
+3. `CAND-UX-003` became `HY-UX-009`: formal address is the default for direct address in a general public interface. A deliberately informal product voice and an impersonal construction remain contextual alternatives.
+4. `CAND-UX-004` became `HY-UX-010`: choose a finite form for an active state and a verbal noun for a compact status label, retaining a numeric or bounded indicator for determinate progress. The rule explicitly rejects one universal loading formula and treats ellipsis only as presentation.
 
 ## Exclusion log
 

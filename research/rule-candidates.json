@@ -59,8 +59,8 @@
     "question": "Do current Armenian interfaces label destructive primary actions with an imperative verb, an infinitive, or a noun phrase?",
     "required_evidence": "A validated aggregate of at least 100 manually verified destructive-action labels from 20 independent domains and three source layers, segmented by action type.",
     "source_ids": ["USAGE-UX-001"],
-    "status": "source-ready",
-    "reason": "USAGE-UX-001 satisfies the sample gates and shows 99 infinitive labels, but 81 observations come from the community layer and 79 concern content deletion; any draft must disclose that concentration and avoid claiming a cross-context usability benefit."
+    "status": "published",
+    "reason": "Published as HY-UX-007 after Arman's approval. USAGE-UX-001 satisfies the sample gates and shows 99 infinitive labels, but 81 observations come from the community layer and 79 concern content deletion; the rule discloses that concentration and makes no cross-context usability claim."
   },
   {
     "candidate_id": "CAND-UX-002",
@@ -68,8 +68,8 @@
     "question": "Do current Armenian forms place a colon after visible field labels, and does the pattern differ between stacked and inline layouts?",
     "required_evidence": "A validated aggregate of at least 100 manually verified Armenian field labels across 20 independent domains and three source layers, with layout recorded as a comparison variable.",
     "source_ids": ["USAGE-UX-002"],
-    "status": "source-ready",
-    "reason": "USAGE-UX-002 satisfies the sample gates across 90 domains and five layers; 94 labels omit a colon, including 62 stacked and 32 inline labels. The result supports only a current-practice editorial recommendation, not a causal usability claim."
+    "status": "published",
+    "reason": "Published as HY-UX-008 after Arman's approval. USAGE-UX-002 satisfies the sample gates across 90 domains and five layers; 94 labels omit a colon, including 62 stacked and 32 inline labels. The rule remains a current-practice editorial recommendation, not a causal usability claim."
   },
   {
     "candidate_id": "CAND-UX-003",
@@ -77,8 +77,8 @@
     "question": "Which Armenian register do current general-audience interfaces use for direct address: դու, Դուք, or an impersonal construction?",
     "required_evidence": "A validated aggregate of at least 100 manually verified interface strings across 20 independent domains and three source layers, stratified by audience and product type.",
     "source_ids": ["USAGE-UX-003"],
-    "status": "source-ready",
-    "reason": "USAGE-UX-003 satisfies the sample gates and records 80 formal, 12 impersonal, and 8 informal strings, but 72 observations come from the community layer; a draft may describe the formal tendency only with that limitation and must preserve audience context."
+    "status": "published",
+    "reason": "Published as HY-UX-009 after Arman's approval. USAGE-UX-003 satisfies the sample gates and records 80 formal, 12 impersonal, and 8 informal strings, but 72 observations come from the community layer; the rule preserves the layer limitation and audience context."
   },
   {
     "candidate_id": "CAND-UX-004",
@@ -86,8 +86,8 @@
     "question": "Do current Armenian progress and loading messages prefer a finite verb, a verbal noun, or an ellipsis-marked label?",
     "required_evidence": "A validated aggregate of at least 100 manually verified progress messages from 20 independent domains and three source layers, separated by determinate and indeterminate state.",
     "source_ids": ["USAGE-UX-004"],
-    "status": "source-ready",
-    "reason": "USAGE-UX-004 satisfies the sample gates but finds no 70-percent wording preference: finite and verbal-noun forms each account for 41 and 44 strings, while 85 observations come from the community layer. A draft must therefore preserve contextual variants rather than prescribe one universal form."
+    "status": "published",
+    "reason": "Published as HY-UX-010 after Arman's approval. USAGE-UX-004 satisfies the sample gates but finds no 70-percent wording preference: finite and verbal-noun forms account for 41 and 44 strings, while 85 observations come from the community layer. The rule therefore preserves contextual variants rather than prescribing one universal form."
   },
   {
     "candidate_id": "CAND-UX-005",

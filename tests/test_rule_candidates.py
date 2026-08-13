@@ -40,7 +40,7 @@ class RuleCandidatesTest(unittest.TestCase):
             self.assertTrue(row["required_evidence"])
             self.assertIn(
                 row["status"],
-                {"source-ready", "usage-study-required", "insufficient"},
+                {"published", "source-ready", "usage-study-required", "insufficient"},
             )
             self.assertTrue(row["reason"])
 
@@ -94,10 +94,10 @@ class RuleCandidatesTest(unittest.TestCase):
             ("CAND-INF-004", "info-style.md", "insufficient", []),
             ("CAND-INF-005", "info-style.md", "insufficient", []),
             ("CAND-INF-006", "info-style.md", "insufficient", []),
-            ("CAND-UX-001", "ux-writing.md", "source-ready", ["USAGE-UX-001"]),
-            ("CAND-UX-002", "ux-writing.md", "source-ready", ["USAGE-UX-002"]),
-            ("CAND-UX-003", "ux-writing.md", "source-ready", ["USAGE-UX-003"]),
-            ("CAND-UX-004", "ux-writing.md", "source-ready", ["USAGE-UX-004"]),
+            ("CAND-UX-001", "ux-writing.md", "published", ["USAGE-UX-001"]),
+            ("CAND-UX-002", "ux-writing.md", "published", ["USAGE-UX-002"]),
+            ("CAND-UX-003", "ux-writing.md", "published", ["USAGE-UX-003"]),
+            ("CAND-UX-004", "ux-writing.md", "published", ["USAGE-UX-004"]),
             ("CAND-UX-005", "ux-writing.md", "insufficient", []),
             ("CAND-UX-006", "ux-writing.md", "insufficient", []),
             ("CAND-BIZ-001", "business-writing.md", "insufficient", []),
@@ -160,6 +160,15 @@ class RuleCandidatesTest(unittest.TestCase):
         readme = (ROOT / "research" / "README.md").read_text(encoding="utf-8")
         self.assertIn("stable global rank", readme)
         self.assertIn("cannot be promoted by a frequency aggregate", readme)
+
+    def test_published_ux_candidates_name_their_normative_rule(self):
+        by_id = {row["candidate_id"]: row for row in self.rows}
+        for index in range(1, 5):
+            candidate_id = f"CAND-UX-{index:03d}"
+            rule_id = f"HY-UX-{index + 6:03d}"
+            with self.subTest(candidate=candidate_id):
+                self.assertEqual("published", by_id[candidate_id]["status"])
+                self.assertIn(rule_id, by_id[candidate_id]["reason"])
 
 
 if __name__ == "__main__":

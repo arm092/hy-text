@@ -181,6 +181,53 @@ class RepositoryContractTest(unittest.TestCase):
         self.assertIn("կրկնադիր շաղկապի", rule)
         self.assertIn("ոչ հակադրության կամ հատուկ իմաստային շեշտի բոլոր դեպքերը", rule)
 
+    def test_approved_observed_ux_practices_are_narrow_normative_rules(self):
+        path = ROOT / "skills" / "hy-text" / "references" / "ux-writing.md"
+        text = path.read_text(encoding="utf-8")
+
+        expected = {
+            "HY-UX-007": (
+                "Անդառնալի գործողությունն ուղղակիորեն անվանող հսկիչի պիտակը գրել անորոշ դերբայով։",
+                "`Ջնջեք հաշիվը`",
+                "`Ջնջել հաշիվը`",
+                "չի հիմնավորում անվտանգության կամ հասկանալիության առավելություն",
+                "**Հիմք։** ժամանակակից գործածություն – USAGE-UX-001։",
+            ),
+            "HY-UX-008": (
+                "Կարճ տեսանելի դաշտանվան վերջում երկու կետ չդնել։",
+                "`Անուն:`",
+                "`Անուն`",
+                "Ամբողջական հարցը կամ նախադասությունը պահպանում է իրեն անհրաժեշտ կետադրությունը",
+                "**Հիմք։** ժամանակակից գործածություն – USAGE-UX-002։",
+            ),
+            "HY-UX-009": (
+                "Ընդհանուր հանրային միջերեսում օգտատիրոջն անմիջականորեն դիմելիս լռելյայն ընտրել պաշտոնական դիմելաձևը։",
+                "`Մուտքագրիր էլ․ փոստի հասցեն։`",
+                "`Մուտքագրեք էլ․ փոստի հասցեն։`",
+                "Գիտակցված մտերմական ձայն",
+                "**Հիմք։** ժամանակակից գործածություն – USAGE-UX-003։",
+            ),
+            "HY-UX-010": (
+                "Բեռնման հաղորդագրության քերականական ձևն ընտրել ըստ հաղորդագրության դերի",
+                "`Բեռնում`՝ որպես միակ ձև բոլոր վիճակներում։",
+                "`Ֆայլը բեռնվում է։`",
+                "Չկա բոլոր բեռնման վիճակների համար պարտադիր մեկ ձև",
+                "**Հիմք։** ժամանակակից գործածություն – USAGE-UX-004։",
+            ),
+        }
+
+        for rule_id, fragments in expected.items():
+            with self.subTest(rule=rule_id):
+                after_heading = text.split(f"## {rule_id}", 1)[1]
+                rule = re.split(r"(?=^## HY-)", after_heading, maxsplit=1, flags=re.MULTILINE)[0]
+                for fragment in fragments:
+                    self.assertIn(fragment, rule)
+
+        loading = text.split("## HY-UX-010", 1)[1]
+        self.assertIn("`Ֆայլի բեռնում`", loading)
+        self.assertIn("`Բեռնված է 3-ը 10-ից։`", loading)
+        self.assertIn("Կախման կետերը ներկայացման միջոց են", loading)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -8,7 +8,7 @@ No current normative rule claims a **modern usage** basis. That label remains un
 
 ## Rule candidate promotion
 
-`rule-candidates.json` is a ranked research queue, not a set of published prescriptions. Only a `source-ready` candidate can proceed to rule drafting, and its rule must remain within the narrow scope of every cited verified source. A `usage-study-required` candidate becomes ready only after its observations produce an aggregate that passes repository validation. An `insufficient` candidate remains unpublished as a rule until the specifically required evidence is obtained and validated.
+`rule-candidates.json` is a ranked research queue, not a substitute for the normative corpus. Only a `source-ready` candidate can proceed to rule drafting, and its rule must remain within the narrow scope of every cited verified source. After explicit approval and normative inclusion, its status becomes `published`, and the reason names the resulting stable rule ID. A `usage-study-required` candidate becomes ready only after its observations produce an aggregate that passes repository validation. An `insufficient` candidate remains unpublished as a rule until the specifically required evidence is obtained and validated.
 
 Array order is the stable global rank. A causal question about comprehension, trust, accountability, task success, or error rates cannot be promoted by a frequency aggregate, regardless of sample size. It remains `insufficient` until the comparative or authoritative evidence named in `required_evidence` is verified.
 
