@@ -1,3 +1,8 @@
 {"url":"https://translate.google.am/","domain":"google.am","layer":"commercial","variant":"finite/indeterminate","observed_at":"2026-08-14","example":"Թարգմանությունը բեռնվում է..."}
 {"url":"https://internetbank.armbusinessbank.am/InternetBank/Resources/Files/Login/hy-AM/InternetBank_UserGuide.pdf","domain":"armbusinessbank.am","layer":"commercial","variant":"finite/indeterminate","observed_at":"2026-08-14","example":"Մշակվում է"}
 {"url":"https://online.byblosbankarmenia.am/InternetBank/Resources/Files/Login/hy-AM/InternetBank_UserGuide.pdf","domain":"byblosbankarmenia.am","layer":"commercial","variant":"finite/indeterminate","observed_at":"2026-08-14","example":"Մշակվում է"}
+{"url":"https://e-request.am/hy/e-letter/check","domain":"e-request.am","layer":"government","variant":"finite/indeterminate","observed_at":"2026-08-14","example":"Խնդրում ենք սպասել, տվյալները բեռնվում են"}
+{"url":"https://autojan.am/hy/autojan/inspection/","domain":"autojan.am","layer":"commercial","variant":"finite/indeterminate","observed_at":"2026-08-14","example":"Բեռնվում է"}
+{"url":"https://www.tatever.am/am/explore-the-site","domain":"tatever.am","layer":"community","variant":"finite/indeterminate","observed_at":"2026-08-14","example":"Ձեր հարցումն ընթացքի մեջ է, խնդրում ենք սպասել"}
+{"url":"https://amara.am/am","domain":"amara.am","layer":"commercial","variant":"finite/indeterminate","observed_at":"2026-08-14","example":"Արտիստները բեռնվում են..."}
+{"url":"https://player.armradio.am/","domain":"armradio.am","layer":"media","variant":"finite/indeterminate","observed_at":"2026-08-14","example":"Բեռնվում է. խնդրում ենք սպասել"}

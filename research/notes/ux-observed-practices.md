@@ -36,6 +36,7 @@ Variant labels combine punctuation and layout:
 
 - `colon/stacked`, `no-colon/stacked`;
 - `colon/inline`, `no-colon/inline`.
+- `other-punctuation/stacked`, `other-punctuation/inline` – the label ends in visible punctuation other than a colon; this category prevents a full stop or another observed mark from being forced into the binary comparison.
 
 `stacked` means the label is visually above the control; `inline` means the label and control share a row. A required-field marker is ignored when determining whether a colon is present.
 

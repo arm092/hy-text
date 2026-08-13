@@ -7,3 +7,11 @@
 {"url":"https://ecofoodarmenia.am/hy/contact","domain":"ecofoodarmenia.am","layer":"commercial","variant":"no-colon/stacked","observed_at":"2026-08-14","example":"ԱՆՈՒՆ*"}
 {"url":"https://armswissbank.am/am/individuals/mobile-bank/","domain":"armswissbank.am","layer":"commercial","variant":"no-colon/stacked","observed_at":"2026-08-14","example":"Անուն *"}
 {"url":"https://danz.am/hy/product/gift-10000","domain":"danz.am","layer":"commercial","variant":"no-colon/stacked","observed_at":"2026-08-14","example":"Անուն*"}
+{"url":"https://cert.gov.am/","domain":"cert.gov.am","layer":"government","variant":"no-colon/stacked","observed_at":"2026-08-14","example":"Անուն *"}
+{"url":"https://www.thecollector.am/contact","domain":"thecollector.am","layer":"commercial","variant":"no-colon/stacked","observed_at":"2026-08-14","example":"Անուն"}
+{"url":"https://www.ipos.am/hy/contact","domain":"ipos.am","layer":"commercial","variant":"no-colon/stacked","observed_at":"2026-08-14","example":"Անուն *"}
+{"url":"https://fanbase.am/p/contact-us","domain":"fanbase.am","layer":"commercial","variant":"no-colon/stacked","observed_at":"2026-08-14","example":"Անուն"}
+{"url":"https://nla.am/order","domain":"nla.am","layer":"government","variant":"no-colon/stacked","observed_at":"2026-08-14","example":"Էլ. փոստ"}
+{"url":"https://armaa.am/am/contact-us","domain":"armaa.am","layer":"professional","variant":"no-colon/stacked","observed_at":"2026-08-14","example":"Անուն *"}
+{"url":"https://elearning.media.am/contact/","domain":"media.am","layer":"professional","variant":"no-colon/stacked","observed_at":"2026-08-14","example":"Անուն"}
+{"url":"https://www.web.am/hy/support","domain":"web.am","layer":"commercial","variant":"other-punctuation/stacked","observed_at":"2026-08-14","example":"Լրիվ անուն*․"}
