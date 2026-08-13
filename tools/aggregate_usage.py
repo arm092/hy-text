@@ -43,7 +43,15 @@ def _normalize_domain(value: str) -> str:
     if not isinstance(value, str) or not value.strip():
         raise ValueError("domain must be a non-empty string")
     parsed = urlsplit(f"//{value.strip()}")
-    if parsed.username or parsed.password or parsed.port or not parsed.hostname:
+    if (
+        parsed.username
+        or parsed.password
+        or parsed.port
+        or not parsed.hostname
+        or parsed.path
+        or parsed.query
+        or parsed.fragment
+    ):
         raise ValueError(f"invalid domain: {value!r}")
     domain = parsed.hostname.lower().rstrip(".")
     return domain.removeprefix("www.")
@@ -98,15 +106,20 @@ def build_aggregate(observations: list[dict], aggregate_id: str, query: str) -> 
         missing = REQUIRED_FIELDS - observation.keys()
         if missing:
             raise ValueError(f"observation {index} is missing {sorted(missing)}")
+        extra = observation.keys() - REQUIRED_FIELDS
+        if extra:
+            raise ValueError(f"observation {index} has unexpected fields: {sorted(extra)}")
 
-        normalized_url, url_domain = _normalize_url(observation["url"])
-        supplied_domain = _normalize_domain(observation["domain"])
-        if supplied_domain != url_domain:
+        normalized_url, url_hostname = _normalize_url(observation["url"])
+        independence_key = _normalize_domain(observation["domain"])
+        if url_hostname != independence_key and not url_hostname.endswith(
+            f".{independence_key}"
+        ):
             raise ValueError(f"observation {index} domain does not match its URL")
         if normalized_url in seen_urls:
             raise ValueError(f"duplicate URL: {normalized_url}")
         seen_urls.add(normalized_url)
-        domains.add(url_domain)
+        domains.add(independence_key)
 
         layer = observation["layer"]
         if layer not in ALLOWED_LAYERS:
@@ -158,15 +171,14 @@ def main(argv: list[str] | None = None) -> int:
             args.aggregate_id,
             args.query,
         )
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(
+            json.dumps(aggregate, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
     except (OSError, ValueError) as error:
         print(f"ERROR: {error}", file=sys.stderr)
         return 1
-
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(
-        json.dumps(aggregate, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
     return 0
 
 

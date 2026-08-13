@@ -5,7 +5,11 @@
   "required": ["url", "domain", "layer", "variant", "observed_at", "example"],
   "properties": {
     "url": {"type": "string", "format": "uri", "pattern": "^https?://"},
-    "domain": {"type": "string", "minLength": 1},
+    "domain": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Manually verified independence key; the URL hostname must equal it or be its subdomain."
+    },
     "layer": {
       "type": "string",
       "enum": ["government", "media", "commercial", "professional", "community"]

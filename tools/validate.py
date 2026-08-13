@@ -9,11 +9,32 @@ import sys
 import unicodedata
 from datetime import date
 from pathlib import Path
+from urllib.parse import urlsplit, urlunsplit
 
 
 RULE_RE = re.compile(r"^## (HY-[A-Z]{2,4}-\d{3})$", re.MULTILINE)
 SOURCE_RE = re.compile(r"\bSRC-[A-Z0-9-]+\b")
+USAGE_ID_RE = re.compile(r"^USAGE-[A-Z0-9-]+$")
 TEXT_SUFFIXES = {".md", ".json", ".yaml", ".yml", ".py"}
+ALLOWED_USAGE_LAYERS = {
+    "commercial",
+    "community",
+    "government",
+    "media",
+    "professional",
+}
+AGGREGATE_FIELDS = {
+    "collected_at",
+    "domains",
+    "examples",
+    "exclusions",
+    "id",
+    "layers",
+    "query",
+    "total",
+    "variants",
+}
+OBSERVATION_FIELDS = {"domain", "example", "layer", "observed_at", "url", "variant"}
 REQUIRED_FIELDS = (
     "**Կանոն։**",
     "**Կիրառություն։**",
@@ -104,6 +125,118 @@ def validate_placeholders(paths: list[Path]) -> list[str]:
     return errors
 
 
+def canonical_usage_domain(value: object) -> str:
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError("domain must be a non-empty string")
+    parsed = urlsplit(f"//{value.strip()}")
+    if (
+        parsed.username
+        or parsed.password
+        or parsed.port
+        or not parsed.hostname
+        or parsed.path
+        or parsed.query
+        or parsed.fragment
+    ):
+        raise ValueError("domain must be a hostname without a port or path")
+    return parsed.hostname.lower().rstrip(".").removeprefix("www.")
+
+
+def normalized_public_url(value: object) -> tuple[str, str]:
+    if not isinstance(value, str):
+        raise ValueError("URL must be a string")
+    parsed = urlsplit(value.strip())
+    if (
+        parsed.scheme.lower() not in {"http", "https"}
+        or not parsed.hostname
+        or parsed.username
+        or parsed.password
+    ):
+        raise ValueError("URL must be public HTTP or HTTPS")
+    hostname = canonical_usage_domain(parsed.hostname)
+    port = parsed.port
+    default_port = (parsed.scheme.lower() == "http" and port == 80) or (
+        parsed.scheme.lower() == "https" and port == 443
+    )
+    netloc = hostname if port is None or default_port else f"{hostname}:{port}"
+    normalized = urlunsplit(
+        (parsed.scheme.lower(), netloc, parsed.path or "/", parsed.query, "")
+    )
+    return normalized, hostname
+
+
+def valid_usage_date(value: object) -> bool:
+    if not isinstance(value, str) or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", value):
+        return False
+    try:
+        date.fromisoformat(value)
+    except ValueError:
+        return False
+    return True
+
+
+def validate_usage_observations(paths: list[Path]) -> list[str]:
+    errors = []
+    for path in paths:
+        seen_urls = set()
+        try:
+            lines = path.read_text(encoding="utf-8").splitlines()
+        except OSError as error:
+            errors.append(f"{path}: cannot read usage observations: {error}")
+            continue
+        for line_number, line in enumerate(lines, 1):
+            if not line.strip():
+                continue
+            location = f"{path}:{line_number}"
+            try:
+                observation = json.loads(line)
+            except json.JSONDecodeError as error:
+                errors.append(f"{location}: invalid observation JSON: {error.msg}")
+                continue
+            if not isinstance(observation, dict):
+                errors.append(f"{location}: observation must be an object")
+                continue
+
+            missing = OBSERVATION_FIELDS - observation.keys()
+            if missing:
+                errors.append(f"{location}: observation is missing {sorted(missing)}")
+            extra = observation.keys() - OBSERVATION_FIELDS
+            if extra:
+                errors.append(f"{location}: observation has unexpected fields: {sorted(extra)}")
+
+            try:
+                normalized_url, url_hostname = normalized_public_url(
+                    observation.get("url")
+                )
+                independence_key = canonical_usage_domain(observation.get("domain"))
+            except ValueError as error:
+                errors.append(f"{location}: {error}")
+            else:
+                if url_hostname != independence_key and not url_hostname.endswith(
+                    f".{independence_key}"
+                ):
+                    errors.append(f"{location}: domain does not match URL hostname")
+                if normalized_url in seen_urls:
+                    errors.append(f"{location}: duplicate URL {normalized_url}")
+                seen_urls.add(normalized_url)
+
+            if observation.get("layer") not in ALLOWED_USAGE_LAYERS:
+                errors.append(f"{location}: observation has an invalid layer")
+            variant = observation.get("variant")
+            if not isinstance(variant, str) or not variant.strip():
+                errors.append(f"{location}: observation has an invalid variant")
+            if not valid_usage_date(observation.get("observed_at")):
+                errors.append(f"{location}: observation has a malformed date")
+            example = observation.get("example")
+            if (
+                not isinstance(example, str)
+                or not example.strip()
+                or len(example) > 240
+            ):
+                errors.append(f"{location}: example must contain 1 to 240 characters")
+    return errors
+
+
 def validate_usage_aggregates(paths: list[Path]) -> list[str]:
     errors = []
     for path in paths:
@@ -116,29 +249,65 @@ def validate_usage_aggregates(paths: list[Path]) -> list[str]:
             errors.append(f"{path}: usage aggregate must be an object")
             continue
 
+        missing = AGGREGATE_FIELDS - aggregate.keys()
+        if missing:
+            errors.append(f"{path}: usage aggregate is missing {sorted(missing)}")
+        extra = aggregate.keys() - AGGREGATE_FIELDS
+        if extra:
+            errors.append(f"{path}: usage aggregate has unexpected fields: {sorted(extra)}")
+
+        aggregate_id = aggregate.get("id")
+        if not isinstance(aggregate_id, str) or not USAGE_ID_RE.fullmatch(aggregate_id):
+            errors.append(f"{path}: usage aggregate has an invalid ID")
+
+        query = aggregate.get("query")
+        if not isinstance(query, str) or not query.strip():
+            errors.append(f"{path}: usage aggregate query must be a non-empty string")
+
+        exclusions = aggregate.get("exclusions")
+        if not isinstance(exclusions, list) or not all(
+            isinstance(exclusion, str) for exclusion in exclusions
+        ):
+            errors.append(f"{path}: usage aggregate exclusions must be strings")
+
         total = aggregate.get("total")
         if not isinstance(total, int) or isinstance(total, bool) or total < 100:
             errors.append(f"{path}: usage aggregate total must be at least 100")
 
         domains = aggregate.get("domains")
-        if not isinstance(domains, list) or not all(
-            isinstance(domain, str) and domain for domain in domains
-        ):
+        if not isinstance(domains, list):
             errors.append(f"{path}: usage aggregate domains must be non-empty strings")
         else:
-            if len(domains) != len(set(domains)):
-                errors.append(f"{path}: usage aggregate contains duplicate domains")
-            if len(set(domains)) < 20:
-                errors.append(f"{path}: usage aggregate requires at least 20 domains")
+            try:
+                canonical_domains = [canonical_usage_domain(domain) for domain in domains]
+            except ValueError:
+                errors.append(f"{path}: usage aggregate domains must be valid hostnames")
+            else:
+                unique_domains = set(canonical_domains)
+                if len(canonical_domains) != len(unique_domains):
+                    errors.append(f"{path}: usage aggregate contains duplicate domains")
+                if len(unique_domains) < 20:
+                    errors.append(f"{path}: usage aggregate requires at least 20 domains")
 
         layers = aggregate.get("layers")
-        if not isinstance(layers, dict) or not all(
-            isinstance(count, int) and not isinstance(count, bool) and count >= 0
-            for count in layers.values()
+        if (
+            not isinstance(layers, dict)
+            or not set(layers).issubset(ALLOWED_USAGE_LAYERS)
+            or not all(
+                isinstance(count, int) and not isinstance(count, bool) and count >= 0
+                for count in layers.values()
+            )
         ):
             errors.append(f"{path}: usage aggregate layers must contain non-negative counts")
-        elif sum(count > 0 for count in layers.values()) < 3:
-            errors.append(f"{path}: usage aggregate requires three positive layers")
+        else:
+            if sum(count > 0 for count in layers.values()) < 3:
+                errors.append(f"{path}: usage aggregate requires three positive layers")
+            if (
+                isinstance(total, int)
+                and not isinstance(total, bool)
+                and sum(layers.values()) != total
+            ):
+                errors.append(f"{path}: usage aggregate total differs from layer counts")
 
         variants = aggregate.get("variants")
         if not isinstance(variants, dict) or not all(
@@ -153,16 +322,8 @@ def validate_usage_aggregates(paths: list[Path]) -> list[str]:
         ):
             errors.append(f"{path}: usage aggregate total differs from variant counts")
 
-        collected_at = aggregate.get("collected_at")
-        if not isinstance(collected_at, str) or not re.fullmatch(
-            r"\d{4}-\d{2}-\d{2}", collected_at
-        ):
+        if not valid_usage_date(aggregate.get("collected_at")):
             errors.append(f"{path}: usage aggregate has a malformed collection date")
-        else:
-            try:
-                date.fromisoformat(collected_at)
-            except ValueError:
-                errors.append(f"{path}: usage aggregate has a malformed collection date")
 
         examples = aggregate.get("examples")
         if not isinstance(examples, list) or not all(
@@ -188,7 +349,9 @@ def validate_repository(root: Path) -> list[str]:
     errors.extend(validate_versions(root))
     errors.extend(validate_placeholders(files))
     aggregate_paths = sorted((root / "research" / "aggregates").glob("*.json"))
+    observation_paths = sorted((root / "research" / "observations").glob("*.jsonl"))
     errors.extend(validate_usage_aggregates(aggregate_paths))
+    errors.extend(validate_usage_observations(observation_paths))
     return errors
 
 

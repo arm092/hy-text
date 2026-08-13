@@ -10,7 +10,7 @@ No current normative rule claims a **modern usage** basis. That label remains un
 
 Record one observation per line as JSON under `observations/`. Every observation must be manually verified as public, relevant to the disputed form, and independent of every other observation. Reject mirrors, duplicated URLs, spam, obvious machine translation, private material, personal data, and irrelevant matches.
 
-Each object contains `url`, `domain`, `layer`, `variant`, `observed_at`, and `example`. Use one of the five layer identifiers defined by `observation.schema.json`: `government`, `media`, `commercial`, `professional`, or `community`. Strip the evidence to a short verification example of at most 240 characters; never copy a full page or article into the repository.
+Each object contains `url`, `domain`, `layer`, `variant`, `observed_at`, and `example`. Set `domain` to the manually verified independence key, not automatically to the URL hostname. The URL hostname must equal that key or be its subdomain; multiple subdomains controlled by the same independent source must reuse one key. Use one of the five layer identifiers defined by `observation.schema.json`: `government`, `media`, `commercial`, `professional`, or `community`. Strip the evidence to a short verification example of at most 240 characters; never copy a full page or article into the repository.
 
 Automated search-result counts alone are inadmissible. Search may locate candidates, but a human must open and verify every retained observation before aggregation. Repeated observations from the same domain are permitted only when their URLs and relevant uses are genuinely distinct.
 
