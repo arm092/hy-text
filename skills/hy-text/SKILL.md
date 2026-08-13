@@ -1,85 +1,54 @@
 ---
 name: hy-text
-description: [TODO: Complete and informative explanation of what the skill does and when to use it. Include WHEN to use this skill - specific scenarios, file types, or tasks that trigger it.]
+description: Use when writing, proofreading, editing, or evaluating modern Eastern Armenian text in the reformed orthography of the Republic of Armenia, including typography, editorial quality, UX copy, business correspondence, and AI-prose cleanup.
 ---
 
-# Hy Text
+# hy-text – Eastern Armenian text quality
 
-## Overview
+Apply this skill only to modern Eastern Armenian written in the reformed orthography used in the Republic of Armenia. Do not convert Western Armenian or traditional orthography; state that they are unsupported.
 
-[TODO: 1-2 sentences explaining what this skill enables]
+User instructions about register, voice, genre, and terminology override editorial defaults. They do not override objective orthography or the requirement to preserve protected content.
 
-## Structuring This Skill
+## Protected content
 
-[TODO: Choose the structure that best fits this skill's purpose. Common patterns:
+Preserve code, URLs, commands, filenames, foreign-language segments, and third-party quotations verbatim. You may report a consequential problem in a quotation, but never rewrite it.
 
-**1. Workflow-Based** (best for sequential processes)
-- Works well when there are clear step-by-step procedures
-- Example: DOCX skill with "Workflow Decision Tree" -> "Reading" -> "Creating" -> "Editing"
-- Structure: ## Overview -> ## Workflow Decision Tree -> ## Step 1 -> ## Step 2...
+When checking an existing text, return a proposed corrected version and findings. Never modify the source unless the user explicitly requests an edit. The `hy-check` and `hy-score` skills are always read-only.
 
-**2. Task-Based** (best for tool collections)
-- Works well when the skill offers different operations/capabilities
-- Example: PDF skill with "Quick Start" -> "Merge PDFs" -> "Split PDFs" -> "Extract Text"
-- Structure: ## Overview -> ## Quick Start -> ## Task Category 1 -> ## Task Category 2...
+## Safe always-on pass
 
-**3. Reference/Guidelines** (best for standards or specifications)
-- Works well for brand guidelines, coding standards, or requirements
-- Example: Brand styling with "Brand Guidelines" -> "Colors" -> "Typography" -> "Features"
-- Structure: ## Overview -> ## Guidelines -> ## Specifications -> ## Usage...
+Apply only unambiguous fixes silently in Armenian output:
 
-**4. Capabilities-Based** (best for integrated systems)
-- Works well when the skill provides multiple interrelated features
-- Example: Product Management with "Core Capabilities" -> numbered capability list
-- Structure: ## Overview -> ## Core Capabilities -> ### 1. Feature -> ### 2. Feature...
+| Issue | Wrong | Correct | Rule |
+|---|---|---|---|
+| Armenian full stop | `Վերջ.` | `Վերջ։` | HY-TYP-001 |
+| Question mark position | `Որտեղ?` | `Որտե՞ղ` | HY-PUN-001 |
+| Exclamation mark position | `Ինչ հրաշալի!` | `Ի՜նչ հրաշալի` | HY-PUN-004 |
+| Guillemets | `"Անուշ"` | `«Անուշ»` | HY-TYP-003 |
+| Ellipsis | `...` | `…` | HY-TYP-005 |
+| Number and unit | `5կգ` | `5 կգ` | HY-TYP-008 |
 
-Patterns can be mixed and matched as needed. Most skills combine patterns (e.g., start with task-based, add workflow for complex operations).
+Do not silently apply contextual grammar, style, or vocabulary judgments.
 
-Delete this entire "Structuring This Skill" section when done - it's just guidance.]
+## Load references by task
 
-## [TODO: Replace with the first main section based on chosen structure]
+Reference paths are relative to this file.
 
-[TODO: Add content here. See examples in existing skills:
-- Code samples for technical skills
-- Decision trees for complex workflows
-- Concrete examples with realistic user requests
-- References to scripts/templates/references as needed]
+| Task | Read |
+|---|---|
+| Typography, Unicode, numbers | `references/typography.md` |
+| Clarity, structure, stop-words | `references/info-style.md` |
+| Armenian punctuation | `references/editorial-punctuation.md` |
+| Grammar, spelling, capitalization | `references/editorial-grammar.md` |
+| Interfaces and product copy | `references/ux-writing.md` |
+| Email and workplace writing | `references/business-writing.md` |
+| Diagnostics and rewrites | `references/anti-patterns.md` |
+| AI-prose tendencies and editorial addenda | `references/addenda.md` |
+| Scoring | `references/scoring.md` |
+| Provenance | `references/sources.md` |
 
-## Resources (optional)
+An explicit proofreading request requires the whole corpus. A self-initiated check may use only this file plus the obvious lexical entries in `info-style.md`. Call that result a quick check, never a full review. Escalate silently to the full corpus when there is a possible AI-prose tendency, five confirmed findings, or publication-bound text.
 
-Create only the resource directories this skill actually needs. Delete this section if no resources are required.
+## Findings contract
 
-### scripts/
-Executable code (Python/Bash/etc.) that can be run directly to perform specific operations.
-
-**Examples from other skills:**
-- PDF skill: `fill_fillable_fields.py`, `extract_form_field_info.py` - utilities for PDF manipulation
-- DOCX skill: `document.py`, `utilities.py` - Python modules for document processing
-
-**Appropriate for:** Python scripts, shell scripts, or any executable code that performs automation, data processing, or specific operations.
-
-**Note:** Scripts may be executed without loading into context, but can still be read by Codex for patching or environment adjustments.
-
-### references/
-Documentation and reference material intended to be loaded into context to inform Codex's process and thinking.
-
-**Examples from other skills:**
-- Product management: `communication.md`, `context_building.md` - detailed workflow guides
-- BigQuery: API reference documentation and query examples
-- Finance: Schema documentation, company policies
-
-**Appropriate for:** In-depth documentation, API references, database schemas, comprehensive guides, or any detailed information that Codex should reference while working.
-
-### assets/
-Files not intended to be loaded into context, but rather used within the output Codex produces.
-
-**Examples from other skills:**
-- Brand styling: PowerPoint template files (.pptx), logo files
-- Frontend builder: HTML/React boilerplate project directories
-- Typography: Font files (.ttf, .woff2)
-
-**Appropriate for:** Templates, boilerplate code, document templates, images, icons, fonts, or any files meant to be copied or used in the final output.
-
----
-
-**Not every skill requires all three types of resources.**
+Every finding must quote the affected fragment, name a stable `HY-*` rule ID, check its exception, assign severity, and propose a replacement. A stylistic tendency is evidence for editing, never evidence that AI authored the text.

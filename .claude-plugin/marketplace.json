@@ -1,0 +1,23 @@
+{
+  "name": "hy-text",
+  "metadata": {
+    "description": "Eastern Armenian text quality for AI agents.",
+    "version": "0.1.0"
+  },
+  "owner": {
+    "name": "Arman Khachatryan",
+    "email": "arm092@users.noreply.github.com",
+    "url": "https://github.com/arm092"
+  },
+  "plugins": [
+    {
+      "name": "hy-text",
+      "source": "./",
+      "version": "0.1.0",
+      "description": "Eastern Armenian text quality for AI agents.",
+      "category": "productivity",
+      "homepage": "https://github.com/arm092/hy-text",
+      "tags": ["armenian", "proofreading", "typography", "editorial", "ux-writing", "text-quality"]
+    }
+  ]
+}

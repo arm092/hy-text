@@ -69,6 +69,13 @@ class RepositoryContractTest(unittest.TestCase):
         self.assertEqual("Arman Khachatryan", manifest["author"]["name"])
         self.assertEqual("https://github.com/arm092/hy-text", manifest["repository"])
         self.assertEqual("MIT", manifest["license"])
+        self.assertEqual("./assets/icon.png", manifest["interface"]["composerIcon"])
+        self.assertEqual("./assets/logo.png", manifest["interface"]["logo"])
+        self.assertEqual("./assets/logo-dark.png", manifest["interface"]["logoDark"])
+
+    def test_visual_assets_exist(self):
+        for name in ("icon.png", "logo.png", "logo-dark.png"):
+            self.assertTrue((ROOT / "assets" / name).is_file(), name)
 
     def test_platform_manifests_exist(self):
         for path in (

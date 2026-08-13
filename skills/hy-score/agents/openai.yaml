@@ -1,4 +1,4 @@
 interface:
   display_name: "hy-score"
-  short_description: "Score Eastern Armenian text quality 0–10"
+  short_description: "Score Eastern Armenian text quality 0-10"
   default_prompt: "Use $hy-score to evaluate this Eastern Armenian text."

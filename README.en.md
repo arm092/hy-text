@@ -11,4 +11,6 @@ The project ships three skills: `hy-text` for safe always-on typography, `hy-che
 
 The architecture is inspired by [talkstream/ru-text](https://github.com/talkstream/ru-text), while the Armenian corpus is independently formulated from Armenian sources and usage research.
 
+[Installation](INSTALL.en.md) · [Methodology](METHODOLOGY.md) · [Sources](skills/hy-text/references/sources.md)
+
 MIT © 2026 Arman Khachatryan

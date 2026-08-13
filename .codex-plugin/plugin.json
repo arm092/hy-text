@@ -21,6 +21,9 @@
     "capabilities": ["Read"],
     "websiteURL": "https://github.com/arm092/hy-text",
     "privacyPolicyURL": "https://github.com/arm092/hy-text/blob/master/PRIVACY_POLICY.md",
+    "composerIcon": "./assets/icon.png",
+    "logo": "./assets/logo.png",
+    "logoDark": "./assets/logo-dark.png",
     "defaultPrompt": [
       "Proofread this Armenian text with hy-check.",
       "Score this Armenian text with hy-score."

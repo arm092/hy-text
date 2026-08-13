@@ -17,7 +17,7 @@
 - `hy-check` – ամբողջական, միայն կարդալու ռեժիմով սրբագրում։
 - `hy-score` – որակի գնահատում 0–10 սանդղակով։
 
-[English](README.en.md) · [Մեթոդաբանություն](METHODOLOGY.md) · [Աղբյուրներ](skills/hy-text/references/sources.md)
+[English](README.en.md) · [Տեղադրում](INSTALL.md) · [Մեթոդաբանություն](METHODOLOGY.md) · [Աղբյուրներ](skills/hy-text/references/sources.md)
 
 ## Կարգավիճակ
 

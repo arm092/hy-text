@@ -1,0 +1,7 @@
+[
+  {"id":"protected-code","type":"code","input":"Գործարկեք `if (ready) return;` օրինակը։","protected":"if (ready) return;"},
+  {"id":"protected-command","type":"command","input":"Գործարկեք `php artisan test --parallel` հրամանը։","protected":"php artisan test --parallel"},
+  {"id":"protected-foreign","type":"foreign","input":"Կոճակի անգլերեն անունն է Save changes։","protected":"Save changes"},
+  {"id":"protected-quote","type":"quote","input":"Հեղինակը գրել է. «Որտեղ ես?»։","protected":"Որտեղ ես?"},
+  {"id":"protected-url","type":"url","input":"Բացեք https://example.com/a-b?x=1 հասցեն։","protected":"https://example.com/a-b?x=1"}
+]
