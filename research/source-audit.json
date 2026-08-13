@@ -5,10 +5,10 @@
     "authority": "Unicode Consortium",
     "title": "The Unicode Standard, Version 17.0, Chapter 7, Section 7.6.1 Armenian",
     "locator": "https://www.unicode.org/versions/Unicode17.0.0/core-spec/chapter-7/#G3407",
-    "scope": "Armenian punctuation code points and character semantics, including tonal-mark placement and the distinction between word-joining and word-splitting hyphens; not Armenian grammar or editorial house style.",
+    "scope": "Armenian punctuation code points and technical semantics, including tonal-mark placement; for hyphens, U+002D HYPHEN-MINUS or U+2010 HYPHEN represents word joining, versus U+058A ARMENIAN HYPHEN for end-of-line word splitting; not Armenian inflection grammar, a rule for quoted foreign titles, or an editorial preference between U+002D and U+2010.",
     "accessed_at": "2026-08-13",
     "availability": "direct",
-    "provenance": "Direct official versioned standard.",
+    "provenance": "Direct official versioned standard; the U+002D, U+2010, and U+058A role descriptions were inspected on 2026-08-13.",
     "status": "verified"
   },
   {
@@ -57,6 +57,18 @@
     "accessed_at": "2026-08-13",
     "availability": "legacy host unavailable",
     "provenance": "Official-domain indexed content; direct legacy host returned HTTP 500 on 2026-08-13.",
+    "status": "verified"
+  },
+  {
+    "id": "SRC-LC-FOREIGN-INFLECTION",
+    "evidence_type": "official norm",
+    "authority": "ՀՀ լեզվի կոմիտե",
+    "title": "Չակերտների գործածության մասին",
+    "locator": "https://web.archive.org/web/20231128194752id_/https://www.langcom.am/%D5%B9%D5%A1%D5%AF%D5%A5%D6%80%D5%BF%D5%B6%D5%A5%D6%80%D5%AB-%D5%A3%D5%B8%D6%80%D5%AE%D5%A1%D5%AE%D5%B8%D6%82%D5%A9%D5%B5%D5%A1%D5%B6-%D5%B4%D5%A1%D5%BD%D5%AB%D5%B6/",
+    "scope": "Quoted foreign-script titles in Armenian text, specifically suffix placement outside Armenian guillemets and the exact U+002D encoding in «The New York Times»-ի; not unquoted foreign-script inflection or a general U+002D-over-U+2010 house style.",
+    "accessed_at": "2026-08-13",
+    "availability": "direct",
+    "provenance": "Direct Internet Archive replay of a 2023 HTTP 200 capture from the official www.langcom.am origin; raw archived HTML was inspected with replay rewriting disabled.",
     "status": "verified"
   },
   {
