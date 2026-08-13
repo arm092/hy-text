@@ -17,10 +17,10 @@
   },
   {
     "reference": "editorial-grammar.md",
-    "reviewed_commit": "de16c32b402982048f5a20d225a9287c78b1e911",
+    "reviewed_commit": "3771480a6fc7d1106462d8e8aaeacc1e9ad1de64",
     "reviewer": "Arman Khachatryan",
-    "reviewed_at": "2026-08-13",
+    "reviewed_at": "2026-08-14",
     "status": "approved",
-    "through_rule": "HY-GRM-007"
+    "through_rule": "HY-GRM-008"
   }
 ]

@@ -13,17 +13,34 @@ class ReviewLedgerTest(unittest.TestCase):
             {"typography.md", "editorial-punctuation.md", "editorial-grammar.md"},
             set(by_name),
         )
-        expected_boundaries = {
-            "typography.md": "HY-TYP-008",
-            "editorial-punctuation.md": "HY-PUN-008",
-            "editorial-grammar.md": "HY-GRM-007",
+        expected_reviews = {
+            "typography.md": {
+                "reviewed_commit": "de16c32b402982048f5a20d225a9287c78b1e911",
+                "reviewed_at": "2026-08-13",
+                "through_rule": "HY-TYP-008",
+            },
+            "editorial-punctuation.md": {
+                "reviewed_commit": "de16c32b402982048f5a20d225a9287c78b1e911",
+                "reviewed_at": "2026-08-13",
+                "through_rule": "HY-PUN-008",
+            },
+            "editorial-grammar.md": {
+                "reviewed_commit": "3771480a6fc7d1106462d8e8aaeacc1e9ad1de64",
+                "reviewed_at": "2026-08-14",
+                "through_rule": "HY-GRM-008",
+            },
         }
         for row in rows:
             self.assertEqual("Arman Khachatryan", row["reviewer"])
-            self.assertEqual("2026-08-13", row["reviewed_at"])
             self.assertEqual("approved", row["status"])
-            self.assertEqual("de16c32b402982048f5a20d225a9287c78b1e911", row["reviewed_commit"])
         self.assertEqual(
-            expected_boundaries,
-            {reference: row["through_rule"] for reference, row in by_name.items()},
+            expected_reviews,
+            {
+                reference: {
+                    "reviewed_commit": row["reviewed_commit"],
+                    "reviewed_at": row["reviewed_at"],
+                    "through_rule": row["through_rule"],
+                }
+                for reference, row in by_name.items()
+            },
         )
