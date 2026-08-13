@@ -1,0 +1,177 @@
+[
+  {
+    "candidate_id": "CAND-INF-001",
+    "reference": "info-style.md",
+    "question": "When an Armenian case ending follows a foreign-script title enclosed in Armenian guillemets, should the ending remain outside the closing guillemet and be separated with U+002D?",
+    "required_evidence": "Page-level official guidance for quoted foreign-script titles and inspection of the separator code point in its example.",
+    "source_ids": [
+      "SRC-LC-QUOTES",
+      "SRC-LC-FOREIGN-INFLECTION"
+    ],
+    "status": "source-ready",
+    "reason": "Both verified Language Committee records cover quoted foreign-script titles; the direct archived example also establishes the exact U+002D separator without extending the claim to unquoted names."
+  },
+  {
+    "candidate_id": "CAND-INF-002",
+    "reference": "info-style.md",
+    "question": "In sentences containing գուցե or երևի, on which word should the Armenian question mark be placed in each of the official guidance cases?",
+    "required_evidence": "The relevant case-by-case Language Committee guidance, without generalizing beyond the constructions it discusses.",
+    "source_ids": [
+      "SRC-LC-QUESTION"
+    ],
+    "status": "source-ready",
+    "reason": "The verified source explicitly covers question-mark placement with գուցե and երևի, so a narrowly bounded rule can be drafted from official authority."
+  },
+  {
+    "candidate_id": "CAND-INF-003",
+    "reference": "info-style.md",
+    "question": "Where should the Armenian question mark be placed in the affirmative and negative compound-verb constructions enumerated by the Language Committee?",
+    "required_evidence": "The exact affirmative and negative compound-verb cases in the verified Language Committee guidance.",
+    "source_ids": [
+      "SRC-LC-QUESTION"
+    ],
+    "status": "source-ready",
+    "reason": "The audited scope expressly includes affirmative and negative compound verbs, while the question avoids claiming a general punctuation rule."
+  },
+  {
+    "candidate_id": "CAND-INF-004",
+    "reference": "info-style.md",
+    "question": "Should unfinished thought use three suspension points while an omission inside quoted text uses the four-dot or angle-bracketed convention described by the Language Committee?",
+    "required_evidence": "Official guidance distinguishing unfinished thought from omission in quoted material, including its stated spacing.",
+    "source_ids": [
+      "SRC-LC-ELLIPSIS"
+    ],
+    "status": "source-ready",
+    "reason": "The verified source narrowly supports the functional distinction and spacing for these two cases, not every ellipsis-like sequence."
+  },
+  {
+    "candidate_id": "CAND-INF-005",
+    "reference": "info-style.md",
+    "question": "In repeated conjunctions and the prohibitive imperative particle, where should the Armenian stress mark be placed?",
+    "required_evidence": "The specific repeated-conjunction and prohibitive-imperative cases in the Language Committee stress guidance.",
+    "source_ids": [
+      "SRC-LC-STRESS"
+    ],
+    "status": "source-ready",
+    "reason": "The audited official source explicitly includes both constructions, allowing a rule restricted to those stated exceptions."
+  },
+  {
+    "candidate_id": "CAND-INF-006",
+    "reference": "info-style.md",
+    "question": "In encoded Armenian text, should U+058A be reserved for end-of-line word splitting while U+002D or U+2010 represents lexical word joining?",
+    "required_evidence": "Versioned Unicode semantics for U+058A, U+002D, and U+2010; no editorial preference between U+002D and U+2010 is required.",
+    "source_ids": [
+      "SRC-UNICODE-ARMENIAN"
+    ],
+    "status": "source-ready",
+    "reason": "Unicode's verified Armenian chapter distinguishes line-splitting from word-joining semantics, and the question deliberately leaves the unsupported U+002D-versus-U+2010 preference open."
+  },
+  {
+    "candidate_id": "CAND-UX-001",
+    "reference": "ux-writing.md",
+    "question": "Do current Armenian interfaces label destructive primary actions with an imperative verb, an infinitive, or a noun phrase?",
+    "required_evidence": "A validated aggregate of at least 100 manually verified destructive-action labels from 20 independent domains and three source layers, segmented by action type.",
+    "source_ids": [],
+    "status": "usage-study-required",
+    "reason": "The audited registry contains no official Armenian norm for UI verb mood, so a claim about current digital practice requires a qualifying aggregate."
+  },
+  {
+    "candidate_id": "CAND-UX-002",
+    "reference": "ux-writing.md",
+    "question": "Do current Armenian forms place a colon after visible field labels, and does the pattern differ between stacked and inline layouts?",
+    "required_evidence": "A validated aggregate of at least 100 manually verified Armenian field labels across 20 independent domains and three source layers, with layout recorded as a comparison variable.",
+    "source_ids": [],
+    "status": "usage-study-required",
+    "reason": "CLDR lists punctuation characters but does not prescribe label punctuation or spacing; representative interface observations are therefore necessary."
+  },
+  {
+    "candidate_id": "CAND-UX-003",
+    "reference": "ux-writing.md",
+    "question": "Which Armenian register do current general-audience interfaces use for direct address: դու, Դուք, or an impersonal construction?",
+    "required_evidence": "A validated aggregate of at least 100 manually verified interface strings across 20 independent domains and three source layers, stratified by audience and product type.",
+    "source_ids": [],
+    "status": "usage-study-required",
+    "reason": "Register in contemporary interfaces is a contextual digital-practice question, and no qualifying aggregate or narrowly scoped authority is registered."
+  },
+  {
+    "candidate_id": "CAND-UX-004",
+    "reference": "ux-writing.md",
+    "question": "Do current Armenian progress and loading messages prefer a finite verb, a verbal noun, or an ellipsis-marked label?",
+    "required_evidence": "A validated aggregate of at least 100 manually verified progress messages from 20 independent domains and three source layers, separated by determinate and indeterminate state.",
+    "source_ids": [],
+    "status": "usage-study-required",
+    "reason": "The Language Committee ellipsis guidance does not establish wording for loading states, so current interface practice must be sampled rather than inferred."
+  },
+  {
+    "candidate_id": "CAND-UX-005",
+    "reference": "ux-writing.md",
+    "question": "Does placing the recovery action after the problem statement improve completion of Armenian-language error recovery tasks?",
+    "required_evidence": "A controlled Armenian-language usability study comparing message order with task completion, error recurrence, and comprehension outcomes.",
+    "source_ids": [],
+    "status": "insufficient",
+    "reason": "Frequency cannot establish a causal usability benefit, and the repository has neither a controlled study nor an authority supporting this outcome claim."
+  },
+  {
+    "candidate_id": "CAND-UX-006",
+    "reference": "ux-writing.md",
+    "question": "Which ordering of destructive and cancel actions minimizes accidental confirmation for Armenian readers?",
+    "required_evidence": "A controlled Armenian-language usability study comparing button order across the target platforms and recording accidental confirmations and completion time.",
+    "source_ids": [],
+    "status": "insufficient",
+    "reason": "This is an interaction-effect prescription, not a usage-frequency question, and no qualifying Armenian usability evidence is registered."
+  },
+  {
+    "candidate_id": "CAND-BIZ-001",
+    "reference": "business-writing.md",
+    "question": "Should the formal second-person pronoun be capitalized as Դուք in one-to-one business correspondence but lowercased in plural address?",
+    "required_evidence": "A page-level official Armenian norm covering capitalization by number and addressee, or a validated aggregate if the result is framed only as current editorial practice.",
+    "source_ids": [],
+    "status": "insufficient",
+    "reason": "The capitalization source in the audited registry covers other named cases, and no qualifying aggregate supports this specific business-correspondence distinction."
+  },
+  {
+    "candidate_id": "CAND-BIZ-002",
+    "reference": "business-writing.md",
+    "question": "Which punctuation and line-break pattern follows Հարգելի plus an addressee in current Armenian business email greetings?",
+    "required_evidence": "A validated aggregate of at least 100 manually verified business-email greeting patterns from 20 independent domains and three source layers, with addressee type recorded.",
+    "source_ids": [],
+    "status": "usage-study-required",
+    "reason": "No verified source in the audited registry covers business-email greeting punctuation, so current practice must be established independently."
+  },
+  {
+    "candidate_id": "CAND-BIZ-003",
+    "reference": "business-writing.md",
+    "question": "Do current Armenian business-email subject lines omit terminal punctuation, and does usage change when the subject is a full question?",
+    "required_evidence": "A validated aggregate of at least 100 manually verified subject lines from 20 independent domains and three source layers, separating statements from questions.",
+    "source_ids": [],
+    "status": "usage-study-required",
+    "reason": "General punctuation sources do not settle email-subject conventions; this is a current digital-practice question requiring representative observations."
+  },
+  {
+    "candidate_id": "CAND-BIZ-004",
+    "reference": "business-writing.md",
+    "question": "Do Armenian business-email systems and writers retain Re: and Fwd: reply-chain prefixes or use localized alternatives?",
+    "required_evidence": "A validated aggregate of at least 100 manually verified reply and forward subject prefixes from 20 independent domains and three source layers, excluding automatic duplicates.",
+    "source_ids": [],
+    "status": "usage-study-required",
+    "reason": "Reply-prefix choice is unsettled digital practice, and neither Unicode semantics nor the abbreviation dictionary prescribes these email-system labels."
+  },
+  {
+    "candidate_id": "CAND-BIZ-005",
+    "reference": "business-writing.md",
+    "question": "Does an absolute Armenian deadline that includes date, time, and time zone reduce missed deadlines compared with a relative phrase such as վաղը?",
+    "required_evidence": "A controlled Armenian-language comprehension or field study comparing deadline interpretations and completion outcomes across recipient time zones.",
+    "source_ids": [],
+    "status": "insufficient",
+    "reason": "A prescriptive effectiveness claim cannot be established by observed frequency, and no registered authority or controlled study supports it."
+  },
+  {
+    "candidate_id": "CAND-BIZ-006",
+    "reference": "business-writing.md",
+    "question": "Which Armenian closing formulas are used in current business email at formal, neutral, and established-colleague levels of relationship?",
+    "required_evidence": "A validated aggregate of at least 100 manually verified closing formulas from 20 independent domains and three source layers, stratified by relationship context.",
+    "source_ids": [],
+    "status": "usage-study-required",
+    "reason": "The appropriate closing is a contextual current-practice question, and the audited registry contains no narrow authority or qualifying aggregate for it."
+  }
+]

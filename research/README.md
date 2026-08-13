@@ -6,6 +6,12 @@ An aggregate records the query, alternatives, collection date, counts, at least 
 
 No current normative rule claims a **modern usage** basis. That label remains unavailable until a qualifying aggregate is committed and referenced from `sources.md`.
 
+## Rule candidate promotion
+
+`rule-candidates.json` is a ranked research queue, not a set of published prescriptions. Only a `source-ready` candidate can proceed to rule drafting, and its rule must remain within the narrow scope of every cited verified source. A `usage-study-required` candidate becomes ready only after its observations produce an aggregate that passes repository validation. An `insufficient` candidate remains unpublished as a rule until the specifically required evidence is obtained and validated.
+
+An editorial policy may transparently support an editorial decision, but it is not external empirical evidence. It cannot be used to claim an official norm, modern usage, or a causal reader outcome.
+
 ## Observation workflow
 
 Record one observation per line as JSON under `observations/`. Every observation must be manually verified as public, relevant to the disputed form, and independent of every other observation. Reject mirrors, duplicated URLs, spam, obvious machine translation, private material, personal data, and irrelevant matches.
