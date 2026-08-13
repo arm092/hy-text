@@ -730,6 +730,63 @@ class UsageChainOfCustodyTest(unittest.TestCase):
             errors,
         )
 
+    def test_escaped_close_cannot_fake_a_reference_label_opener(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root, _, _, source_path, rule_path = self.make_repository(directory)
+            definition_forms = (
+                "",
+                "\n[ժամանակակից գործածություն]: https://example.am\n",
+            )
+            for definition in definition_forms:
+                with self.subTest(has_definition=bool(definition)):
+                    rule_path.write_text(
+                        "## HY-INF-999\n\n"
+                        "**Հիմք։** \\][ժամանակակից գործածություն] "
+                        "– SRC-EDITORIAL-POLICY։\n\n"
+                        "**Կիրառություն։** օրինակ։\n"
+                        f"{definition}",
+                        encoding="utf-8",
+                    )
+
+                    errors = self.validate(root, source_path, rule_path)
+
+                    self.assertTrue(
+                        any("modern usage must reference" in error for error in errors),
+                        errors,
+                    )
+
+    def test_valid_reference_links_distinguish_visible_and_hidden_labels(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root, _, _, source_path, rule_path = self.make_repository(directory)
+            cases = (
+                (
+                    "[ժամանակակից գործածություն][ref]",
+                    "[ref]: https://example.am",
+                    True,
+                ),
+                (
+                    "խմբագրական [նշում][ժամանակակից գործածություն]",
+                    "[ժամանակակից գործածություն]: https://example.am",
+                    False,
+                ),
+            )
+            for basis, definition, requires_usage in cases:
+                with self.subTest(requires_usage=requires_usage):
+                    rule_path.write_text(
+                        "## HY-INF-999\n\n"
+                        f"**Հիմք։** {basis} – SRC-EDITORIAL-POLICY։\n\n"
+                        "**Կիրառություն։** օրինակ։\n\n"
+                        f"{definition}\n",
+                        encoding="utf-8",
+                    )
+
+                    errors = self.validate(root, source_path, rule_path)
+
+                    has_usage_error = any(
+                        "modern usage must reference" in error for error in errors
+                    )
+                    self.assertEqual(requires_usage, has_usage_error, errors)
+
     def test_hidden_html_comment_cannot_swallow_a_visible_modern_usage_basis(self):
         with tempfile.TemporaryDirectory() as directory:
             root, _, _, source_path, rule_path = self.make_repository(directory)

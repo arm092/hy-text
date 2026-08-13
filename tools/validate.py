@@ -445,6 +445,36 @@ def _reference_destination_end(value: str, start: int) -> int | None:
     return None
 
 
+def _is_markdown_escaped(value: str, index: int) -> bool:
+    backslashes = 0
+    cursor = index - 1
+    while cursor >= 0 and value[cursor] == "\\":
+        backslashes += 1
+        cursor -= 1
+    return backslashes % 2 == 1
+
+
+def _label_opener(value: str, close_index: int) -> int | None:
+    """Find the unescaped opener balanced by a Markdown label close."""
+
+    if _is_markdown_escaped(value, close_index):
+        return None
+
+    nested_closes = 0
+    cursor = close_index - 1
+    while cursor >= 0:
+        character = value[cursor]
+        if not _is_markdown_escaped(value, cursor):
+            if character == "]":
+                nested_closes += 1
+            elif character == "[":
+                if nested_closes == 0:
+                    return cursor
+                nested_closes -= 1
+        cursor -= 1
+    return None
+
+
 def _inline_destination_end(value: str, start: int) -> int | None:
     """Return the closing parenthesis of a balanced inline destination."""
 
@@ -488,7 +518,11 @@ def _remove_link_destinations(value: str) -> str:
     marker = "\x00"
     index = 0
     while index < len(value):
-        if value[index] != "]" or index + 1 >= len(value):
+        if (
+            value[index] != "]"
+            or index + 1 >= len(value)
+            or _label_opener(value, index) is None
+        ):
             output.append(value[index])
             index += 1
             continue
