@@ -1,0 +1,26 @@
+[
+  {
+    "reference": "typography.md",
+    "reviewed_commit": "de16c32b402982048f5a20d225a9287c78b1e911",
+    "reviewer": "Arman Khachatryan",
+    "reviewed_at": "2026-08-13",
+    "status": "approved",
+    "through_rule": "HY-TYP-008"
+  },
+  {
+    "reference": "editorial-punctuation.md",
+    "reviewed_commit": "de16c32b402982048f5a20d225a9287c78b1e911",
+    "reviewer": "Arman Khachatryan",
+    "reviewed_at": "2026-08-13",
+    "status": "approved",
+    "through_rule": "HY-PUN-008"
+  },
+  {
+    "reference": "editorial-grammar.md",
+    "reviewed_commit": "de16c32b402982048f5a20d225a9287c78b1e911",
+    "reviewer": "Arman Khachatryan",
+    "reviewed_at": "2026-08-13",
+    "status": "approved",
+    "through_rule": "HY-GRM-007"
+  }
+]
