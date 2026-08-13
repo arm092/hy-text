@@ -94,13 +94,29 @@ class RepositoryContractTest(unittest.TestCase):
 
     def test_grammar_008_separates_foreign_script_from_armenian_ending(self):
         text = (ROOT / "skills" / "hy-text" / "references" / "editorial-grammar.md").read_text(encoding="utf-8")
-        rule = text.split("## HY-GRM-008", 1)[1]
+        after_heading = text.split("## HY-GRM-008", 1)[1]
+        rule = re.split(r"(?=^## HY-)", after_heading, maxsplit=1, flags=re.MULTILINE)[0]
+
         self.assertIn("Apricode-ում", rule)
+        self.assertIn("Apricode-ի թիմը պատասխանեց։", rule)
         self.assertIn("Apricodeում", rule)
+        self.assertIn("Մենք ընտրեցինք Apricode։", rule)
         self.assertIn("Apricode ընկերությունում", rule)
-        self.assertIn("SRC-EDITORIAL-POLICY", rule)
-        self.assertIn("SRC-LC-FOREIGN-INFLECTION", rule)
-        self.assertIn("SRC-UNICODE-ARMENIAN", rule)
+        self.assertIn("կոդի, URL-ի կամ ֆայլի անվան ներսը", rule)
+        self.assertIn("օտարալեզու մեջբերման ներսում", rule)
+        self.assertIn("**Խստություն։** medium", rule)
+        self.assertIn("**Հիմք։** խմբագրական որոշում – SRC-EDITORIAL-POLICY։", rule)
+        self.assertIn("Նորմատիվ զուգահեռի աղբյուրն է SRC-LC-FOREIGN-INFLECTION։", rule)
+        self.assertIn("պաշտոնական հիմնավորում չէ այս կանոնի՝ առանց չակերտների կիրառության համար", rule)
+        self.assertIn("U+002D-ը U+2010 HYPHEN-ի փոխարեն ընտրելը թվային համատեղելիության խմբագրական որոշում է, ոչ թե պաշտոնական նորմ", rule)
+        self.assertIn("նիշային քաղաքականության տեխնիկական հիմքն է SRC-UNICODE-ARMENIAN։", rule)
+
+        for example in ("Apricode-ում", "Apricode-ի"):
+            separator_index = rule.index(example) + len("Apricode")
+            self.assertEqual(0x002D, ord(rule[separator_index]))
+
+        for disallowed_separator in ("\u058a", "\u2010", "\u2014"):
+            self.assertNotIn(disallowed_separator, rule)
 
 
 if __name__ == "__main__":
