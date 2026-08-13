@@ -31,9 +31,9 @@ class ReviewLedgerTest(unittest.TestCase):
                 "through_rule": "HY-INF-007",
             },
             "ux-writing.md": {
-                "reviewed_commit": "ee481dd2c9c4313deeb14a50993025a2abdc517e",
+                "reviewed_commit": "324841d3b731f0c10149af0fa4377ae723fbb257",
                 "reviewed_at": "2026-08-14",
-                "through_rule": "HY-UX-006",
+                "through_rule": "HY-UX-010",
             },
             "business-writing.md": {
                 "reviewed_commit": "ee481dd2c9c4313deeb14a50993025a2abdc517e",
