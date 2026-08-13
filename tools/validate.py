@@ -7,6 +7,7 @@ import json
 import re
 import sys
 import unicodedata
+from html.parser import HTMLParser
 from pathlib import Path
 
 try:
@@ -41,6 +42,10 @@ RULE_RE = re.compile(r"^## (HY-[A-Z]{2,4}-\d{3})$", re.MULTILINE)
 SOURCE_RE = re.compile(r"\bSRC-[A-Z0-9]+(?:-[A-Z0-9]+)*\b")
 USAGE_REFERENCE_RE = re.compile(r"\bUSAGE-[A-Z0-9]+(?:-[A-Z0-9]+)*\b")
 STUDY_STEM_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+MODERN_USAGE_BASIS = "ժամանակակից գործածություն"
+MODERN_USAGE_WORDS = tuple(MODERN_USAGE_BASIS.split())
+MARKDOWN_INLINE_DELIMITERS = frozenset("*_~`[]")
+MARKDOWN_REFERENCE_LINK_RE = re.compile(r"\[([^\]\r\n]*)\]\[[^\]\r\n]*\]")
 TEXT_SUFFIXES = {".md", ".json", ".jsonl", ".yaml", ".yml", ".py"}
 ALLOWED_USAGE_LAYERS = ALLOWED_LAYERS
 AGGREGATE_FIELDS = {
@@ -425,17 +430,130 @@ def _rule_basis_blocks(chunk: str) -> list[str]:
     return pattern.findall(chunk)
 
 
-def _searchable_basis_text(value: str) -> str:
-    """Normalize Unicode whitespace and Markdown punctuation for basis labels."""
+def _remove_inline_link_destinations(value: str) -> str:
+    """Remove balanced inline-link destinations while keeping their labels."""
 
-    normalized = unicodedata.normalize("NFKC", value).casefold()
+    output = []
+    marker = "\x00"
+    index = 0
+    while index < len(value):
+        if value[index] != "]" or index + 1 >= len(value) or value[index + 1] != "(":
+            output.append(value[index])
+            index += 1
+            continue
+
+        depth = 0
+        quote = None
+        angle_destination = False
+        destination_end = None
+        cursor = index + 1
+        while cursor < len(value):
+            character = value[cursor]
+            if character == "\\" and cursor + 1 < len(value):
+                cursor += 2
+                continue
+            if quote is not None:
+                if character == quote:
+                    quote = None
+                cursor += 1
+                continue
+            if angle_destination:
+                if character == ">":
+                    angle_destination = False
+                cursor += 1
+                continue
+            if character == "<" and depth == 1:
+                angle_destination = True
+            elif character in {'"', "'"} and depth == 1:
+                quote = character
+            elif character == "(":
+                depth += 1
+            elif character == ")":
+                depth -= 1
+                if depth == 0:
+                    destination_end = cursor
+                    break
+            cursor += 1
+
+        output.append("]")
+        if destination_end is None:
+            index += 1
+            continue
+        output.append(marker)
+        index = destination_end + 1
+    return "".join(output)
+
+
+class _VisibleHTMLTextParser(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.parts = []
+
+    def handle_data(self, data: str) -> None:
+        self.parts.append(data)
+
+
+def _visible_html_text(value: str) -> str:
+    parser = _VisibleHTMLTextParser()
+    parser.feed(value)
+    parser.close()
+    return "\x00".join(parser.parts)
+
+
+def _visible_basis_markdown(value: str) -> str:
+    """Keep rendered inline text while removing hidden Markdown destinations."""
+
+    marker = "\x00"
+    visible = _remove_inline_link_destinations(value)
+    visible = MARKDOWN_REFERENCE_LINK_RE.sub(
+        lambda match: f"{marker}{match.group(1)}{marker}",
+        visible,
+    )
+    return _visible_html_text(visible)
+
+
+def _searchable_basis_words(value: str) -> list[tuple[str, frozenset[int]]]:
+    """Return visible words and positions interrupted only by invisible markup."""
+
+    normalized = unicodedata.normalize("NFKC", _visible_basis_markdown(value)).casefold()
+    words = []
     characters = []
+    soft_boundaries = set()
+
+    def finish_word() -> None:
+        if characters:
+            words.append(("".join(characters), frozenset(soft_boundaries)))
+            characters.clear()
+            soft_boundaries.clear()
+
     for character in normalized:
-        if unicodedata.category(character)[0] in {"L", "N"}:
+        category = unicodedata.category(character)
+        if category[0] in {"L", "N"}:
             characters.append(character)
+        elif category[0] in {"C", "M"} or character in MARKDOWN_INLINE_DELIMITERS:
+            if characters:
+                soft_boundaries.add(len(characters))
         else:
-            characters.append(" ")
-    return " ".join("".join(characters).split())
+            finish_word()
+    finish_word()
+    return words
+
+
+def _contains_modern_usage_basis(value: str) -> bool:
+    words = _searchable_basis_words(value)
+    first_word, second_word = MODERN_USAGE_WORDS
+    if any(
+        left[0] == first_word and right[0] == second_word
+        for left, right in zip(words, words[1:])
+    ):
+        return True
+
+    combined = first_word + second_word
+    split_position = len(first_word)
+    return any(
+        word == combined and split_position in soft_boundaries
+        for word, soft_boundaries in words
+    )
 
 
 def validate_usage_chain(root: Path, rule_paths: list[Path], source_path: Path) -> list[str]:
@@ -563,7 +681,7 @@ def validate_usage_chain(root: Path, rule_paths: list[Path], source_path: Path) 
 
             basis_blocks = _rule_basis_blocks(chunk)
             for basis_block in basis_blocks:
-                if "ժամանակակից գործածություն" not in _searchable_basis_text(basis_block):
+                if not _contains_modern_usage_basis(basis_block):
                     continue
                 aggregate_ids = USAGE_REFERENCE_RE.findall(basis_block)
                 if not aggregate_ids:

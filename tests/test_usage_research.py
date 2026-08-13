@@ -139,6 +139,45 @@ class UsageAggregateTest(unittest.TestCase):
         self.assertIn(idna_key, result["domains"])
         self.assertNotIn(f"news.{idna_key}", result["domains"])
 
+    def test_idna_mapped_legacy_ipv4_aliases_cannot_inflate_domain_threshold(self):
+        fullwidth_digits = str.maketrans("0123456789", "０１２３４５６７８９")
+        aliases = ["１２７.１"] + [
+            f"{'0' * padding}177.0.0.1".translate(fullwidth_digits)
+            for padding in range(1, 20)
+        ]
+        observations = make_observations(total=100, domains=20, layers=3)
+        for index, observation in enumerate(observations):
+            alias = aliases[index % len(aliases)]
+            observation["url"] = f"https://{alias}/article/{index}"
+            observation["domain"] = alias
+
+        with self.assertRaises(ValueError):
+            aggregate_usage.build_aggregate(
+                observations,
+                "USAGE-FOREIGN-SUFFIX",
+                "mixed-script suffix",
+            )
+
+    def test_idna_mapped_global_legacy_ipv4_is_canonicalized(self):
+        self.assertEqual(
+            "8.8.8.8",
+            aggregate_usage.canonical_usage_domain("０１０.０１０.０１０.０１０"),
+        )
+
+    def test_ipv6_scope_ids_cannot_inflate_domain_threshold(self):
+        observations = make_observations(total=100, domains=20, layers=3)
+        for index, observation in enumerate(observations):
+            scoped_address = f"2001:4860:4860::8888%25z{index % 20}"
+            observation["url"] = f"https://[{scoped_address}]/article/{index}"
+            observation["domain"] = scoped_address
+
+        with self.assertRaisesRegex(ValueError, "scope"):
+            aggregate_usage.build_aggregate(
+                observations,
+                "USAGE-FOREIGN-SUFFIX",
+                "mixed-script suffix",
+            )
+
     def test_non_public_hosts_and_addresses_are_rejected(self):
         rejected = (
             "localhost",
@@ -156,6 +195,8 @@ class UsageAggregateTest(unittest.TestCase):
             "127.1",
             "0177.0.0.1",
             "0x7f.0.0.1",
+            "１２７.１",
+            "０１７７.０.０.１",
             "foo.local",
             "foo.localhost",
             "example.invalid",
@@ -192,6 +233,10 @@ class UsageAggregateTest(unittest.TestCase):
         self.assertEqual(
             "8.8.8.8",
             aggregate_usage.canonical_usage_domain("8.8.8.8"),
+        )
+        self.assertEqual(
+            "2001:4860:4860::8888",
+            aggregate_usage.canonical_usage_domain("2001:4860:4860::8888"),
         )
 
     def test_subdomains_cannot_inflate_one_independence_key(self):
@@ -627,6 +672,97 @@ class UsageChainOfCustodyTest(unittest.TestCase):
                         ),
                         errors,
                     )
+
+    def test_intra_word_markdown_cannot_hide_a_modern_usage_basis(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root, _, _, source_path, rule_path = self.make_repository(directory)
+            basis_forms = (
+                "**Հիմք։** ժամանակակից գոր**ծա**ծություն – SRC-EDITORIAL-POLICY։",
+                "  **Հիմք։** ԺԱՄԱՆԱ**ԿԱԿԻՑ**\n  գոր__ծա__ծություն – SRC-EDITORIAL-POLICY։",
+                "> **Հիմք։** ժամանակակից գոր~~ծա~~ծություն – SRC-EDITORIAL-POLICY։",
+                "**Հիմք։** ժամանակակից գոր[ծա](https://example.am)ծություն "
+                "– SRC-EDITORIAL-POLICY։",
+                "**Հիմք։** ժամանակակից գոր[ծա](https://example.am/a((b)))ծություն "
+                "– SRC-EDITORIAL-POLICY։",
+                "**Հիմք։** ժամանակակից գոր[ծա]ծություն – SRC-EDITORIAL-POLICY։\n\n"
+                "[ծա]: https://example.am",
+                "**Հիմք։** ժամանակակից գոր<em>ծա</em>ծություն – SRC-EDITORIAL-POLICY։",
+                "**Հիմք։** ժամանակակից գոր<em title=\">\">ծա</em>ծություն "
+                "– SRC-EDITORIAL-POLICY։",
+                "**Հիմք։** ժամանակակից գոր<em\n title=\"x\">ծա</em>ծություն "
+                "– SRC-EDITORIAL-POLICY։",
+                "**Հիմք։** ժամանակակից գոր<!---->ծածություն – SRC-EDITORIAL-POLICY։",
+                "**Հիմք։** ժամանակակից գոր<?target?>ծածություն "
+                "– SRC-EDITORIAL-POLICY։",
+            )
+            for basis in basis_forms:
+                with self.subTest(basis=basis):
+                    rule_path.write_text(
+                        "## HY-INF-999\n\n"
+                        f"{basis}\n\n"
+                        "**Կիրառություն։** օրինակ։\n",
+                        encoding="utf-8",
+                    )
+
+                    errors = self.validate(root, source_path, rule_path)
+
+                    self.assertTrue(
+                        any("modern usage must reference" in error for error in errors),
+                        errors,
+                    )
+
+    def test_format_controls_cannot_hide_a_modern_usage_basis(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root, _, _, source_path, rule_path = self.make_repository(directory)
+            basis_forms = [
+                f"ժամանակակից գոր{character}ծածություն"
+                for character in ("\u200b", "\u2060", "\x00", "\u0085", "\x1c", "\ufe0f")
+            ] + [
+                f"ժամա{character}նակակից գործածություն"
+                for character in ("\u200b", "\u2060", "\x00", "\u0085", "\x1c", "\ufe0f")
+            ] + [
+                f"ժամանակակից{character}գործածություն"
+                for character in ("\u200b", "\u2060", "\x00")
+            ]
+            for basis in basis_forms:
+                with self.subTest(basis=ascii(basis)):
+                    rule_path.write_text(
+                        "## HY-INF-999\n\n"
+                        f"**Հիմք։** {basis} "
+                        "– SRC-EDITORIAL-POLICY։\n\n"
+                        "**Կիրառություն։** օրինակ։\n",
+                        encoding="utf-8",
+                    )
+
+                    errors = self.validate(root, source_path, rule_path)
+
+                    self.assertTrue(
+                        any("modern usage must reference" in error for error in errors),
+                        errors,
+                    )
+
+    def test_unrelated_text_does_not_trigger_modern_usage_custody(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root, _, _, source_path, rule_path = self.make_repository(directory)
+            basis_forms = (
+                "**Հիմք։** խմբագրական որոշում՝ ժամանակակից լեզվի գործածություն։",
+                "**Հիմք։** նախաժամանակակից գործածություն։",
+                "**Հիմք։** նախ**ժամանակակից** գործածություն։",
+                "**Հիմք։** նախ\u0301ժամանակակից գործածություն։",
+                "**Հիմք։** ժամանակակից գործածությունային օրինակ։",
+            )
+            for basis in basis_forms:
+                with self.subTest(basis=basis):
+                    rule_path.write_text(
+                        "## HY-INF-999\n\n"
+                        f"{basis}\n\n"
+                        "**Կիրառություն։** օրինակ։\n",
+                        encoding="utf-8",
+                    )
+
+                    errors = self.validate(root, source_path, rule_path)
+
+                    self.assertEqual([], errors)
 
     def test_every_usage_reference_is_resolved_even_without_a_modern_basis_label(self):
         with tempfile.TemporaryDirectory() as directory:

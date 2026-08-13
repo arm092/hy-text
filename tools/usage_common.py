@@ -73,6 +73,8 @@ def _canonical_ip(value: str) -> str | None:
         address = ipaddress.ip_address(candidate)
     except ValueError:
         return None
+    if isinstance(address, ipaddress.IPv6Address) and address.scope_id is not None:
+        raise ValueError(f"domain must not use an IPv6 scope ID: {value!r}")
     if (
         not address.is_global
         or address.is_private
@@ -182,6 +184,9 @@ def canonical_usage_domain(value: object) -> str:
     canonical_ip = _canonical_ip(domain)
     if canonical_ip is not None:
         return canonical_ip
+    canonical_legacy_ipv4 = _canonical_legacy_ipv4(domain)
+    if canonical_legacy_ipv4 is not None:
+        return canonical_legacy_ipv4
     if labels[-1] in SPECIAL_USE_SUFFIXES or any(
         domain == reserved or domain.endswith(f".{reserved}")
         for reserved in RESERVED_DOMAINS
