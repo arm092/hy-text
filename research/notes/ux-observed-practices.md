@@ -70,6 +70,26 @@ When an ellipsis-marked label also contains a finite verb, classify it as `finit
 
 Each study remains `usage-study-required` until its observation file passes repository validation and its deterministic aggregate passes the 100-use, 20-domain, and three-layer thresholds. The aggregate can establish a description of observed practice, not a causal usability benefit. A rule is drafted only after Arman reviews the aggregate and proposed conclusion.
 
+## Results from the 2026-08-14 slice
+
+All four observation sets passed the mechanical sample gates. The registered aggregates are deterministic rebuilds of their paired JSONL files.
+
+| Candidate | Uses | Domains | Layers | Observed distribution | Research conclusion |
+|---|---:|---:|---:|---|---|
+| `CAND-UX-001` | 100 | 20 | 4 | 99 infinitive labels; 1 other label | The infinitive dominates this slice, but 81 uses come from the community layer and 79 are content deletion. Treat the result as a narrow tendency, not a universal recommendation. |
+| `CAND-UX-002` | 100 | 90 | 5 | 94 without a colon; 4 with a colon; 2 with other punctuation | Colon-free labels dominate both stacked and inline layouts across a broadly distributed sample. This supports a current-practice editorial recommendation, not a claim that omission improves usability. |
+| `CAND-UX-003` | 100 | 32 | 4 | 80 formal; 12 impersonal; 8 informal | Formal address dominates this slice, but 72 uses come from the community layer. Audience and product voice remain required context. |
+| `CAND-UX-004` | 100 | 20 | 5 | 41 finite; 44 verbal-noun; 15 ellipsis-label; 9 determinate | No form reaches 70 percent, and 85 uses come from the community layer. Retain contextual variants; the sample does not justify one universal loading formula. |
+
+### Proposals for Arman's review
+
+1. Promote `CAND-UX-002` to a new rule after approval: omit a colon after a short visible field label in both stacked and inline form layouts. Preserve punctuation required by a full question or sentence and do not alter protected fragments.
+2. Keep the draft for `CAND-UX-001` narrow: use an infinitive for a destructive control when the button names the action directly. Do not claim that this is safer or clearer, and do not generalize from content deletion to every destructive context without additional balanced sampling.
+3. Keep the draft for `CAND-UX-003` audience-sensitive: use formal address as the default in a general public interface unless the product has an intentionally informal voice; an impersonal construction remains valid when no direct address is needed. The layer concentration must be disclosed in the rule basis.
+4. Do not create a universal preference rule from `CAND-UX-004`. A contextual note may allow a finite form for an active state and a verbal noun for a compact status label; determinate progress should retain its numeric or bounded indicator. Ellipsis is presentation, not proof of a separate grammatical preference.
+
+No proposal is included in the normative corpus before Arman's explicit approval.
+
 ## Exclusion log
 
 The following candidate families were rejected during the 2026-08-14 collection pass:
@@ -84,3 +104,6 @@ The following candidate families were rejected during the 2026-08-14 collection 
 ## Search log
 
 - 2026-08-14 – GitHub code searches for `Բեռնվում է`, `Բեռնում...`, `Փաստաթղթի բեռնում`, `Մշակվում է...`, `Ջնջել հաշիվը`, `Ջնջել`, and `Հեռացնել`. Retained resources were opened at immutable commits; upstream repositories were checked for fork and archive state, and copied locale bundles and mismatched source-target pairs were excluded.
+- 2026-08-14 – Mozilla Pontoon API searches for active loading, downloading, deletion, and direct-address strings in locale `hy-AM`; Western Armenian `hyw` and traditional-orthography `hye` resources were excluded. Retained entity resources were individually opened.
+- 2026-08-14 – TranslateWiki MediaWiki API searches for Eastern Armenian interface messages ending in `/hy`; Western Armenian `/hyw`, fuzzy entries, prose-only messages, errors, and non-control strings were excluded. Retained message resources were individually opened through the revision API.
+- 2026-08-14 – Public Armenian government, professional, commercial, community, and media forms were opened to verify a visible label, its associated control, terminal punctuation, and stacked or inline presentation. Placeholder-only prompts and key-value displays were excluded.
