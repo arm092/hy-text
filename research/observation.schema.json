@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "hy-text verified usage observation",
+  "type": "object",
+  "required": ["url", "domain", "layer", "variant", "observed_at", "example"],
+  "properties": {
+    "url": {"type": "string", "format": "uri", "pattern": "^https?://"},
+    "domain": {"type": "string", "minLength": 1},
+    "layer": {
+      "type": "string",
+      "enum": ["government", "media", "commercial", "professional", "community"]
+    },
+    "variant": {"type": "string", "minLength": 1},
+    "observed_at": {"type": "string", "format": "date"},
+    "example": {"type": "string", "minLength": 1, "maxLength": 240}
+  },
+  "additionalProperties": false
+}
