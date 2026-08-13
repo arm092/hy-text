@@ -122,17 +122,19 @@
     "question": "Which punctuation and line-break pattern follows Հարգելի plus an addressee in current Armenian business email greetings?",
     "required_evidence": "A validated aggregate of at least 100 manually verified business-email greeting patterns from 20 independent domains and three source layers, with addressee type recorded.",
     "source_ids": [],
-    "status": "usage-study-required",
-    "reason": "No verified source in the audited registry covers business-email greeting punctuation, so current practice must be established independently."
+    "status": "insufficient",
+    "reason": "The search verified 114 eligible opened URLs across all five layers, but only 16 of the required 20 independent domains. The four-domain deficit prevents an aggregate or usage claim under the frozen protocol."
   },
   {
     "candidate_id": "CAND-BIZ-003",
     "reference": "business-writing.md",
     "question": "Do current Armenian business-email subject lines omit terminal punctuation, and does usage change when the subject is a full question?",
     "required_evidence": "A validated aggregate of at least 100 manually verified subject lines from 20 independent domains and three source layers, separating statements from questions.",
-    "source_ids": [],
-    "status": "usage-study-required",
-    "reason": "General punctuation sources do not settle email-subject conventions; this is a current digital-practice question requiring representative observations."
+    "source_ids": [
+      "USAGE-BIZ-003"
+    ],
+    "status": "source-ready",
+    "reason": "USAGE-BIZ-003 meets the sample gates for phrase and statement subjects and supports an evidence-bounded no-terminal-mark draft; it contains no question subjects, so it cannot support a recommendation for questions."
   },
   {
     "candidate_id": "CAND-BIZ-004",
@@ -140,8 +142,8 @@
     "question": "Do Armenian business-email systems and writers retain Re: and Fwd: reply-chain prefixes or use localized alternatives?",
     "required_evidence": "A validated aggregate of at least 100 manually verified reply and forward subject prefixes from 20 independent domains and three source layers, excluding automatic duplicates.",
     "source_ids": [],
-    "status": "usage-study-required",
-    "reason": "Reply-prefix choice is unsettled digital practice, and neither Unicode semantics nor the abbreviation dictionary prescribes these email-system labels."
+    "status": "insufficient",
+    "reason": "The strict Armenian-language search retained 0 of the required 100 observations across 0 of 20 domains and 0 of three layers. English subjects about Armenia, romanized Armenian, forum replies, and foreign product localizations were excluded, so no usage claim is supportable."
   },
   {
     "candidate_id": "CAND-BIZ-005",
@@ -157,8 +159,10 @@
     "reference": "business-writing.md",
     "question": "Which Armenian closing formulas are used in current business email at formal, neutral, and established-colleague levels of relationship?",
     "required_evidence": "A validated aggregate of at least 100 manually verified closing formulas from 20 independent domains and three source layers, stratified by relationship context.",
-    "source_ids": [],
-    "status": "usage-study-required",
-    "reason": "The appropriate closing is a contextual current-practice question, and the audited registry contains no narrow authority or qualifying aggregate for it."
+    "source_ids": [
+      "USAGE-BIZ-006"
+    ],
+    "status": "source-ready",
+    "reason": "USAGE-BIZ-006 meets the observation, independence, and layer gates and supports an evidence-bounded draft about attested closing families; strong archive concentration and sparse non-respectful variants must remain explicit limitations."
   }
 ]

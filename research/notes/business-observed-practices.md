@@ -68,4 +68,28 @@ Each candidate remains `usage-study-required` until its observation file and det
 
 ## Results
 
-Results, limitations, exclusions, and proposed decisions will be recorded here only after the corresponding deterministic aggregate passes all sample gates.
+### `USAGE-BIZ-002` – greeting punctuation and line breaks
+
+The search verified 114 eligible opened URLs across all five corpus layers, but they represent only 16 of the required 20 independent domains. The observation and layer thresholds are met; the independence-key threshold has a deficit of four. Ninety-nine eligible URLs came from one public mailing-list archive, so retaining them would not repair the independence deficit.
+
+Search snippets, an attachment-only thread without a visible greeting, greetings not beginning with `Հարգելի`, duplicate quoted replies, mirrored or parameter-only copies, ordinary letters not identified as email, private pages, transliteration, Western or traditional Armenian, and machine-translated advice were excluded. No observation file or aggregate is published, and no usage claim is proposed. The candidate is insufficient under the frozen protocol.
+
+### `USAGE-BIZ-003` – subject-line punctuation
+
+The deterministic aggregate contains 100 observations from 45 independence keys and four corpus layers. Ninety-nine subjects are phrases without a terminal mark; one is a complete statement without a terminal mark. No eligible question subject was found.
+
+The sample is weighted toward vacancy, competition, application, and notification templates. Article headings, form titles, prose advice, reply or forward subjects, inaccessible pages, mirrors, and search-only matches were excluded. The evidence supports drafting a recommendation to omit a terminal mark from phrase and statement subjects. It does not support any recommendation for question subjects, which remain unresolved.
+
+### `USAGE-BIZ-004` – reply and forward prefixes
+
+The strict search retained 0 of 100 required observations, 0 of 20 independence keys, and 0 of three required layers. English-language subjects merely concerning Armenia, romanized Armenian, forum reply markers, `Re` meaning “regarding”, Armenian body text paired with a foreign-language subject, and non-Armenian product documentation were excluded.
+
+No aggregate is published and no usage claim is proposed. This candidate is insufficient under the frozen protocol; the absence of retained observations is not evidence that Armenian users do or do not use `Re:`, `Fwd:`, `Fw:`, or localized alternatives.
+
+### `USAGE-BIZ-006` – closing formulas
+
+The deterministic aggregate contains 100 observations from 20 independence keys and all five corpus layers. Respect-based formulas account for 88 observations, best-wishes formulas for 10, and thanks formulas for 2. The corpus includes formal, neutral, and established-colleague contexts.
+
+The sample is strongly concentrated: 68 observations come from one public professional mailing-list archive and 12 from original open-source email localizations hosted on GitHub; the community layer therefore supplies 80 observations. Mirrors, copied forks, ordinary letters not identified as email, automatic footers, private mail, machine-translated advice pages, and unclassifiable relationship contexts were excluded.
+
+The study establishes that the three recorded formula families are attested. Because the dominant share is concentrated in one layer, it does not yet justify a general default closing under the project’s 70% decision rule. A normative default should wait for either a more balanced sample or an explicit editorial decision; no business-writing rule is changed in this research branch.
