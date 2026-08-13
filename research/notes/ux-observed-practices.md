@@ -80,3 +80,7 @@ The following candidate families were rejected during the 2026-08-14 collection 
 - Aladin Express, Harmare, and Mira Trans contact fields from the field-label study because the visible prompt was placeholder-only rather than a persistent field label;
 - static prose telling a reader to wait, including the Active Citizen FAQ, from the loading-message study because it is not an active interface state;
 - `OK` and `Cancel` confirmation controls in Armenian documentation from the destructive-label study because the labels themselves are foreign-language fragments.
+
+## Search log
+
+- 2026-08-14 – GitHub code searches for `Բեռնվում է`, `Բեռնում...`, `Փաստաթղթի բեռնում`, `Մշակվում է...`, `Ջնջել հաշիվը`, `Ջնջել`, and `Հեռացնել`. Retained resources were opened at immutable commits; upstream repositories were checked for fork and archive state, and copied locale bundles and mismatched source-target pairs were excluded.

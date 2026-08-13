@@ -18,3 +18,16 @@
 {"url":"https://www.huj.am/hy","domain":"huj.am","layer":"community","variant":"no-colon/stacked","observed_at":"2026-08-14","example":"Անուն"}
 {"url":"https://enricomatte.com/","domain":"enricomatte.com","layer":"professional","variant":"no-colon/stacked","observed_at":"2026-08-14","example":"Անուն *"}
 {"url":"https://donos-arm.com/hy/pages/contact","domain":"donos-arm.com","layer":"commercial","variant":"other-punctuation/stacked","observed_at":"2026-08-14","example":"Անուն՝"}
+{"url":"https://hightech.gov.am/public-discussion-02-04-26","domain":"hightech.gov.am","layer":"government","variant":"no-colon/stacked","observed_at":"2026-08-14","example":"Կազմակերպության անվանում*"}
+{"url":"https://hightech.gov.am/ru/gitex-europe-2026","domain":"hightech.gov.am","layer":"government","variant":"no-colon/stacked","observed_at":"2026-08-14","example":"Կոնտակտային անձի անուն, ազգանուն *"}
+{"url":"https://hightech.gov.am/hy/idea-testing-2026","domain":"hightech.gov.am","layer":"government","variant":"no-colon/stacked","observed_at":"2026-08-14","example":"Ընկերության կամ թիմի անվանում*"}
+{"url":"https://hightech.gov.am/hy/ministry/public-council?catid=17%3Ahightech&id=1765%3Aai-virtual-institute-2nd-meetup&view=article","domain":"hightech.gov.am","layer":"government","variant":"no-colon/stacked","observed_at":"2026-08-14","example":"Անուն*"}
+{"url":"https://hightech.gov.am/hy/projects/dramasnorhner/paymanagrery-lutselu-masin-canucumner?catid=17%3Ahightech&id=1021%3Aidex-application-2025&view=article","domain":"hightech.gov.am","layer":"government","variant":"no-colon/stacked","observed_at":"2026-08-14","example":"Ընկերության անվանումը*"}
+{"url":"https://hightech.gov.am/ru/projects/dramasnorhner/paymanagrery-lutselu-masin-canucumner?catid=17&id=1120%3Amwc-barcelona-2025-application-entries&view=article","domain":"hightech.gov.am","layer":"government","variant":"no-colon/stacked","observed_at":"2026-08-14","example":"ՀՎՀՀ*"}
+{"url":"https://mediamonitoring.am/contact.php","domain":"mediamonitoring.am","layer":"commercial","variant":"no-colon/stacked","observed_at":"2026-08-14","example":"Անուն *"}
+{"url":"https://khostum.am/hy/contacts","domain":"khostum.am","layer":"community","variant":"no-colon/stacked","observed_at":"2026-08-14","example":"Անուն *"}
+{"url":"https://celsius.am/am/contact-us","domain":"celsius.am","layer":"commercial","variant":"no-colon/stacked","observed_at":"2026-08-14","example":"Ձեր անունը*"}
+{"url":"https://100bytelcell.am/hy/contact-us","domain":"100bytelcell.am","layer":"commercial","variant":"no-colon/stacked","observed_at":"2026-08-14","example":"Անուն"}
+{"url":"https://armleasing.am/hy/contact-us","domain":"armleasing.am","layer":"commercial","variant":"no-colon/stacked","observed_at":"2026-08-14","example":"Անուն Ազգանուն"}
+{"url":"https://ircenter.am/hy/consultation","domain":"ircenter.am","layer":"professional","variant":"no-colon/stacked","observed_at":"2026-08-14","example":"Անուն *"}
+{"url":"https://emall.am/contact-us","domain":"emall.am","layer":"commercial","variant":"no-colon/stacked","observed_at":"2026-08-14","example":"Անուն (ոչ պարտադիր)"}
