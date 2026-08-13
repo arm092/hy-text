@@ -15,3 +15,6 @@
 {"url":"https://armaa.am/am/contact-us","domain":"armaa.am","layer":"professional","variant":"no-colon/stacked","observed_at":"2026-08-14","example":"Անուն *"}
 {"url":"https://elearning.media.am/contact/","domain":"media.am","layer":"professional","variant":"no-colon/stacked","observed_at":"2026-08-14","example":"Անուն"}
 {"url":"https://www.web.am/hy/support","domain":"web.am","layer":"commercial","variant":"other-punctuation/stacked","observed_at":"2026-08-14","example":"Լրիվ անուն*․"}
+{"url":"https://www.huj.am/hy","domain":"huj.am","layer":"community","variant":"no-colon/stacked","observed_at":"2026-08-14","example":"Անուն"}
+{"url":"https://enricomatte.com/","domain":"enricomatte.com","layer":"professional","variant":"no-colon/stacked","observed_at":"2026-08-14","example":"Անուն *"}
+{"url":"https://donos-arm.com/hy/pages/contact","domain":"donos-arm.com","layer":"commercial","variant":"other-punctuation/stacked","observed_at":"2026-08-14","example":"Անուն՝"}
