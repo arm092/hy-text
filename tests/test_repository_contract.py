@@ -107,6 +107,45 @@ class RepositoryContractTest(unittest.TestCase):
         )
         self.assertEqual([], ascii_sentence_stops)
 
+    def test_score_rubric_has_stable_rule_impact_anchors(self):
+        reference_dir = ROOT / "skills" / "hy-text" / "references"
+        scoring = (reference_dir / "scoring.md").read_text(encoding="utf-8")
+        for fragment in (
+            "Կայուն կանոնների ազդեցության աղյուսակ",
+            "`HY-TYP-001`, `HY-TYP-002`, `HY-PUN-001`, `HY-PUN-004`",
+            "բոլոր կամ գրեթե բոլոր կիրառելի նախադասությունների սահմանները",
+            "`HY-BIZ-001`, `HY-BIZ-002`",
+            "`HY-BIZ-004`",
+            "`HY-UX-002`",
+            "`HY-UX-003`",
+            "`HY-UX-004`",
+            "`HY-UX-005`",
+            "`HY-UX-006`",
+            "մեկ կիրառելի UX կանոնի պահանջած հաղորդագրային միավորը",
+            "ամենացածր կիրառելի խարիսխը",
+            "Պաշտպանված հատվածի ներսում հայտնաբերված երևույթը աղյուսակին չհամապատասխանեցնել",
+        ):
+            self.assertIn(fragment, scoring)
+
+        corpus_ids = set()
+        for name in REFERENCES[:-2]:
+            corpus_ids.update(RULE_RE.findall((reference_dir / name).read_text(encoding="utf-8")))
+        referenced_ids = set(re.findall(r"\bHY-[A-Z]{2,4}-\d{3}\b", scoring))
+        self.assertLessEqual(referenced_ids, corpus_ids)
+
+        impact_table = scoring.split("## Կայուն կանոնների ազդեցության աղյուսակ", 1)[1]
+        numeric_anchors = [
+            float(value)
+            for value in re.findall(r"(?<![A-Z0-9-])`(\d+(?:\.\d+)?)`", impact_table)
+        ]
+        self.assertGreater(len(numeric_anchors), 20)
+        self.assertTrue(all(0.0 <= value <= 10.0 for value in numeric_anchors))
+
+        golden = json.loads((ROOT / "tests" / "golden" / "scoring.json").read_text(encoding="utf-8"))
+        for case in golden:
+            self.assertNotIn(case["id"], scoring)
+            self.assertNotIn(case["text"], scoring)
+
     def test_check_and_score_are_read_only(self):
         for skill in ("hy-check", "hy-score"):
             text = (ROOT / "skills" / skill / "SKILL.md").read_text(encoding="utf-8")
