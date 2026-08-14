@@ -57,6 +57,23 @@ class RepositoryContractTest(unittest.TestCase):
         for fragment in ("0.15", "0.25", "0.20", "< 3.0", "< 4.0", "50 բառ", "Գերազանց", "Կրիտիկական"):
             self.assertIn(fragment, text)
 
+    def test_score_rubric_has_deterministic_dimension_boundaries(self):
+        scoring = (ROOT / "skills" / "hy-text" / "references" / "scoring.md").read_text(encoding="utf-8")
+        for fragment in ("50 բառից կարճ", "9.0", "10.0"):
+            self.assertIn(fragment, scoring)
+        for dimension_source in (
+            "Տպագրություն", "typography.md",
+            "Լեզվի մաքրություն", "info-style.md",
+            "Գրագիտություն", "editorial-punctuation.md",
+            "Կառուցվածք", "addenda.md",
+            "Ընթերցողի համար ճշգրտություն", "ux-writing.md",
+        ):
+            self.assertIn(dimension_source, scoring)
+        for required_deduction_part in ("HY-*", "հատված", "ազդեցություն"):
+            self.assertIn(required_deduction_part, scoring)
+        self.assertIn("Մեկ խնդիրը ինքնաբերաբար չի նվազեցնում բոլոր չափումները", scoring)
+        self.assertIn("Պաշտպանված ամբողջական հատվածները անփոփոխ են և բացառվում են նվազեցումներից", scoring)
+
     def test_check_and_score_are_read_only(self):
         for skill in ("hy-check", "hy-score"):
             text = (ROOT / "skills" / skill / "SKILL.md").read_text(encoding="utf-8")

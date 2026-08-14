@@ -31,6 +31,13 @@ class GoldenContractTest(unittest.TestCase):
         for case in cases:
             self.assertIn(case["protected"], case["input"])
 
+    def test_score_skill_requires_independent_dimension_evidence(self):
+        skill = (ROOT / "skills" / "hy-score" / "SKILL.md").read_text(encoding="utf-8")
+        for fragment in ("50 բառից կարճ", "9.0", "10.0", "separate observable effect"):
+            self.assertIn(fragment, skill)
+        self.assertIn("One issue does not automatically lower every dimension", skill)
+        self.assertIn("exclude the complete span from deductions", skill)
+
     def test_grammar_008_golden_cases_preserve_every_protected_class(self):
         cases = json.loads(
             (ROOT / "tests" / "golden" / "hy-grm-008-protected.json").read_text(
