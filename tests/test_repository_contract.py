@@ -112,9 +112,9 @@ class RepositoryContractTest(unittest.TestCase):
         scoring = (reference_dir / "scoring.md").read_text(encoding="utf-8")
         for fragment in (
             "Կայուն կանոնների ազդեցության աղյուսակ",
-            "`HY-TYP-001` – մեկ տեղային",
+            "`HY-TYP-001` – մեկ կամ ավելի",
             "`HY-TYP-002` – մեկ տեղային",
-            "`HY-PUN-001` – մեկ տեղային",
+            "`HY-PUN-001` – մեկ կամ ավելի",
             "`HY-PUN-004` – մեկ տեղային",
             "առնվազն երկու սխալները զբաղեցնում են բոլոր կամ գրեթե բոլոր կիրառելի նախադասությունների սահմանները",
             "առնվազն երկու սխալները զբաղեցնում են բոլոր կամ գրեթե բոլոր կիրառելի հնչերանգային նշանները",
@@ -145,8 +145,10 @@ class RepositoryContractTest(unittest.TestCase):
         self.assertGreater(len(numeric_anchors), 20)
         self.assertTrue(all(0.0 <= value <= 10.0 for value in numeric_anchors))
 
-        self.assertIn("| `HY-TYP-001` – մեկ տեղային", impact_table)
-        self.assertIn("| `HY-PUN-001` – մեկ տեղային", impact_table)
+        self.assertIn("| `HY-TYP-001` – մեկ կամ ավելի", impact_table)
+        self.assertIn("| `HY-PUN-001` – մեկ կամ ավելի", impact_table)
+        self.assertIn("`HY-TYP-002` – առնվազն երկու կրկնվող, բայց ոչ խիտ", impact_table)
+        self.assertIn("`HY-PUN-004` – առնվազն երկու կրկնվող, բայց ոչ խիտ", impact_table)
         self.assertNotRegex(impact_table, r"(?m)^\| Նույն (?:տպագրական|կետադրական) խմբի սխալները")
 
         for line in impact_table.splitlines():
