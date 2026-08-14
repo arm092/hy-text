@@ -98,6 +98,14 @@ class RepositoryContractTest(unittest.TestCase):
         ):
             self.assertIn(fragment, score_skill)
 
+        for ascii_stop, armenian_stop in (
+            ("չի ստուգվում. գնահատվում է", "չի ստուգվում։ Գնահատվում է"),
+            ("լինելու պատճառով. այստեղ", "լինելու պատճառով։ Այստեղ"),
+            ("հետ միասին. այն", "հետ միասին։ Այն"),
+        ):
+            self.assertNotIn(ascii_stop, scoring)
+            self.assertIn(armenian_stop, scoring)
+
     def test_check_and_score_are_read_only(self):
         for skill in ("hy-check", "hy-score"):
             text = (ROOT / "skills" / skill / "SKILL.md").read_text(encoding="utf-8")
