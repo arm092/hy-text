@@ -5,9 +5,12 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import sys
 from pathlib import Path
 
+
+DIMENSIONS = ("typography", "language", "grammar", "structure", "reader")
 
 WEIGHTS = {
     "typography": 0.15,
@@ -16,6 +19,143 @@ WEIGHTS = {
     "structure": 0.20,
     "reader": 0.20,
 }
+
+TOTAL_DEVIATION_LIMIT = 0.7
+DIMENSION_DEVIATION_LIMIT = 1.0
+
+
+def _validate_scores(scores: object, context: str) -> None:
+    if not isinstance(scores, dict) or set(scores) != set(DIMENSIONS):
+        raise ValueError(f"{context} scores must contain exactly the required dimensions")
+
+    for dimension in DIMENSIONS:
+        value = scores[dimension]
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            raise ValueError(f"{context} score for {dimension} must be numeric")
+        if not math.isfinite(value) or not 0 <= value <= 10:
+            raise ValueError(f"{context} score for {dimension} must be from 0 to 10")
+
+
+def total_score(scores: dict[str, float]) -> float:
+    """Return the published weighted score after non-compensatory caps."""
+    _validate_scores(scores, "score")
+    total = round(sum(float(scores[dimension]) * WEIGHTS[dimension] for dimension in DIMENSIONS), 1)
+    caps = [10.0]
+    if any(float(scores[dimension]) < 3.0 for dimension in DIMENSIONS):
+        caps.append(5.0)
+    if float(scores["typography"]) < 4.0:
+        caps.append(7.0)
+    if float(scores["grammar"]) < 4.0:
+        caps.append(7.0)
+    return min(total, *caps)
+
+
+def score_calibration(golden: list[dict], runs: list[dict], expected_runs: int = 3) -> dict:
+    """Evaluate every reviewed case in every required blind scoring run."""
+    if isinstance(expected_runs, bool) or not isinstance(expected_runs, int) or expected_runs < 1:
+        raise ValueError("expected_runs must be a positive integer")
+    if not isinstance(golden, list) or not isinstance(runs, list):
+        raise ValueError("golden and runs must be JSON arrays")
+
+    reviewed: dict[str, dict] = {}
+    for case in golden:
+        if not isinstance(case, dict):
+            raise ValueError("golden cases must be objects")
+        case_id = case.get("id")
+        if not isinstance(case_id, str) or not case_id:
+            raise ValueError("golden cases require a non-empty id")
+        if case.get("reviewed") is not True:
+            raise ValueError(f"golden case {case_id} is not reviewed")
+        if case_id in reviewed:
+            raise ValueError(f"duplicate reviewed golden id: {case_id}")
+        _validate_scores(case.get("scores"), f"golden case {case_id}")
+        reviewed[case_id] = case
+
+    if not reviewed:
+        raise ValueError("no reviewed golden cases supplied")
+
+    expected_run_numbers = set(range(1, expected_runs + 1))
+    observed_runs: set[int] = set()
+    seen_pairs: set[tuple[int, str]] = set()
+    results_by_pair: dict[tuple[int, str], dict] = {}
+
+    for result in runs:
+        if not isinstance(result, dict):
+            raise ValueError("run results must be objects")
+        run_number = result.get("run")
+        case_id = result.get("id")
+        if isinstance(run_number, bool) or not isinstance(run_number, int):
+            raise ValueError("run must be an integer")
+        if not isinstance(case_id, str) or not case_id:
+            raise ValueError("run results require a non-empty id")
+        pair = (run_number, case_id)
+        if pair in seen_pairs:
+            raise ValueError(f"duplicate run/id pair: {run_number}/{case_id}")
+        seen_pairs.add(pair)
+        if run_number not in expected_run_numbers:
+            raise ValueError(f"missing or unexpected runs: expected 1 through {expected_runs}")
+        if case_id not in reviewed:
+            raise ValueError(f"run {run_number} contains unknown reviewed case: {case_id}")
+        _validate_scores(result.get("scores"), f"run {run_number} case {case_id}")
+        observed_runs.add(run_number)
+        results_by_pair[pair] = result
+
+    if observed_runs != expected_run_numbers:
+        raise ValueError(f"missing or unexpected runs: expected 1 through {expected_runs}")
+
+    reviewed_ids = set(reviewed)
+    for run_number in sorted(expected_run_numbers):
+        observed_ids = {case_id for number, case_id in results_by_pair if number == run_number}
+        missing_ids = reviewed_ids - observed_ids
+        if missing_ids:
+            raise ValueError(
+                f"missing reviewed cases for run {run_number}: {', '.join(sorted(missing_ids))}"
+            )
+
+    maximum_total_deviation = 0.0
+    maximum_dimension_deviation = 0.0
+    failing_cases = []
+    for run_number in sorted(expected_run_numbers):
+        for case_id in sorted(reviewed_ids):
+            expert_scores = reviewed[case_id]["scores"]
+            result_scores = results_by_pair[(run_number, case_id)]["scores"]
+            total_deviation = abs(total_score(result_scores) - total_score(expert_scores))
+            dimension_deviations = {
+                dimension: abs(float(result_scores[dimension]) - float(expert_scores[dimension]))
+                for dimension in DIMENSIONS
+            }
+            maximum_total_deviation = max(maximum_total_deviation, total_deviation)
+            maximum_dimension_deviation = max(maximum_dimension_deviation, *dimension_deviations.values())
+            failing_dimensions = {
+                dimension: round(deviation, 1)
+                for dimension, deviation in dimension_deviations.items()
+                if deviation > DIMENSION_DEVIATION_LIMIT
+            }
+            if total_deviation > TOTAL_DEVIATION_LIMIT or failing_dimensions:
+                failing_cases.append(
+                    {
+                        "run": run_number,
+                        "id": case_id,
+                        "total_deviation": round(total_deviation, 1),
+                        "dimension_deviations": failing_dimensions,
+                    }
+                )
+
+    run_completeness = {
+        "expected_runs": expected_runs,
+        "actual_runs": len(observed_runs),
+        "reviewed_cases": len(reviewed),
+        "expected_results": expected_runs * len(reviewed),
+        "actual_results": len(results_by_pair),
+        "complete": True,
+    }
+    return {
+        "passed": not failing_cases,
+        "run_completeness": run_completeness,
+        "max_total_deviation": round(maximum_total_deviation, 1),
+        "max_dimension_deviation": round(maximum_dimension_deviation, 1),
+        "failing_cases": failing_cases,
+    }
 
 
 def detection_metrics(golden: list[dict], reported: list[dict]) -> dict[str, float]:
@@ -69,17 +209,17 @@ def main() -> int:
 
     golden = read_json(args.golden)
     results = read_json(args.results)
-    metrics = detection_metrics(golden, results) if args.mode == "check" else score_drift(golden, results)
+    metrics = detection_metrics(golden, results) if args.mode == "check" else score_calibration(golden, results)
     print(json.dumps(metrics, ensure_ascii=False, indent=2))
 
     if args.mode == "check":
         return 0 if metrics["recall"] >= 0.90 and metrics["false_discovery_rate"] <= 0.05 else 1
-    return 0 if metrics["mean_composite_deviation"] <= 0.7 and metrics["max_dimension_deviation"] <= 1.0 else 1
+    return 0 if metrics["passed"] else 1
 
 
 if __name__ == "__main__":
     try:
         sys.exit(main())
-    except (KeyError, ValueError, json.JSONDecodeError) as error:
+    except (KeyError, TypeError, ValueError, json.JSONDecodeError) as error:
         print(f"ERROR: {error}", file=sys.stderr)
         sys.exit(2)

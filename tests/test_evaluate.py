@@ -1,10 +1,12 @@
 import importlib.util
+import json
 import unittest
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
 PATH = ROOT / "tools" / "evaluate.py"
+FIXTURES = ROOT / "tests" / "fixtures" / "evaluate"
 
 
 def load_module():
@@ -12,6 +14,10 @@ def load_module():
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
+
+
+def load_fixture(name):
+    return json.loads((FIXTURES / name).read_text(encoding="utf-8"))
 
 
 class EvaluateTest(unittest.TestCase):
@@ -42,6 +48,133 @@ class EvaluateTest(unittest.TestCase):
         drift = module.score_drift(golden, runs)
         self.assertEqual(0.2, drift["mean_composite_deviation"])
         self.assertEqual(0.5, drift["max_dimension_deviation"])
+
+    def test_total_score_applies_published_weights_rounding_and_caps(self):
+        module = load_module()
+
+        self.assertEqual(
+            8.2,
+            module.total_score(
+                {"typography": 9, "language": 8, "grammar": 8, "structure": 8, "reader": 8}
+            ),
+        )
+        self.assertEqual(
+            5.0,
+            module.total_score(
+                {"typography": 10, "language": 2, "grammar": 10, "structure": 10, "reader": 10}
+            ),
+        )
+        self.assertEqual(
+            7.0,
+            module.total_score(
+                {"typography": 3, "language": 10, "grammar": 10, "structure": 10, "reader": 10}
+            ),
+        )
+        self.assertEqual(
+            7.0,
+            module.total_score(
+                {"typography": 10, "language": 10, "grammar": 3, "structure": 10, "reader": 10}
+            ),
+        )
+
+    def test_score_calibration_passes_only_when_all_150_results_are_within_limits(self):
+        module = load_module()
+
+        metrics = module.score_calibration(
+            load_fixture("score-golden.json"),
+            load_fixture("score-runs-pass.json"),
+        )
+
+        self.assertTrue(metrics["passed"])
+        self.assertEqual(
+            {
+                "expected_runs": 3,
+                "actual_runs": 3,
+                "reviewed_cases": 50,
+                "expected_results": 150,
+                "actual_results": 150,
+                "complete": True,
+            },
+            metrics["run_completeness"],
+        )
+        self.assertEqual(0.0, metrics["max_total_deviation"])
+        self.assertEqual(0.0, metrics["max_dimension_deviation"])
+        self.assertEqual([], metrics["failing_cases"])
+
+    def test_score_calibration_reports_dimension_failure_even_when_total_would_pass(self):
+        module = load_module()
+
+        metrics = module.score_calibration(
+            load_fixture("score-golden.json"),
+            load_fixture("score-runs-fail.json"),
+        )
+
+        self.assertFalse(metrics["passed"])
+        self.assertEqual(0.3, metrics["max_total_deviation"])
+        self.assertEqual(1.1, metrics["max_dimension_deviation"])
+        self.assertEqual(
+            [
+                {
+                    "run": 2,
+                    "id": "case-01",
+                    "total_deviation": 0.3,
+                    "dimension_deviations": {"language": 1.1},
+                }
+            ],
+            metrics["failing_cases"],
+        )
+
+    def test_score_calibration_rejects_duplicate_run_case_pairs(self):
+        module = load_module()
+        golden = load_fixture("score-golden.json")
+        runs = load_fixture("score-runs-pass.json")
+
+        with self.assertRaisesRegex(ValueError, "duplicate run/id pair"):
+            module.score_calibration(golden, runs + [runs[0]])
+
+    def test_score_calibration_rejects_missing_run(self):
+        module = load_module()
+        golden = load_fixture("score-golden.json")
+        runs = [run for run in load_fixture("score-runs-pass.json") if run["run"] != 3]
+
+        with self.assertRaisesRegex(ValueError, "missing or unexpected runs"):
+            module.score_calibration(golden, runs)
+
+    def test_score_calibration_rejects_missing_reviewed_run_case(self):
+        module = load_module()
+        golden = load_fixture("score-golden.json")
+        runs = [
+            run
+            for run in load_fixture("score-runs-pass.json")
+            if not (run["run"] == 3 and run["id"] == "case-50")
+        ]
+
+        with self.assertRaisesRegex(ValueError, "missing reviewed cases"):
+            module.score_calibration(golden, runs)
+
+    def test_score_calibration_rejects_unreviewed_golden_case(self):
+        module = load_module()
+        golden = load_fixture("score-golden.json")
+        golden[0]["reviewed"] = False
+
+        with self.assertRaisesRegex(ValueError, "reviewed"):
+            module.score_calibration(golden, load_fixture("score-runs-pass.json"))
+
+    def test_score_calibration_rejects_invalid_score_dimensions(self):
+        module = load_module()
+        runs = load_fixture("score-runs-pass.json")
+        del runs[0]["scores"]["reader"]
+
+        with self.assertRaisesRegex(ValueError, "dimensions"):
+            module.score_calibration(load_fixture("score-golden.json"), runs)
+
+    def test_score_calibration_rejects_scores_outside_zero_to_ten(self):
+        module = load_module()
+        golden = load_fixture("score-golden.json")
+        golden[0]["scores"]["language"] = 10.1
+
+        with self.assertRaisesRegex(ValueError, "0 to 10"):
+            module.score_calibration(golden, load_fixture("score-runs-pass.json"))
 
 
 if __name__ == "__main__":
