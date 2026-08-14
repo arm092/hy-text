@@ -127,6 +127,10 @@ class RepositoryContractTest(unittest.TestCase):
             "`HY-UX-006`",
             "մեկ կիրառելի UX կանոնի պահանջած հաղորդագրային միավորը",
             "ամենացածր կիրառելի խարիսխը",
+            "ամենահատուկ կիրառելի տողը",
+            "ավելի հատուկ `HY-UX-*` տող չկա",
+            "`HY-ADD-004` և `HY-ANT-002`",
+            "`HY-ADD-001` – ծառայողական բացումը",
             "Պաշտպանված հատվածի ներսում հայտնաբերված երևույթը աղյուսակին չհամապատասխանեցնել",
         ):
             self.assertIn(fragment, scoring)
@@ -149,6 +153,8 @@ class RepositoryContractTest(unittest.TestCase):
         self.assertIn("| `HY-PUN-001` – ճիշտ մեկ", impact_table)
         self.assertIn("կամ առնվազն երկու լատինական վերջակետ, որոնք չեն զբաղեցնում", impact_table)
         self.assertIn("կամ առնվազն երկու ASCII հարցական նշան, որոնք չեն զբաղեցնում", impact_table)
+        self.assertIn("`HY-TYP-001` և `HY-PUN-001`", impact_table)
+        self.assertIn("չի գործածում գերադրական, համընդհանուր կամ հեղափոխական պնդում", impact_table)
         self.assertIn("`HY-TYP-002` – առնվազն երկու կրկնվող, բայց ոչ խիտ", impact_table)
         self.assertIn("`HY-PUN-004` – առնվազն երկու կրկնվող, բայց ոչ խիտ", impact_table)
         self.assertNotRegex(impact_table, r"(?m)^\| Նույն (?:տպագրական|կետադրական) խմբի սխալները")
