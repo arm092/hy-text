@@ -13,6 +13,8 @@ Score five dimensions separately: `Տպագրություն`, `Լեզվի մաք
 
 For a text that is `50 բառից կարճ`, assign `9.0` to a dimension with no supported deduction and retain the mandatory short-text reliability warning. Assign `10.0` only when sufficient, varied Armenian evidence supports a confident judgment for that dimension and no supported deduction applies; length alone never earns `10.0`. Apply the observable score bands in `scoring.md` exactly.
 
+Use the rule-to-dimension matrix and the dimension-specific numeric anchors in `scoring.md` before assigning each score. Select the anchor for the strongest supported observable state. Do not add deductions or subtract points sequentially. A rule's `low`, `medium`, or `high` severity does not set a score by itself. For unsupported promotional claims or anonymous-source claims, inspect whether verifiable support – a criterion, example, or source – is present and whether its absence removes a required structural part or prevents a reader from assessing the claim. Do not test whether the claim is true.
+
 Every deduction must name the affected dimension, quote a concrete Armenian fragment or identify a specific omission, cite a stable `HY-*` rule ID, and explain the observable effect within that dimension. One issue does not automatically lower every dimension. Cross-dimension propagation is forbidden unless each dimension has a separate applicable rule or a separate observable effect.
 
 Follow the weights, caps, short-text warning, labels, and output template in `scoring.md` exactly. Explain the score in the request language; default to Armenian. State the limitations every time. The score never measures factual accuracy, audience fit, originality, effectiveness, or brief compliance.

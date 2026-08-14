@@ -74,6 +74,30 @@ class RepositoryContractTest(unittest.TestCase):
         self.assertIn("Մեկ խնդիրը ինքնաբերաբար չի նվազեցնում բոլոր չափումները", scoring)
         self.assertIn("Պաշտպանված ամբողջական հատվածները անփոփոխ են և բացառվում են նվազեցումներից", scoring)
 
+    def test_score_rubric_maps_rules_to_independent_observable_effects(self):
+        scoring = (ROOT / "skills" / "hy-text" / "references" / "scoring.md").read_text(encoding="utf-8")
+        for fragment in (
+            "Կանոնից չափում անցման մատրից",
+            "`HY-INF-002`, `HY-ANT-002`, `HY-ADD-004`",
+            "ստուգելի հիմքի առկայությունը",
+            "Փաստական ճշմարտությունը չի ստուգվում",
+            "`HY-UX-002`, `HY-UX-004`, `HY-UX-005`, `HY-UX-006`",
+            "Լեզվի մաքրությունը չնվազեցնել միայն հաղորդագրության ընդհանրական լինելու պատճառով",
+            "Չափմանը հատուկ թվային խարիսխներ",
+            "Միավորները չգումարել կամ հաջորդաբար չհանել",
+        ):
+            self.assertIn(fragment, scoring)
+
+        score_skill = (ROOT / "skills" / "hy-score" / "SKILL.md").read_text(encoding="utf-8")
+        for fragment in (
+            "rule-to-dimension matrix",
+            "dimension-specific numeric anchors",
+            "verifiable support",
+            "Do not test whether the claim is true",
+            "Do not add deductions or subtract points sequentially",
+        ):
+            self.assertIn(fragment, score_skill)
+
     def test_check_and_score_are_read_only(self):
         for skill in ("hy-check", "hy-score"):
             text = (ROOT / "skills" / skill / "SKILL.md").read_text(encoding="utf-8")
