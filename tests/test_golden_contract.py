@@ -44,15 +44,46 @@ class GoldenContractTest(unittest.TestCase):
             )
         )
         for case in cases:
-            self.assertEqual(
-                {"id", "domain", "text", "expected_text", "expected_rules", "protected_spans"},
-                set(case),
-            )
+            required_fields = {
+                "id", "domain", "text", "expected_text", "expected_rules", "protected_spans"
+            }
+            self.assertTrue(required_fields.issubset(case))
+            self.assertTrue(set(case).issubset(required_fields | {"accepted_corrections"}))
             self.assertTrue(case["text"].strip())
             self.assertTrue(case["expected_text"].strip())
+            accepted = case.get("accepted_corrections", [case["expected_text"]])
+            self.assertIn(case["expected_text"], accepted)
+            self.assertEqual(len(accepted), len(set(accepted)))
+            if case["expected_rules"]:
+                self.assertNotIn(case["text"], accepted)
+            else:
+                self.assertEqual(case["text"], case["expected_text"])
             for span in case["protected_spans"]:
                 self.assertIn(span["text"], case["text"])
                 self.assertIn(span["text"], case["expected_text"])
+
+    def test_check_corrections_do_not_invent_missing_operational_facts(self):
+        cases = json.loads((ROOT / "tests" / "golden" / "check.json").read_text(encoding="utf-8"))
+        by_id = {case["id"]: case for case in cases}
+
+        self.assertEqual(
+            "Հանդիպման ամփոփում\nՊետք է որոշել՝ ով և մինչև երբ կպատրաստի ամսական "
+            "հաշվետվությունը։ Հաջորդ հանդիպումը երկուշաբթի է։",
+            by_id["business-03"]["expected_text"],
+        )
+        self.assertEqual(
+            "Կցել եմ contract.pdf ֆայլը։ Խնդրում եմ ստուգել այն և պատասխանել մինչև "
+            "չորեքշաբթի։",
+            by_id["business-05"]["expected_text"],
+        )
+        self.assertEqual(
+            "Մեր թիմը պատրաստ է օգնել նոր հաճախորդներին։",
+            by_id["marketing-01"]["expected_text"],
+        )
+        self.assertEqual(
+            "Պատվերը հասել է երկուշաբթի՝ սահմանված ժամկետից ուշ։",
+            by_id["marketing-05"]["expected_text"],
+        )
 
     def test_check_release_results_are_complete_and_pass_quality_gates(self):
         module = __import__("importlib.util").util
@@ -72,6 +103,8 @@ class GoldenContractTest(unittest.TestCase):
         self.assertGreaterEqual(metrics["recall"], 0.90)
         self.assertLessEqual(metrics["clean_false_positive_rate"], 0.05)
         self.assertEqual(0, metrics["protected_mutations"])
+        self.assertEqual(0, metrics["correction_failures"])
+        self.assertEqual(1.0, metrics["correction_accuracy"])
 
     def test_scoring_set_has_fifty_arman_reviewed_cases(self):
         cases = json.loads((ROOT / "tests" / "golden" / "scoring.json").read_text(encoding="utf-8"))

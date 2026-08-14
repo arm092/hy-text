@@ -26,18 +26,21 @@ class EvaluateTest(unittest.TestCase):
         golden = [
             {
                 "id": "faulty",
+                "text": "Սխալ config/app.php տեքստ։",
                 "expected_rules": ["HY-TYP-001", "HY-GRM-002"],
-                "expected_text": "Ուղղված տեքստ։",
+                "expected_text": "Ուղղված config/app.php տեքստ։",
                 "protected_spans": [{"type": "filename", "text": "config/app.php"}],
             },
             {
                 "id": "clean-a",
+                "text": "Մաքուր տեքստ։",
                 "expected_rules": [],
                 "expected_text": "Մաքուր տեքստ։",
                 "protected_spans": [],
             },
             {
                 "id": "clean-b",
+                "text": "Երկրորդ մաքուր տեքստ։",
                 "expected_rules": [],
                 "expected_text": "Երկրորդ մաքուր տեքստ։",
                 "protected_spans": [],
@@ -73,7 +76,8 @@ class EvaluateTest(unittest.TestCase):
                 "missing_rules": ["HY-GRM-002"],
                 "extra_rules": [],
                 "protected_mutations": [],
-                "correction_matches": False,
+                "correction_matches": True,
+                "correction_accepted": True,
             },
             metrics["cases"][0],
         )
@@ -83,6 +87,7 @@ class EvaluateTest(unittest.TestCase):
         golden = [
             {
                 "id": "protected",
+                "text": "Տես `php artisan test` և app.php։",
                 "expected_rules": [],
                 "expected_text": "Տես `php artisan test` և app.php։",
                 "protected_spans": [
@@ -107,17 +112,217 @@ class EvaluateTest(unittest.TestCase):
             metrics["cases"][0]["protected_mutations"],
         )
 
+    def test_detection_metrics_detect_protected_span_relocation(self):
+        module = load_module()
+        golden = [
+            {
+                "id": "protected",
+                "text": "Գործարկեք `php artisan test` հրամանը հիմա։",
+                "expected_text": "Հիմա գործարկեք `php artisan test` հրամանը։",
+                "expected_rules": ["HY-INF-001"],
+                "protected_spans": [{"type": "command", "text": "php artisan test"}],
+            }
+        ]
+        reported = [
+            {
+                "id": "protected",
+                "reported_rules": ["HY-INF-001"],
+                "corrected_text": "`php artisan test` հրամանը գործարկեք հիմա։",
+            }
+        ]
+
+        metrics = module.detection_metrics(golden, reported)
+
+        self.assertEqual(1, metrics["protected_mutations"])
+
+    def test_detection_metrics_detect_protected_span_duplication(self):
+        module = load_module()
+        golden = [
+            {
+                "id": "protected",
+                "text": "Բացեք app.php ֆայլը։",
+                "expected_text": "Բացեք app.php ֆայլը։",
+                "expected_rules": [],
+                "protected_spans": [{"type": "filename", "text": "app.php"}],
+            }
+        ]
+        reported = [
+            {
+                "id": "protected",
+                "reported_rules": [],
+                "corrected_text": "Բացեք app.php ֆայլը և պահեք app.php ֆայլը։",
+            }
+        ]
+
+        metrics = module.detection_metrics(golden, reported)
+
+        self.assertEqual(1, metrics["protected_mutations"])
+
+    def test_detection_metrics_detect_mutation_followed_by_reinsertion(self):
+        module = load_module()
+        golden = [
+            {
+                "id": "protected",
+                "text": "Բացեք app.php ֆայլը։",
+                "expected_text": "Բացեք app.php ֆայլը։",
+                "expected_rules": [],
+                "protected_spans": [{"type": "filename", "text": "app.php"}],
+            }
+        ]
+        reported = [
+            {
+                "id": "protected",
+                "reported_rules": [],
+                "corrected_text": "Բացեք app-php ֆայլը։ Հղում՝ app.php։",
+            }
+        ]
+
+        metrics = module.detection_metrics(golden, reported)
+
+        self.assertEqual(1, metrics["protected_mutations"])
+
+    def test_detection_metrics_gate_empty_and_noop_faulty_corrections(self):
+        module = load_module()
+        golden = [
+            {
+                "id": "empty",
+                "text": "Դիմումը հաստատվել է.",
+                "expected_text": "Դիմումը հաստատվել է։",
+                "expected_rules": ["HY-TYP-001"],
+                "protected_spans": [],
+            },
+            {
+                "id": "noop",
+                "text": "Բարև , Անի։",
+                "expected_text": "Բարև, Անի։",
+                "expected_rules": ["HY-TYP-004"],
+                "protected_spans": [],
+            },
+        ]
+        reported = [
+            {"id": "empty", "reported_rules": ["HY-TYP-001"], "corrected_text": ""},
+            {
+                "id": "noop",
+                "reported_rules": ["HY-TYP-004"],
+                "corrected_text": "Բարև , Անի։",
+            },
+        ]
+
+        metrics = module.detection_metrics(golden, reported)
+
+        self.assertEqual(2, metrics["correction_failures"])
+        self.assertEqual(0.0, metrics["correction_accuracy"])
+
+    def test_detection_metrics_gate_clean_text_rewrite(self):
+        module = load_module()
+        golden = [
+            {
+                "id": "clean",
+                "text": "Դիմումը հաստատվել է։",
+                "expected_text": "Դիմումը հաստատվել է։",
+                "expected_rules": [],
+                "protected_spans": [],
+                "accepted_corrections": ["Դիմումը հաստատվել է։", "Հայտը հաստատվել է։"],
+            }
+        ]
+        reported = [
+            {"id": "clean", "reported_rules": [], "corrected_text": "Հայտը հաստատվել է։"}
+        ]
+
+        metrics = module.detection_metrics(golden, reported)
+
+        self.assertEqual(1, metrics["correction_failures"])
+        self.assertFalse(metrics["cases"][0]["correction_accepted"])
+
+    def test_detection_metrics_accept_reviewed_faulty_alternate(self):
+        module = load_module()
+        golden = [
+            {
+                "id": "faulty",
+                "text": "Դիմումը հաստատվել է.",
+                "expected_text": "Դիմումը հաստատվել է։",
+                "expected_rules": ["HY-TYP-001"],
+                "protected_spans": [],
+                "accepted_corrections": [
+                    "Դիմումը հաստատվել է։",
+                    "Հայտը հաստատվել է։",
+                ],
+            }
+        ]
+        reported = [
+            {
+                "id": "faulty",
+                "reported_rules": ["HY-TYP-001"],
+                "corrected_text": "Հայտը հաստատվել է։",
+            }
+        ]
+
+        metrics = module.detection_metrics(golden, reported)
+
+        self.assertEqual(0, metrics["correction_failures"])
+        self.assertEqual(1.0, metrics["correction_accuracy"])
+        self.assertTrue(metrics["cases"][0]["correction_accepted"])
+
+    def test_detection_metrics_reject_malformed_and_unknown_rule_ids(self):
+        module = load_module()
+        malformed_golden = [
+            {
+                "id": "bad",
+                "text": "Տեքստ։",
+                "expected_text": "Տեքստ։",
+                "expected_rules": ["HY-TYP-001-extra"],
+                "protected_spans": [],
+            }
+        ]
+        valid_golden = [
+            {
+                "id": "bad",
+                "text": "Տեքստ։",
+                "expected_text": "Տեքստ։",
+                "expected_rules": [],
+                "protected_spans": [],
+            }
+        ]
+
+        with self.assertRaisesRegex(ValueError, "invalid expected rules"):
+            module.detection_metrics(malformed_golden, [])
+        with self.assertRaisesRegex(ValueError, "unknown reported rule"):
+            module.detection_metrics(
+                valid_golden,
+                [{"id": "bad", "reported_rules": ["HY-TYP-999"], "corrected_text": "Տեքստ։"}],
+            )
+
+    def test_detection_metrics_reject_accepted_correction_that_reorders_protected_spans(self):
+        module = load_module()
+        golden = [
+            {
+                "id": "protected",
+                "text": "Տես app.php և `php artisan test`։",
+                "expected_text": "Տես `php artisan test` և app.php։",
+                "expected_rules": ["HY-INF-001"],
+                "protected_spans": [
+                    {"type": "filename", "text": "app.php"},
+                    {"type": "command", "text": "php artisan test"},
+                ],
+            }
+        ]
+
+        with self.assertRaisesRegex(ValueError, "reorders protected spans"):
+            module.detection_metrics(golden, [])
+
     def test_detection_metrics_reject_duplicate_or_incomplete_results(self):
         module = load_module()
         golden = [
             {
                 "id": "a",
+                "text": "Ա։",
                 "expected_rules": [],
                 "expected_text": "Ա։",
                 "protected_spans": [],
             },
             {
                 "id": "b",
+                "text": "Բ։",
                 "expected_rules": [],
                 "expected_text": "Բ։",
                 "protected_spans": [],
@@ -137,8 +342,20 @@ class EvaluateTest(unittest.TestCase):
     def test_detection_metrics_count_expected_and_extra_rules(self):
         module = load_module()
         golden = [
-            {"id": "a", "expected_rules": ["HY-TYP-001", "HY-PUN-001"]},
-            {"id": "b", "expected_rules": []},
+            {
+                "id": "a",
+                "text": "Ա.",
+                "expected_text": "Ա։",
+                "expected_rules": ["HY-TYP-001", "HY-PUN-001"],
+                "protected_spans": [],
+            },
+            {
+                "id": "b",
+                "text": "Բ։",
+                "expected_text": "Բ։",
+                "expected_rules": [],
+                "protected_spans": [],
+            },
         ]
         reported = [
             {

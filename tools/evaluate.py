@@ -7,6 +7,7 @@ import argparse
 from decimal import Decimal
 import json
 import math
+import re
 import sys
 from pathlib import Path
 
@@ -24,6 +25,13 @@ WEIGHTS = {
 TOTAL_DEVIATION_LIMIT = 0.7
 DIMENSION_DEVIATION_LIMIT = 1.0
 REVIEWED_CASE_COUNT = 50
+RULE_ID_RE = re.compile(r"^HY-[A-Z]{2,4}-\d{3}$")
+REFERENCE_DIR = Path(__file__).resolve().parents[1] / "skills" / "hy-text" / "references"
+NORMATIVE_RULE_IDS = frozenset(
+    rule_id
+    for path in REFERENCE_DIR.glob("*.md")
+    for rule_id in re.findall(r"^## (HY-[A-Z]{2,4}-\d{3})$", path.read_text(encoding="utf-8"), re.MULTILINE)
+)
 
 
 def _validate_scores(scores: object, context: str) -> None:
@@ -178,6 +186,30 @@ def score_calibration(golden: list[dict], runs: list[dict], expected_runs: int =
     }
 
 
+def _occurrence_positions(text: str, needle: str) -> tuple[int, ...]:
+    positions = []
+    start = 0
+    while True:
+        position = text.find(needle, start)
+        if position < 0:
+            return tuple(positions)
+        positions.append(position)
+        start = position + len(needle)
+
+
+def _invalid_rule_ids(rules: list[object]) -> list[object]:
+    return [rule for rule in rules if not isinstance(rule, str) or RULE_ID_RE.fullmatch(rule) is None]
+
+
+def _protected_sequence(text: str, spans: list[dict]) -> tuple[int, ...]:
+    occurrences = [
+        (position, span_index)
+        for span_index, span in enumerate(spans)
+        for position in _occurrence_positions(text, span["text"])
+    ]
+    return tuple(span_index for _, span_index in sorted(occurrences))
+
+
 def detection_metrics(golden: list[dict], reported: list[dict]) -> dict:
     """Evaluate one complete blind hy-check run against its golden corpus."""
     if not isinstance(golden, list) or not isinstance(reported, list):
@@ -192,13 +224,36 @@ def detection_metrics(golden: list[dict], reported: list[dict]) -> dict:
             raise ValueError("golden check cases require a non-empty id")
         if case_id in golden_by_id:
             raise ValueError(f"duplicate golden check id: {case_id}")
+        source_text = case.get("text")
+        expected_text = case.get("expected_text")
+        if not isinstance(source_text, str) or not source_text:
+            raise ValueError(f"golden check case {case_id} requires non-empty text")
+        if not isinstance(expected_text, str) or not expected_text:
+            raise ValueError(f"golden check case {case_id} requires non-empty expected_text")
         expected_rules = case.get("expected_rules", [])
-        if not isinstance(expected_rules, list) or any(
-            not isinstance(rule, str) or not rule.startswith("HY-") for rule in expected_rules
-        ):
+        if not isinstance(expected_rules, list) or _invalid_rule_ids(expected_rules):
             raise ValueError(f"golden check case {case_id} has invalid expected rules")
+        unknown_expected = sorted(set(expected_rules) - NORMATIVE_RULE_IDS)
+        if unknown_expected:
+            raise ValueError(
+                f"golden check case {case_id} has unknown expected rule: {', '.join(unknown_expected)}"
+            )
         if len(expected_rules) != len(set(expected_rules)):
             raise ValueError(f"golden check case {case_id} has duplicate expected rules")
+        accepted_corrections = case.get("accepted_corrections", [expected_text])
+        if (
+            not isinstance(accepted_corrections, list)
+            or not accepted_corrections
+            or any(not isinstance(correction, str) or not correction for correction in accepted_corrections)
+            or len(accepted_corrections) != len(set(accepted_corrections))
+            or expected_text not in accepted_corrections
+        ):
+            raise ValueError(f"golden check case {case_id} has invalid accepted corrections")
+        if expected_rules:
+            if source_text in accepted_corrections:
+                raise ValueError(f"faulty golden check case {case_id} accepts an unchanged source")
+        elif expected_text != source_text:
+            raise ValueError(f"clean golden check case {case_id} must preserve its source")
         protected_spans = case.get("protected_spans", [])
         if not isinstance(protected_spans, list) or any(
             not isinstance(span, dict)
@@ -208,6 +263,27 @@ def detection_metrics(golden: list[dict], reported: list[dict]) -> dict:
             for span in protected_spans
         ):
             raise ValueError(f"golden check case {case_id} has invalid protected spans")
+        for span in protected_spans:
+            source_positions = _occurrence_positions(source_text, span["text"])
+            if not source_positions:
+                raise ValueError(f"golden check case {case_id} does not contain a protected span")
+            if any(
+                len(_occurrence_positions(correction, span["text"])) != len(source_positions)
+                for correction in accepted_corrections
+            ):
+                raise ValueError(
+                    f"golden check case {case_id} accepted correction mutates a protected span"
+                )
+        source_sequence = _protected_sequence(source_text, protected_spans)
+        if any(
+            _protected_sequence(correction, protected_spans) != source_sequence
+            for correction in accepted_corrections
+        ):
+            raise ValueError(
+                f"golden check case {case_id} accepted correction reorders protected spans"
+            )
+        case = dict(case)
+        case["accepted_corrections"] = accepted_corrections
         golden_by_id[case_id] = case
 
     reported_by_id: dict[str, dict] = {}
@@ -223,10 +299,13 @@ def detection_metrics(golden: list[dict], reported: list[dict]) -> dict:
             raise ValueError(f"unknown check result id: {case_id}")
         rules = result.get("reported_rules")
         corrected_text = result.get("corrected_text")
-        if not isinstance(rules, list) or any(
-            not isinstance(rule, str) or not rule.startswith("HY-") for rule in rules
-        ):
+        if not isinstance(rules, list) or _invalid_rule_ids(rules):
             raise ValueError(f"check result {case_id} has invalid reported rules")
+        unknown_reported = sorted(set(rules) - NORMATIVE_RULE_IDS)
+        if unknown_reported:
+            raise ValueError(
+                f"check result {case_id} has unknown reported rule: {', '.join(unknown_reported)}"
+            )
         if len(rules) != len(set(rules)):
             raise ValueError(f"check result {case_id} has duplicate reported rules")
         if not isinstance(corrected_text, str):
@@ -239,10 +318,11 @@ def detection_metrics(golden: list[dict], reported: list[dict]) -> dict:
 
     expected_count = found_count = 0
     clean_count = clean_with_findings = 0
-    protected_mutation_count = 0
+    protected_mutation_count = correction_failure_count = 0
     diagnostics = []
     for case in golden:
         case_id = case["id"]
+        case = golden_by_id[case_id]
         expected = set(case.get("expected_rules", []))
         result = reported_by_id[case_id]
         actual = set(result["reported_rules"])
@@ -253,11 +333,24 @@ def detection_metrics(golden: list[dict], reported: list[dict]) -> dict:
             if actual:
                 clean_with_findings += 1
 
-        mutated_spans = [
-            span
-            for span in case.get("protected_spans", [])
-            if span["text"] not in result["corrected_text"]
-        ]
+        accepted_corrections = case["accepted_corrections"]
+        correction_accepted = (
+            result["corrected_text"] == case["text"]
+            if not expected
+            else result["corrected_text"] in accepted_corrections
+        )
+        if not correction_accepted:
+            correction_failure_count += 1
+
+        mutated_spans = []
+        for span in case.get("protected_spans", []):
+            result_positions = _occurrence_positions(result["corrected_text"], span["text"])
+            accepted_positions = {
+                _occurrence_positions(correction, span["text"])
+                for correction in accepted_corrections
+            }
+            if result_positions not in accepted_positions:
+                mutated_spans.append(span)
         protected_mutation_count += len(mutated_spans)
         diagnostics.append(
             {
@@ -266,6 +359,7 @@ def detection_metrics(golden: list[dict], reported: list[dict]) -> dict:
                 "extra_rules": sorted(actual - expected),
                 "protected_mutations": mutated_spans,
                 "correction_matches": result["corrected_text"] == case.get("expected_text", ""),
+                "correction_accepted": correction_accepted,
             }
         )
 
@@ -275,6 +369,10 @@ def detection_metrics(golden: list[dict], reported: list[dict]) -> dict:
             round(clean_with_findings / clean_count, 4) if clean_count else 0.0
         ),
         "protected_mutations": protected_mutation_count,
+        "correction_failures": correction_failure_count,
+        "correction_accuracy": round(
+            (len(golden_by_id) - correction_failure_count) / len(golden_by_id), 4
+        ) if golden_by_id else 1.0,
         "case_count": len(golden_by_id),
         "cases": diagnostics,
     }
@@ -323,6 +421,7 @@ def main() -> int:
             metrics["recall"] >= 0.90
             and metrics["clean_false_positive_rate"] <= 0.05
             and metrics["protected_mutations"] == 0
+            and metrics["correction_failures"] == 0
         ) else 1
     return 0 if metrics["passed"] else 1
 
