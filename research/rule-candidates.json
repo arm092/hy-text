@@ -162,7 +162,7 @@
     "source_ids": [
       "USAGE-BIZ-006"
     ],
-    "status": "source-ready",
-    "reason": "USAGE-BIZ-006 meets the observation, independence, and layer gates and supports an evidence-bounded draft about attested closing families; strong archive concentration and sparse non-respectful variants must remain explicit limitations."
+    "status": "published",
+    "reason": "Published as HY-BIZ-007 after Arman's editorial decision to use `Հարգանքներով, Արման` as the standard polite closing. USAGE-BIZ-006 supports only that the recorded closing families are attested; it does not establish a universal default."
   }
 ]

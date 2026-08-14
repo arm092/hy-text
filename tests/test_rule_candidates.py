@@ -105,7 +105,7 @@ class RuleCandidatesTest(unittest.TestCase):
             ("CAND-BIZ-003", "business-writing.md", "published", ["USAGE-BIZ-003"]),
             ("CAND-BIZ-004", "business-writing.md", "insufficient", []),
             ("CAND-BIZ-005", "business-writing.md", "insufficient", []),
-            ("CAND-BIZ-006", "business-writing.md", "source-ready", ["USAGE-BIZ-006"]),
+            ("CAND-BIZ-006", "business-writing.md", "published", ["USAGE-BIZ-006"]),
         ]
         actual = [
             (
@@ -166,6 +166,17 @@ class RuleCandidatesTest(unittest.TestCase):
         for index in range(1, 5):
             candidate_id = f"CAND-UX-{index:03d}"
             rule_id = f"HY-UX-{index + 6:03d}"
+            with self.subTest(candidate=candidate_id):
+                self.assertEqual("published", by_id[candidate_id]["status"])
+                self.assertIn(rule_id, by_id[candidate_id]["reason"])
+
+    def test_published_business_candidates_name_their_normative_rule(self):
+        by_id = {row["candidate_id"]: row for row in self.rows}
+        expected_rules = {
+            "CAND-BIZ-003": "HY-BIZ-006",
+            "CAND-BIZ-006": "HY-BIZ-007",
+        }
+        for candidate_id, rule_id in expected_rules.items():
             with self.subTest(candidate=candidate_id):
                 self.assertEqual("published", by_id[candidate_id]["status"])
                 self.assertIn(rule_id, by_id[candidate_id]["reason"])
