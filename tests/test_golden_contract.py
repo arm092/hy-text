@@ -7,13 +7,23 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class GoldenContractTest(unittest.TestCase):
-    def test_scoring_set_has_fifty_reviewable_cases(self):
+    def test_scoring_set_has_fifty_arman_reviewed_cases(self):
         cases = json.loads((ROOT / "tests" / "golden" / "scoring.json").read_text(encoding="utf-8"))
         self.assertEqual(50, len(cases))
         self.assertEqual({"article", "business", "marketing", "mixed", "ux"}, {case["domain"] for case in cases})
         for case in cases:
             self.assertEqual({"typography", "language", "grammar", "structure", "reader"}, set(case["scores"]))
-            self.assertFalse(case["reviewed"], "draft fixtures must not impersonate Arman's review")
+            self.assertTrue(case["reviewed"], "every scoring fixture must carry Arman's explicit review")
+
+        by_id = {case["id"]: case for case in cases}
+        self.assertEqual(
+            "Բացեք config/app.php ֆայլը և փոխեք locale-ի արժեքը։",
+            by_id["mixed-05"]["text"],
+        )
+        self.assertEqual(
+            "API-ի պատասխանը պարունակում է `{\"status\":\"ok\"}` տողը։",
+            by_id["mixed-06"]["text"],
+        )
 
     def test_protected_content_cases_cover_all_types(self):
         cases = json.loads((ROOT / "tests" / "golden" / "protected.json").read_text(encoding="utf-8"))
