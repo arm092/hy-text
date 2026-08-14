@@ -1,0 +1,38 @@
+[
+  {
+    "package": "agent-skills",
+    "hermetic": "passed",
+    "live_cli": "available",
+    "installed_files": 16
+  },
+  {
+    "package": "claude",
+    "hermetic": "passed",
+    "live_cli": "unavailable",
+    "installed_files": 18
+  },
+  {
+    "package": "codex",
+    "hermetic": "passed",
+    "live_cli": "available",
+    "installed_files": 20
+  },
+  {
+    "package": "cursor",
+    "hermetic": "passed",
+    "live_cli": "available",
+    "installed_files": 18
+  },
+  {
+    "package": "gemini",
+    "hermetic": "passed",
+    "live_cli": "unavailable",
+    "installed_files": 17
+  },
+  {
+    "package": "openclaw",
+    "hermetic": "passed",
+    "live_cli": "unavailable",
+    "installed_files": 17
+  }
+]
