@@ -133,8 +133,8 @@
     "source_ids": [
       "USAGE-BIZ-003"
     ],
-    "status": "source-ready",
-    "reason": "USAGE-BIZ-003 meets the sample gates for phrase and statement subjects and supports an evidence-bounded no-terminal-mark draft; it contains no question subjects, so it cannot support a recommendation for questions."
+    "status": "published",
+    "reason": "Published as HY-BIZ-006 after Arman's approval. The rule omits terminal punctuation only from phrase and statement subjects; question subjects remain explicitly outside its scope because USAGE-BIZ-003 contains no question examples."
   },
   {
     "candidate_id": "CAND-BIZ-004",

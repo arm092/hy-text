@@ -102,7 +102,7 @@ class RuleCandidatesTest(unittest.TestCase):
             ("CAND-UX-006", "ux-writing.md", "insufficient", []),
             ("CAND-BIZ-001", "business-writing.md", "insufficient", []),
             ("CAND-BIZ-002", "business-writing.md", "insufficient", []),
-            ("CAND-BIZ-003", "business-writing.md", "source-ready", ["USAGE-BIZ-003"]),
+            ("CAND-BIZ-003", "business-writing.md", "published", ["USAGE-BIZ-003"]),
             ("CAND-BIZ-004", "business-writing.md", "insufficient", []),
             ("CAND-BIZ-005", "business-writing.md", "insufficient", []),
             ("CAND-BIZ-006", "business-writing.md", "source-ready", ["USAGE-BIZ-006"]),

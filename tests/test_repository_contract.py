@@ -141,6 +141,25 @@ class RepositoryContractTest(unittest.TestCase):
         for disallowed_separator in ("\u058a", "\u2010", "\u2014"):
             self.assertNotIn(disallowed_separator, rule)
 
+    def test_business_006_omits_terminal_marks_only_from_non_question_subjects(self):
+        path = ROOT / "skills" / "hy-text" / "references" / "business-writing.md"
+        after_heading = path.read_text(encoding="utf-8").split("## HY-BIZ-006", 1)[1]
+        rule = re.split(r"(?=^## HY-)", after_heading, maxsplit=1, flags=re.MULTILINE)[0]
+
+        self.assertIn(
+            "Սովորական թեմա-բառակապակցության կամ թեմա-պնդման վերջում վերջակետադրական նշան չդնել։",
+            rule,
+        )
+        self.assertIn("Էլեկտրոնային նամակի թեմայի տող", rule)
+        self.assertIn("`Օգոստոսի հաշվետվություն։`", rule)
+        self.assertIn("`Պայմանագիրը հաստատվել է։`", rule)
+        self.assertIn("`Օգոստոսի հաշվետվություն`", rule)
+        self.assertIn("`Պայմանագիրը հաստատվել է`", rule)
+        self.assertIn("Հարցական թեմաները կանոնի կիրառության շրջանակից դուրս են", rule)
+        self.assertIn("USAGE-BIZ-003-ը հարցական թեմաների օրինակ չի պարունակում", rule)
+        self.assertIn("**Խստություն։** low", rule)
+        self.assertIn("**Հիմք։** ժամանակակից գործածություն – USAGE-BIZ-003։", rule)
+
     def test_all_runtime_skills_preserve_complete_protected_spans(self):
         required_classes = (
             "code",

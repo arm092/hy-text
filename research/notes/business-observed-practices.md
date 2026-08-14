@@ -78,7 +78,7 @@ Search snippets, an attachment-only thread without a visible greeting, greetings
 
 The deterministic aggregate contains 100 observations from 45 independence keys and four corpus layers. Ninety-nine subjects are phrases without a terminal mark; one is a complete statement without a terminal mark. No eligible question subject was found.
 
-The sample is weighted toward vacancy, competition, application, and notification templates. Article headings, form titles, prose advice, reply or forward subjects, inaccessible pages, mirrors, and search-only matches were excluded. The evidence supports drafting a recommendation to omit a terminal mark from phrase and statement subjects. It does not support any recommendation for question subjects, which remain unresolved.
+The sample is weighted toward vacancy, competition, application, and notification templates. Article headings, form titles, prose advice, reply or forward subjects, inaccessible pages, mirrors, and search-only matches were excluded. After Arman's approval, the evidence-bounded recommendation was published as `HY-BIZ-006`: phrase and statement subjects omit a terminal mark. Question subjects remain explicitly outside the rule because the sample contains none.
 
 ### `USAGE-BIZ-004` – reply and forward prefixes
 
