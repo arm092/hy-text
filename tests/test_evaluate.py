@@ -124,6 +124,69 @@ class EvaluateTest(unittest.TestCase):
             metrics["failing_cases"],
         )
 
+    def test_score_calibration_rejects_truncated_reviewed_golden_set(self):
+        module = load_module()
+        golden = [load_fixture("score-golden.json")[0]]
+        runs = [
+            run
+            for run in load_fixture("score-runs-pass.json")
+            if run["id"] == "case-01"
+        ]
+
+        with self.assertRaisesRegex(ValueError, "exactly 50 reviewed golden cases"):
+            module.score_calibration(golden, runs)
+
+    def test_score_calibration_accepts_inclusive_total_and_dimension_boundaries(self):
+        module = load_module()
+        golden = load_fixture("score-golden.json")
+        runs = load_fixture("score-runs-pass.json")
+        eight_point_five = {dimension: 8.5 for dimension in module.DIMENSIONS}
+
+        golden[0]["scores"] = eight_point_five
+        for run in runs:
+            if run["id"] == "case-01":
+                run["scores"] = eight_point_five.copy()
+        next(run for run in runs if run["run"] == 1 and run["id"] == "case-01")["scores"] = {
+            dimension: 7.8 for dimension in module.DIMENSIONS
+        }
+        next(run for run in runs if run["run"] == 2 and run["id"] == "case-02")["scores"][
+            "language"
+        ] = 8.0
+
+        metrics = module.score_calibration(golden, runs)
+
+        self.assertTrue(metrics["passed"])
+        self.assertEqual(0.7, metrics["max_total_deviation"])
+        self.assertEqual(1.0, metrics["max_dimension_deviation"])
+        self.assertEqual([], metrics["failing_cases"])
+
+    def test_score_calibration_keeps_all_dimension_diagnostics_for_total_only_failure(self):
+        module = load_module()
+        runs = load_fixture("score-runs-pass.json")
+        next(run for run in runs if run["run"] == 1 and run["id"] == "case-01")["scores"] = {
+            dimension: 8.2 for dimension in module.DIMENSIONS
+        }
+
+        metrics = module.score_calibration(load_fixture("score-golden.json"), runs)
+
+        self.assertEqual(
+            [
+                {
+                    "run": 1,
+                    "id": "case-01",
+                    "total_deviation": 0.8,
+                    "dimension_deviations": {
+                        "typography": 0.8,
+                        "language": 0.8,
+                        "grammar": 0.8,
+                        "structure": 0.8,
+                        "reader": 0.8,
+                    },
+                }
+            ],
+            metrics["failing_cases"],
+        )
+
     def test_score_calibration_rejects_duplicate_run_case_pairs(self):
         module = load_module()
         golden = load_fixture("score-golden.json")

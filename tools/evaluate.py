@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+from decimal import Decimal
 import json
 import math
 import sys
@@ -22,6 +23,7 @@ WEIGHTS = {
 
 TOTAL_DEVIATION_LIMIT = 0.7
 DIMENSION_DEVIATION_LIMIT = 1.0
+REVIEWED_CASE_COUNT = 50
 
 
 def _validate_scores(scores: object, context: str) -> None:
@@ -71,8 +73,8 @@ def score_calibration(golden: list[dict], runs: list[dict], expected_runs: int =
         _validate_scores(case.get("scores"), f"golden case {case_id}")
         reviewed[case_id] = case
 
-    if not reviewed:
-        raise ValueError("no reviewed golden cases supplied")
+    if len(reviewed) != REVIEWED_CASE_COUNT:
+        raise ValueError(f"expected exactly {REVIEWED_CASE_COUNT} reviewed golden cases")
 
     expected_run_numbers = set(range(1, expected_runs + 1))
     observed_runs: set[int] = set()
@@ -112,31 +114,49 @@ def score_calibration(golden: list[dict], runs: list[dict], expected_runs: int =
                 f"missing reviewed cases for run {run_number}: {', '.join(sorted(missing_ids))}"
             )
 
-    maximum_total_deviation = 0.0
-    maximum_dimension_deviation = 0.0
+    expected_result_count = expected_runs * REVIEWED_CASE_COUNT
+    if len(results_by_pair) != expected_result_count:
+        raise ValueError(f"expected exactly {expected_result_count} run results")
+
+    total_deviation_limit = Decimal(str(TOTAL_DEVIATION_LIMIT))
+    dimension_deviation_limit = Decimal(str(DIMENSION_DEVIATION_LIMIT))
+    maximum_total_deviation = Decimal("0")
+    maximum_dimension_deviation = Decimal("0")
     failing_cases = []
     for run_number in sorted(expected_run_numbers):
         for case_id in sorted(reviewed_ids):
             expert_scores = reviewed[case_id]["scores"]
             result_scores = results_by_pair[(run_number, case_id)]["scores"]
-            total_deviation = abs(total_score(result_scores) - total_score(expert_scores))
+            total_deviation = abs(
+                Decimal(str(total_score(result_scores))) - Decimal(str(total_score(expert_scores)))
+            )
             dimension_deviations = {
-                dimension: abs(float(result_scores[dimension]) - float(expert_scores[dimension]))
+                dimension: abs(
+                    Decimal(str(result_scores[dimension]))
+                    - Decimal(str(expert_scores[dimension]))
+                )
                 for dimension in DIMENSIONS
             }
             maximum_total_deviation = max(maximum_total_deviation, total_deviation)
             maximum_dimension_deviation = max(maximum_dimension_deviation, *dimension_deviations.values())
             failing_dimensions = {
-                dimension: round(deviation, 1)
+                dimension: float(deviation)
                 for dimension, deviation in dimension_deviations.items()
-                if deviation > DIMENSION_DEVIATION_LIMIT
+                if deviation > dimension_deviation_limit
             }
-            if total_deviation > TOTAL_DEVIATION_LIMIT or failing_dimensions:
+            total_failure = total_deviation > total_deviation_limit
+            if total_failure:
+                failing_dimensions = {
+                    dimension: float(deviation)
+                    for dimension, deviation in dimension_deviations.items()
+                    if deviation > 0
+                }
+            if total_failure or failing_dimensions:
                 failing_cases.append(
                     {
                         "run": run_number,
                         "id": case_id,
-                        "total_deviation": round(total_deviation, 1),
+                        "total_deviation": float(total_deviation),
                         "dimension_deviations": failing_dimensions,
                     }
                 )
@@ -144,16 +164,16 @@ def score_calibration(golden: list[dict], runs: list[dict], expected_runs: int =
     run_completeness = {
         "expected_runs": expected_runs,
         "actual_runs": len(observed_runs),
-        "reviewed_cases": len(reviewed),
-        "expected_results": expected_runs * len(reviewed),
+        "reviewed_cases": REVIEWED_CASE_COUNT,
+        "expected_results": expected_result_count,
         "actual_results": len(results_by_pair),
         "complete": True,
     }
     return {
         "passed": not failing_cases,
         "run_completeness": run_completeness,
-        "max_total_deviation": round(maximum_total_deviation, 1),
-        "max_dimension_deviation": round(maximum_dimension_deviation, 1),
+        "max_total_deviation": float(maximum_total_deviation),
+        "max_dimension_deviation": float(maximum_dimension_deviation),
         "failing_cases": failing_cases,
     }
 
