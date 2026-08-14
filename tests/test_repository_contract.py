@@ -98,13 +98,14 @@ class RepositoryContractTest(unittest.TestCase):
         ):
             self.assertIn(fragment, score_skill)
 
-        for ascii_stop, armenian_stop in (
-            ("չի ստուգվում. գնահատվում է", "չի ստուգվում։ Գնահատվում է"),
-            ("լինելու պատճառով. այստեղ", "լինելու պատճառով։ Այստեղ"),
-            ("հետ միասին. այն", "հետ միասին։ Այն"),
-        ):
-            self.assertNotIn(ascii_stop, scoring)
-            self.assertIn(armenian_stop, scoring)
+        prose = re.sub(r"```.*?```", "", scoring, flags=re.DOTALL)
+        prose = re.sub(r"`[^`\r\n]*`", "", prose)
+        prose = re.sub(r"https?://[^\s)>]+", "", prose)
+        ascii_sentence_stops = re.findall(
+            r"[\u0531-\u0556\u0561-\u0587]\.(?=\s|$)",
+            prose,
+        )
+        self.assertEqual([], ascii_sentence_stops)
 
     def test_check_and_score_are_read_only(self):
         for skill in ("hy-check", "hy-score"):
