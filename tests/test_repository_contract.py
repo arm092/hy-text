@@ -112,7 +112,8 @@ class RepositoryContractTest(unittest.TestCase):
         scoring = (reference_dir / "scoring.md").read_text(encoding="utf-8")
         for fragment in (
             "Կայուն կանոնների ազդեցության աղյուսակ",
-            "`HY-TYP-001`, `HY-TYP-002`, `HY-PUN-001`, `HY-PUN-004`",
+            "`HY-TYP-001`, `HY-TYP-002`",
+            "`HY-PUN-001`, `HY-PUN-004`",
             "բոլոր կամ գրեթե բոլոր կիրառելի նախադասությունների սահմանները",
             "`HY-BIZ-001`, `HY-BIZ-002`",
             "`HY-BIZ-004`",
@@ -140,6 +141,23 @@ class RepositoryContractTest(unittest.TestCase):
         ]
         self.assertGreater(len(numeric_anchors), 20)
         self.assertTrue(all(0.0 <= value <= 10.0 for value in numeric_anchors))
+
+        for line in impact_table.splitlines():
+            if not line.startswith("|") or "HY-" not in line:
+                continue
+            cells = [cell.strip() for cell in line.strip("|").split("|")]
+            if len(cells) != 6:
+                continue
+            ids = set(re.findall(r"HY-[A-Z]{2,4}-\d{3}", cells[0]))
+            if ids and all(rule.startswith("HY-TYP-") for rule in ids):
+                self.assertEqual(["–", "–", "–", "–"], cells[2:])
+            if ids and all(rule.startswith("HY-PUN-") for rule in ids):
+                self.assertEqual("–", cells[1])
+                self.assertEqual("–", cells[2])
+                self.assertEqual("–", cells[4])
+            if ids and all(not rule.startswith(("HY-TYP-", "HY-PUN-", "HY-GRM-")) for rule in ids):
+                self.assertEqual("–", cells[1])
+                self.assertEqual("–", cells[3])
 
         golden = json.loads((ROOT / "tests" / "golden" / "scoring.json").read_text(encoding="utf-8"))
         for case in golden:
