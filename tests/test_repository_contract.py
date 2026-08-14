@@ -155,6 +155,22 @@ class RepositoryContractTest(unittest.TestCase):
         )
         self.assertIn("contextual", safe_pass.lower())
 
+    def test_typography_sentence_stop_and_internal_separator_have_distinct_ownership(self):
+        text = (ROOT / "skills" / "hy-text" / "references" / "typography.md").read_text(
+            encoding="utf-8"
+        )
+        typ_001 = text.split("## HY-TYP-001", 1)[1].split("## HY-TYP-002", 1)[0]
+        typ_002 = text.split("## HY-TYP-002", 1)[1].split("## HY-TYP-003", 1)[0]
+
+        self.assertIn("երկու անկախ նախադասությունների սահմանին", typ_001)
+        self.assertIn("`Ժողովն ավարտվեց. Մասնակիցները հեռացան։`", typ_001)
+        self.assertIn("`Ժողովն ավարտվեց։ Մասնակիցները հեռացան։`", typ_001)
+        self.assertIn("HY-TYP-001", typ_001)
+
+        self.assertIn("միայն նույն նախադասության ներքին մասերի միջև", typ_002)
+        self.assertIn("HY-TYP-001", typ_002)
+        self.assertIn("վերջակետ `։`", typ_002)
+
     def test_grammar_008_separates_foreign_script_from_armenian_ending(self):
         text = (ROOT / "skills" / "hy-text" / "references" / "editorial-grammar.md").read_text(encoding="utf-8")
         after_heading = text.split("## HY-GRM-008", 1)[1]

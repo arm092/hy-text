@@ -178,19 +178,105 @@ def score_calibration(golden: list[dict], runs: list[dict], expected_runs: int =
     }
 
 
-def detection_metrics(golden: list[dict], reported: list[dict]) -> dict[str, float]:
-    by_id = {case["id"]: set(case.get("reported_rules", [])) for case in reported}
-    expected_count = found_count = extra_count = reported_count = 0
+def detection_metrics(golden: list[dict], reported: list[dict]) -> dict:
+    """Evaluate one complete blind hy-check run against its golden corpus."""
+    if not isinstance(golden, list) or not isinstance(reported, list):
+        raise ValueError("golden and check results must be JSON arrays")
+
+    golden_by_id: dict[str, dict] = {}
     for case in golden:
+        if not isinstance(case, dict):
+            raise ValueError("golden check cases must be objects")
+        case_id = case.get("id")
+        if not isinstance(case_id, str) or not case_id:
+            raise ValueError("golden check cases require a non-empty id")
+        if case_id in golden_by_id:
+            raise ValueError(f"duplicate golden check id: {case_id}")
+        expected_rules = case.get("expected_rules", [])
+        if not isinstance(expected_rules, list) or any(
+            not isinstance(rule, str) or not rule.startswith("HY-") for rule in expected_rules
+        ):
+            raise ValueError(f"golden check case {case_id} has invalid expected rules")
+        if len(expected_rules) != len(set(expected_rules)):
+            raise ValueError(f"golden check case {case_id} has duplicate expected rules")
+        protected_spans = case.get("protected_spans", [])
+        if not isinstance(protected_spans, list) or any(
+            not isinstance(span, dict)
+            or not isinstance(span.get("type"), str)
+            or not isinstance(span.get("text"), str)
+            or not span["text"]
+            for span in protected_spans
+        ):
+            raise ValueError(f"golden check case {case_id} has invalid protected spans")
+        golden_by_id[case_id] = case
+
+    reported_by_id: dict[str, dict] = {}
+    for result in reported:
+        if not isinstance(result, dict):
+            raise ValueError("check results must be objects")
+        case_id = result.get("id")
+        if not isinstance(case_id, str) or not case_id:
+            raise ValueError("check results require a non-empty id")
+        if case_id in reported_by_id:
+            raise ValueError(f"duplicate check result id: {case_id}")
+        if case_id not in golden_by_id:
+            raise ValueError(f"unknown check result id: {case_id}")
+        rules = result.get("reported_rules")
+        corrected_text = result.get("corrected_text")
+        if not isinstance(rules, list) or any(
+            not isinstance(rule, str) or not rule.startswith("HY-") for rule in rules
+        ):
+            raise ValueError(f"check result {case_id} has invalid reported rules")
+        if len(rules) != len(set(rules)):
+            raise ValueError(f"check result {case_id} has duplicate reported rules")
+        if not isinstance(corrected_text, str):
+            raise ValueError(f"check result {case_id} requires corrected_text")
+        reported_by_id[case_id] = result
+
+    missing_ids = set(golden_by_id) - set(reported_by_id)
+    if missing_ids:
+        raise ValueError(f"missing check results: {', '.join(sorted(missing_ids))}")
+
+    expected_count = found_count = 0
+    clean_count = clean_with_findings = 0
+    protected_mutation_count = 0
+    diagnostics = []
+    for case in golden:
+        case_id = case["id"]
         expected = set(case.get("expected_rules", []))
-        actual = by_id.get(case["id"], set())
+        result = reported_by_id[case_id]
+        actual = set(result["reported_rules"])
         expected_count += len(expected)
         found_count += len(expected & actual)
-        extra_count += len(actual - expected)
-        reported_count += len(actual)
+        if not expected:
+            clean_count += 1
+            if actual:
+                clean_with_findings += 1
+
+        mutated_spans = [
+            span
+            for span in case.get("protected_spans", [])
+            if span["text"] not in result["corrected_text"]
+        ]
+        protected_mutation_count += len(mutated_spans)
+        diagnostics.append(
+            {
+                "id": case_id,
+                "missing_rules": sorted(expected - actual),
+                "extra_rules": sorted(actual - expected),
+                "protected_mutations": mutated_spans,
+                "correction_matches": result["corrected_text"] == case.get("expected_text", ""),
+            }
+        )
+
     return {
         "recall": round(found_count / expected_count, 4) if expected_count else 1.0,
-        "false_discovery_rate": round(extra_count / reported_count, 4) if reported_count else 0.0,
+        "clean_false_positive_rate": (
+            round(clean_with_findings / clean_count, 4) if clean_count else 0.0
+        ),
+        "protected_mutations": protected_mutation_count,
+        "case_count": len(golden_by_id),
+        "cases": diagnostics,
     }
 
 
@@ -233,7 +319,11 @@ def main() -> int:
     print(json.dumps(metrics, ensure_ascii=False, indent=2))
 
     if args.mode == "check":
-        return 0 if metrics["recall"] >= 0.90 and metrics["false_discovery_rate"] <= 0.05 else 1
+        return 0 if (
+            metrics["recall"] >= 0.90
+            and metrics["clean_false_positive_rate"] <= 0.05
+            and metrics["protected_mutations"] == 0
+        ) else 1
     return 0 if metrics["passed"] else 1
 
 

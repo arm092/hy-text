@@ -21,6 +21,119 @@ def load_fixture(name):
 
 
 class EvaluateTest(unittest.TestCase):
+    def test_detection_metrics_use_clean_case_rate_and_protected_mutations(self):
+        module = load_module()
+        golden = [
+            {
+                "id": "faulty",
+                "expected_rules": ["HY-TYP-001", "HY-GRM-002"],
+                "expected_text": "Ուղղված տեքստ։",
+                "protected_spans": [{"type": "filename", "text": "config/app.php"}],
+            },
+            {
+                "id": "clean-a",
+                "expected_rules": [],
+                "expected_text": "Մաքուր տեքստ։",
+                "protected_spans": [],
+            },
+            {
+                "id": "clean-b",
+                "expected_rules": [],
+                "expected_text": "Երկրորդ մաքուր տեքստ։",
+                "protected_spans": [],
+            },
+        ]
+        reported = [
+            {
+                "id": "faulty",
+                "reported_rules": ["HY-TYP-001"],
+                "corrected_text": "Ուղղված config/app.php տեքստ։",
+            },
+            {
+                "id": "clean-a",
+                "reported_rules": ["HY-INF-001", "HY-INF-002"],
+                "corrected_text": "Մաքուր տեքստ։",
+            },
+            {
+                "id": "clean-b",
+                "reported_rules": [],
+                "corrected_text": "Երկրորդ մաքուր տեքստ։",
+            },
+        ]
+
+        metrics = module.detection_metrics(golden, reported)
+
+        self.assertEqual(0.5, metrics["recall"])
+        self.assertEqual(0.5, metrics["clean_false_positive_rate"])
+        self.assertEqual(0, metrics["protected_mutations"])
+        self.assertEqual(3, metrics["case_count"])
+        self.assertEqual(
+            {
+                "id": "faulty",
+                "missing_rules": ["HY-GRM-002"],
+                "extra_rules": [],
+                "protected_mutations": [],
+                "correction_matches": False,
+            },
+            metrics["cases"][0],
+        )
+
+    def test_detection_metrics_count_each_changed_protected_span(self):
+        module = load_module()
+        golden = [
+            {
+                "id": "protected",
+                "expected_rules": [],
+                "expected_text": "Տես `php artisan test` և app.php։",
+                "protected_spans": [
+                    {"type": "command", "text": "php artisan test"},
+                    {"type": "filename", "text": "app.php"},
+                ],
+            }
+        ]
+        reported = [
+            {
+                "id": "protected",
+                "reported_rules": [],
+                "corrected_text": "Տես `php artisan test` և app-php։",
+            }
+        ]
+
+        metrics = module.detection_metrics(golden, reported)
+
+        self.assertEqual(1, metrics["protected_mutations"])
+        self.assertEqual(
+            [{"type": "filename", "text": "app.php"}],
+            metrics["cases"][0]["protected_mutations"],
+        )
+
+    def test_detection_metrics_reject_duplicate_or_incomplete_results(self):
+        module = load_module()
+        golden = [
+            {
+                "id": "a",
+                "expected_rules": [],
+                "expected_text": "Ա։",
+                "protected_spans": [],
+            },
+            {
+                "id": "b",
+                "expected_rules": [],
+                "expected_text": "Բ։",
+                "protected_spans": [],
+            },
+        ]
+        duplicate = [
+            {"id": "a", "reported_rules": [], "corrected_text": "Ա։"},
+            {"id": "a", "reported_rules": [], "corrected_text": "Ա։"},
+        ]
+
+        with self.assertRaisesRegex(ValueError, "duplicate check result id"):
+            module.detection_metrics(golden, duplicate)
+
+        with self.assertRaisesRegex(ValueError, "missing check results"):
+            module.detection_metrics(golden, duplicate[:1])
+
     def test_detection_metrics_count_expected_and_extra_rules(self):
         module = load_module()
         golden = [
@@ -28,12 +141,16 @@ class EvaluateTest(unittest.TestCase):
             {"id": "b", "expected_rules": []},
         ]
         reported = [
-            {"id": "a", "reported_rules": ["HY-TYP-001", "HY-GRM-002"]},
-            {"id": "b", "reported_rules": []},
+            {
+                "id": "a",
+                "reported_rules": ["HY-TYP-001", "HY-GRM-002"],
+                "corrected_text": "Ա։",
+            },
+            {"id": "b", "reported_rules": [], "corrected_text": "Բ։"},
         ]
         metrics = module.detection_metrics(golden, reported)
         self.assertEqual(0.5, metrics["recall"])
-        self.assertEqual(0.5, metrics["false_discovery_rate"])
+        self.assertEqual(0.0, metrics["clean_false_positive_rate"])
 
     def test_score_drift_uses_reviewed_cases_only(self):
         module = load_module()
