@@ -219,14 +219,34 @@ def smoke_all(root: Path, temp_root: Path) -> list[dict]:
     return [smoke_format(root, temp_root, package) for package in PACKAGE_ORDER]
 
 
-def main() -> int:
+def smoke_in_temp_root(root: Path, temp_root: Path) -> list[dict]:
+    """Run all smoke installs below an explicit root and remove the owned child."""
+    explicit_root = Path(temp_root).resolve()
+    if not explicit_root.exists():
+        raise SmokeError(f"explicit temporary root is missing: {explicit_root}")
+    if not explicit_root.is_dir():
+        raise SmokeError(f"explicit temporary root is not a directory: {explicit_root}")
+    try:
+        with tempfile.TemporaryDirectory(
+            prefix="hy-text-smoke-",
+            dir=explicit_root,
+        ) as temporary:
+            return smoke_all(root, Path(temporary))
+    except OSError as error:
+        raise SmokeError(f"explicit temporary root is unusable: {explicit_root}: {error}") from error
+
+
+def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path.cwd())
+    parser.add_argument("--temp-root", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
-    arguments = parser.parse_args()
+    arguments = parser.parse_args(argv)
 
-    with tempfile.TemporaryDirectory(prefix="hy-text-smoke-") as temporary:
-        results = smoke_all(arguments.root, Path(temporary))
+    try:
+        results = smoke_in_temp_root(arguments.root, arguments.temp_root)
+    except SmokeError as error:
+        parser.error(str(error))
     output = arguments.output.resolve()
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(results, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

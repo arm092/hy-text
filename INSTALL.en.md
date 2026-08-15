@@ -7,8 +7,10 @@
 The release smoke check installs six separate package layouts in isolated temporary homes: Agent Skills, Claude, Codex, Cursor, Gemini, and OpenClaw. It parses the installed manifests, verifies skill and asset paths, and rejects missing references or paths that escape the package root. It never writes to the real user profile.
 
 ```bash
-python tools/smoke_install.py --root . --output install-smoke.json
+python tools/smoke_install.py --root . --temp-root . --output install-smoke.json
 ```
+
+`--temp-root` is required; this command explicitly selects the repository directory. The checker creates a unique temporary child below it and removes that child completely when the run finishes. To use another location, pass an existing temporary directory that you control. No user-profile location is selected by default.
 
 This result verifies hermetic package installation. Local Claude, Codex, Cursor, Gemini, and OpenClaw executable availability is recorded separately in the `live_cli` field. `unavailable` means only that the optional executable is not present on that machine; it is never reported as a fabricated live-install success.
 
