@@ -56,3 +56,20 @@ Required validation commands completed successfully after the final fixes:
 - scoped U+2014 scan
 
 No scoring files, release metadata, Task 5 files, or calibration temporary directories were modified by Task 4.
+
+## Review fix round 3
+
+The scoped re-review supplied two exact moves that the previous line/sentence/token-slot fingerprint accepted: moving `app.php` across a comma and across an ASCII question mark without changing the number of preceding words. RED tests reproduced both as unsafe accepted corrections and unsafe reported outputs. Another RED control captured the regression where the legitimate surrounding edit `Բացեք app.php ֆայլը հիմա։` to `Խնդրում եմ բացել app.php ֆայլը հիմա։` was rejected even though the protected occurrence remained anchored.
+
+The heuristic fingerprint was replaced with a protected-atom edit alignment. Every protected source occurrence receives a unique atom. Non-protected token occurrences whose multiplicity is unchanged become stable alignment anchors. The evaluator requires every protected atom to keep the same partial order relative to all stable anchors. Inserted, deleted, or reworded surrounding tokens do not constrain the atom, so ordinary wording edits remain valid. Moving punctuation or another stable token across the atom, reordering protected atoms, losing or duplicating an atom, or substituting one duplicate occurrence and reinserting a copy changes the alignment and is rejected.
+
+GREEN evidence after this replacement:
+
+- the exact comma and question moves are rejected both in golden accepted corrections and reported results
+- the exact legitimate pre-span wording edit is accepted
+- the duplicate-occurrence substitution/reinsertion control remains rejected
+- focused evaluator and golden tests pass
+- the immutable 50-case result remains at recall `1.0`, clean-case false-positive rate `0.0`, protected mutations `0`, correction failures `0`, and correction accuracy `1.0`
+- full test discovery, repository validation, both relevant skill validators, diff check, and the U+2014 scan pass
+
+The previously added source-support gates for clock times and payment instruments remain active and passing.

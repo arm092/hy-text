@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+from collections import Counter, defaultdict
 from decimal import Decimal
 import json
 import math
@@ -210,37 +211,84 @@ def _protected_sequence(text: str, spans: list[dict]) -> tuple[int, ...]:
     return tuple(span_index for _, span_index in sorted(occurrences))
 
 
-def _protected_fingerprints(text: str, spans: list[dict]) -> tuple[tuple, ...]:
+def _protected_alignment_tokens(text: str, spans: list[dict]) -> list[str]:
     occurrences = sorted(
         (position, position + len(span["text"]), span_index)
         for span_index, span in enumerate(spans)
         for position in _occurrence_positions(text, span["text"])
     )
-    masked = list(text)
-    for start, end, _ in occurrences:
-        masked[start:end] = " " * (end - start)
-    masked_text = "".join(masked)
-
-    fingerprints = []
-    segment_ordinals: dict[tuple[int, int, int], int] = {}
+    tokens = []
+    occurrence_ordinals: dict[int, int] = defaultdict(int)
+    cursor = 0
     for start, end, span_index in occurrences:
-        line = text.count("\n", 0, start)
-        sentence = text.count("։", 0, start)
-        left_boundary = max(masked_text.rfind("\n", 0, start), masked_text.rfind("։", 0, start))
-        left_words = re.findall(r"[^\W_]+", masked_text[left_boundary + 1:start])
-        ordinal_key = (span_index, line, sentence)
-        ordinal = segment_ordinals.get(ordinal_key, 0)
-        segment_ordinals[ordinal_key] = ordinal + 1
-        fingerprints.append(
-            (
-                span_index,
-                line,
-                sentence,
-                ordinal,
-                len(left_words),
-            )
+        if start < cursor:
+            raise ValueError("protected spans overlap")
+        tokens.extend(
+            token.casefold()
+            for token in re.findall(r"[^\W_]+|[^\w\s]", text[cursor:start])
         )
-    return tuple(fingerprints)
+        ordinal = occurrence_ordinals[span_index]
+        occurrence_ordinals[span_index] += 1
+        tokens.append(f"\x00PROTECTED:{span_index}:{ordinal}\x00")
+        cursor = end
+    tokens.extend(
+        token.casefold()
+        for token in re.findall(r"[^\W_]+|[^\w\s]", text[cursor:])
+    )
+    return tokens
+
+
+def _protected_alignment_preserved(
+    source: str,
+    target: str,
+    spans: list[dict],
+    only_span_index: int | None = None,
+) -> bool:
+    source_tokens = _protected_alignment_tokens(source, spans)
+    target_tokens = _protected_alignment_tokens(target, spans)
+    protected_prefix = "\x00PROTECTED:"
+    source_atoms = [token for token in source_tokens if token.startswith(protected_prefix)]
+    target_atoms = [token for token in target_tokens if token.startswith(protected_prefix)]
+    if only_span_index is not None:
+        atom_prefix = f"{protected_prefix}{only_span_index}:"
+        source_atoms = [token for token in source_atoms if token.startswith(atom_prefix)]
+        target_atoms = [token for token in target_atoms if token.startswith(atom_prefix)]
+    if source_atoms != target_atoms:
+        return False
+
+    source_counts = Counter(token for token in source_tokens if not token.startswith(protected_prefix))
+    target_counts = Counter(token for token in target_tokens if not token.startswith(protected_prefix))
+    stable_tokens = {
+        token
+        for token, count in source_counts.items()
+        if count > 0 and target_counts[token] == count
+    }
+
+    def positions(tokens: list[str]) -> tuple[dict[str, int], dict[tuple[str, int], int]]:
+        protected_positions = {}
+        stable_positions = {}
+        ordinals: dict[str, int] = defaultdict(int)
+        for index, token in enumerate(tokens):
+            if token.startswith(protected_prefix):
+                protected_positions[token] = index
+            elif token in stable_tokens:
+                ordinal = ordinals[token]
+                ordinals[token] += 1
+                stable_positions[(token, ordinal)] = index
+        return protected_positions, stable_positions
+
+    source_protected, source_stable = positions(source_tokens)
+    target_protected, target_stable = positions(target_tokens)
+    for atom in source_atoms:
+        span_index = int(atom.split(":", 2)[1])
+        if only_span_index is not None and span_index != only_span_index:
+            continue
+        for stable_atom, source_position in source_stable.items():
+            if (source_position < source_protected[atom]) != (
+                target_stable[stable_atom] < target_protected[atom]
+            ):
+                return False
+    return True
 
 
 def detection_metrics(golden: list[dict], reported: list[dict]) -> dict:
@@ -315,9 +363,8 @@ def detection_metrics(golden: list[dict], reported: list[dict]) -> dict:
             raise ValueError(
                 f"golden check case {case_id} accepted correction reorders protected spans"
             )
-        source_fingerprints = _protected_fingerprints(source_text, protected_spans)
         if any(
-            _protected_fingerprints(correction, protected_spans) != source_fingerprints
+            not _protected_alignment_preserved(source_text, correction, protected_spans)
             for correction in accepted_corrections
         ):
             raise ValueError(
@@ -384,22 +431,13 @@ def detection_metrics(golden: list[dict], reported: list[dict]) -> dict:
             correction_failure_count += 1
 
         mutated_spans = []
-        result_fingerprints = _protected_fingerprints(
-            result["corrected_text"], case.get("protected_spans", [])
-        )
         for span_index, span in enumerate(case.get("protected_spans", [])):
-            result_span_fingerprints = tuple(
-                fingerprint for fingerprint in result_fingerprints if fingerprint[0] == span_index
-            )
-            accepted_span_fingerprints = {
-                tuple(
-                    fingerprint
-                    for fingerprint in _protected_fingerprints(correction, case["protected_spans"])
-                    if fingerprint[0] == span_index
-                )
-                for correction in accepted_corrections
-            }
-            if result_span_fingerprints not in accepted_span_fingerprints:
+            if not _protected_alignment_preserved(
+                case["text"],
+                result["corrected_text"],
+                case["protected_spans"],
+                only_span_index=span_index,
+            ):
                 mutated_spans.append(span)
         protected_mutation_count += len(mutated_spans)
         diagnostics.append(
