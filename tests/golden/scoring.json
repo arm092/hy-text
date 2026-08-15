@@ -1,7 +1,7 @@
 [
   {"id":"article-01","domain":"article","text":"Քաղաքապետարանը օգոստոսի 20-ից կփակի կամուրջը։ Վերանորոգումը կտևի երեք օր։","scores":{"typography":9,"language":9,"grammar":9,"structure":9,"reader":8},"reviewed":true},
   {"id":"article-02","domain":"article","text":"Այս հոդվածում մենք կփորձենք մանրամասնորեն անդրադառնալ տարբեր կարևոր հարցերի։","scores":{"typography":9,"language":5,"grammar":8,"structure":5,"reader":4},"reviewed":true},
-  {"id":"article-03","domain":"article","text":"Որտեղ է սկսվում երթուղին? Պատասխանը ներկայացված է քարտեզում.","scores":{"typography":3,"language":8,"grammar":3,"structure":7,"reader":7},"reviewed":true},
+  {"id":"article-03","domain":"article","text":"Որտեղ է սկսվում երթուղին? Պատասխանը ներկայացված է քարտեզում.","scores":{"typography":4,"language":9,"grammar":4,"structure":9,"reader":9},"reviewed":true},
   {"id":"article-04","domain":"article","text":"Հետազոտությունը ներառել է 240 մասնակցի։ Արդյունքները հրապարակված են բաց տվյալների շտեմարանում։","scores":{"typography":9,"language":9,"grammar":9,"structure":8,"reader":9},"reviewed":true},
   {"id":"article-05","domain":"article","text":"Մասնագետները նշում են, որ լուծումը լավագույնն է, սակայն աղբյուր չի ներկայացվում։","scores":{"typography":9,"language":6,"grammar":9,"structure":7,"reader":4},"reviewed":true},
   {"id":"article-06","domain":"article","text":"Գուցե՞ վաղը անձրև գա։ Այդ դեպքում միջոցառումը կտեղափոխվի սրահ։","scores":{"typography":8,"language":8,"grammar":5,"structure":8,"reader":7},"reviewed":true},

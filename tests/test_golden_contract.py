@@ -142,6 +142,19 @@ class GoldenContractTest(unittest.TestCase):
             "API-ի պատասխանը պարունակում է `{\"status\":\"ok\"}` տողը։",
             by_id["mixed-06"]["text"],
         )
+        self.assertEqual(
+            {
+                "typography": 4,
+                "language": 9,
+                "grammar": 4,
+                "structure": 9,
+                "reader": 9,
+            },
+            by_id["article-03"]["scores"],
+        )
+        readme = (ROOT / "tests" / "golden" / "README.md").read_text(encoding="utf-8")
+        self.assertIn("article-03", readme)
+        self.assertIn("human re-review on 2026-08-15", readme)
 
     def test_protected_content_cases_cover_all_types(self):
         cases = json.loads((ROOT / "tests" / "golden" / "protected.json").read_text(encoding="utf-8"))
