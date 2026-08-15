@@ -617,6 +617,94 @@ class EvaluateTest(unittest.TestCase):
         self.assertEqual(0, metrics["protected_mutations"])
         self.assertEqual(0, metrics["correction_failures"])
 
+    def test_detection_metrics_reject_trailing_ignorable_suffix_anchor_bypass(self):
+        module = load_module()
+        cases = (
+            ("Բացեք app.php հիմա...\u200b", "Խնդրում եմ անմիջապես app.php...\u200b"),
+            ("Բացեք app.php հիմա...\ufe0f", "Խնդրում եմ անմիջապես app.php...\ufe0f"),
+            ("Բացեք app.php հիմա...\u0301", "Խնդրում եմ անմիջապես app.php...\u0301"),
+        )
+
+        for source, unsafe_correction in cases:
+            with self.subTest(unsafe_correction=unsafe_correction.encode("unicode_escape").decode("ascii")):
+                golden = [
+                    {
+                        "id": "protected",
+                        "text": source,
+                        "expected_text": unsafe_correction,
+                        "expected_rules": ["HY-TYP-001"],
+                        "protected_spans": [{"type": "filename", "text": "app.php"}],
+                    }
+                ]
+
+                with self.assertRaisesRegex(ValueError, "relocates protected span"):
+                    module.detection_metrics(golden, [])
+
+    def test_detection_metrics_flag_trailing_ignorable_suffix_reported_bypass(self):
+        module = load_module()
+        cases = (
+            ("Բացեք app.php հիմա...\u200b", "Խնդրում եմ բացել app.php հիմա։", "Խնդրում եմ անմիջապես app.php...\u200b"),
+            ("Բացեք app.php հիմա...\ufe0f", "Խնդրում եմ բացել app.php հիմա։", "Խնդրում եմ անմիջապես app.php...\ufe0f"),
+            ("Բացեք app.php հիմա...\u0301", "Խնդրում եմ բացել app.php հիմա։", "Խնդրում եմ անմիջապես app.php...\u0301"),
+        )
+
+        for source, expected, malicious in cases:
+            with self.subTest(malicious=malicious.encode("unicode_escape").decode("ascii")):
+                golden = [
+                    {
+                        "id": "protected",
+                        "text": source,
+                        "expected_text": expected,
+                        "expected_rules": ["HY-TYP-001"],
+                        "protected_spans": [{"type": "filename", "text": "app.php"}],
+                    }
+                ]
+                reported = [
+                    {
+                        "id": "protected",
+                        "reported_rules": ["HY-TYP-001"],
+                        "corrected_text": malicious,
+                    }
+                ]
+
+                metrics = module.detection_metrics(golden, reported)
+
+                self.assertEqual(1, metrics["protected_mutations"])
+                self.assertEqual(1, metrics["correction_failures"])
+
+    def test_detection_metrics_accept_non_terminal_combining_or_format_tokens(self):
+        module = load_module()
+        cases = (
+            "Բացեք app.php,\u200b հետո պահեք ֆայլը.",
+            "Բացեք app.php,\u0301 հետո պահեք ֆայլը.",
+        )
+
+        for source in cases:
+            with self.subTest(source=source.encode("unicode_escape").decode("ascii")):
+                expected = source.replace("Բացեք", "Խնդրում եմ բացել").replace("պահեք", "պահել")
+                expected = expected[:-1] + "։"
+                golden = [
+                    {
+                        "id": "protected",
+                        "text": source,
+                        "expected_text": expected,
+                        "expected_rules": ["HY-TYP-001"],
+                        "protected_spans": [{"type": "filename", "text": "app.php"}],
+                    }
+                ]
+                reported = [
+                    {
+                        "id": "protected",
+                        "reported_rules": ["HY-TYP-001"],
+                        "corrected_text": expected,
+                    }
+                ]
+
+                metrics = module.detection_metrics(golden, reported)
+
+                self.assertEqual(0, metrics["protected_mutations"])
+                self.assertEqual(0, metrics["correction_failures"])
+
     def test_detection_metrics_reject_duplicate_or_incomplete_results(self):
         module = load_module()
         golden = [

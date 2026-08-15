@@ -283,16 +283,23 @@ def _protected_alignment_preserved(
     def punctuation_token(token: str) -> bool:
         return bool(token) and all(unicodedata.category(char).startswith("P") for char in token)
 
+    def terminal_suffix_token(token: str) -> bool:
+        return bool(token) and all(
+            unicodedata.category(char).startswith("P")
+            or unicodedata.category(char) in {"Cf", "Mn", "Me"}
+            for char in token
+        )
+
     def trailing_punctuation_run_start(tokens: list[str]) -> int:
         index = len(tokens)
-        while index > 0 and punctuation_token(tokens[index - 1]):
+        while index > 0 and terminal_suffix_token(tokens[index - 1]):
             index -= 1
         return index
 
     def meaningful_anchor(tokens: list[str], stable_atom: tuple[str, int], position: int) -> bool:
         return not (
             position >= trailing_punctuation_run_start(tokens)
-            and punctuation_token(stable_atom[0])
+            and terminal_suffix_token(stable_atom[0])
         )
 
     source_protected, source_stable = positions(source_tokens)

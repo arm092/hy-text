@@ -135,3 +135,18 @@ GREEN evidence after the round-7 change:
 - single-token terminal punctuation bypasses remain rejected
 - non-terminal punctuation anchoring remains accepted
 - exact identity, anchorless full-rewrite rejection, comma/question relocation rejection, duplicate substitution/reinsertion rejection, and legitimate lexical-anchor edits keep their prior behavior
+
+## Review fix round 8
+
+The exceptional round-8 review found a tokenizer-edge bypass beyond pure trailing punctuation runs. `_protected_alignment_tokens()` emits trailing format and combining code points as separate tokens, so a suffix like `...\u200B`, `...\uFE0F`, or `...\u0301` stopped the terminal punctuation scan and left the trailing `Cf` or `Mn` token as vacuous meaningful anchor evidence. The exact accepted-correction and reported-result probes passed for all three suffixes, and reported scoring incorrectly kept protected mutations at zero.
+
+RED coverage added one accepted-correction control and one reported-result control for each exact suffix after a trailing punctuation run: zero-width space (`Cf`), variation selector (`Mn`), and combining acute accent (`Mn`). A separate control kept combining and format tokens in non-terminal position after a comma so the contract still accepts ordinary lexical-anchor rewrites when these tokens are part of the interior structure rather than the terminal suffix.
+
+The round-8 evaluator change generalizes the terminal suffix classifier from punctuation-only tokens to structurally non-anchoring terminal tokens. A token now belongs to the terminal suffix when every code point is either punctuation (`P*`), a nonspacing or enclosing mark (`Mn`, `Me`), or a format character (`Cf`). Tokens in that maximal terminal suffix are excluded from meaningful-anchor evidence, but they still remain visible to the partial-order comparison. This closes the trailing `Cf`/`Mn` bypass without introducing an enumerated codepoint list and without weakening non-terminal structural anchors.
+
+GREEN evidence after the round-8 change:
+
+- trailing `...\u200B`, `...\uFE0F`, and `...\u0301` relocation bypasses are rejected in accepted-correction and reported-result paths
+- previously fixed pure trailing punctuation bypasses remain rejected
+- non-terminal combining or format tokens remain compatible with accepted lexical-anchor rewrites
+- exact identity, anchorless full-rewrite rejection, comma/question relocation rejection, duplicate substitution/reinsertion rejection, and legitimate lexical-anchor edits keep their prior behavior
