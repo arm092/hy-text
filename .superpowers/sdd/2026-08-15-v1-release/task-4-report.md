@@ -120,3 +120,18 @@ GREEN evidence after the round-6 change:
 - exact protected-only identity remains accepted
 - anchorless full rewrites remain rejected
 - comma/question boundary relocation, duplicate substitution/reinsertion, and legitimate lexical-anchor edits keep their prior behavior
+
+## Review fix round 7
+
+The exceptional round-7 review found one last terminal-anchor gap on top of round 6. Because the tokenizer emits punctuation code points separately, only the final punctuation token in a terminal run was treated as non-meaningful. That left earlier punctuation tokens in the same trailing run available as vacuous sole anchors, so `Բացեք app.php հիմա...` to `Խնդրում եմ անմիջապես app.php...`, plus mixed runs such as `?!` and `,…`, still passed accepted-correction validation and produced zero protected mutations in reported-result scoring.
+
+RED coverage added three trailing-run bypass controls for ASCII repeated punctuation, mixed punctuation, and a Unicode combination, plus one control proving that punctuation still anchors when it is not part of the trailing terminal run. The non-terminal control uses `Բացեք app.php, հետո պահեք ֆայլը.` to `Խնդրում եմ բացել app.php, հետո պահել ֆայլը։` and must remain accepted because the comma is structural evidence inside the sentence rather than part of the terminal suffix.
+
+The round-7 evaluator change generalizes anchor qualification from the last punctuation token to the entire maximal contiguous trailing run of punctuation tokens. Any stable token inside that terminal punctuation suffix is non-meaningful as preservation evidence, while punctuation outside the suffix remains available for the partial-order contract. Exact source-target identity still passes immediately, lexical anchors still justify stationary surrounding rewrites, and boundary-crossing punctuation continues to expose relocation when it is not merely part of the terminal run.
+
+GREEN evidence after the round-7 change:
+
+- trailing `...`, `?!`, and `,…` relocation bypasses are rejected in accepted-correction and reported-result paths
+- single-token terminal punctuation bypasses remain rejected
+- non-terminal punctuation anchoring remains accepted
+- exact identity, anchorless full-rewrite rejection, comma/question relocation rejection, duplicate substitution/reinsertion rejection, and legitimate lexical-anchor edits keep their prior behavior
