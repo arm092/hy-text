@@ -1,4 +1,6 @@
 import importlib.util
+import json
+import shutil
 import tempfile
 import unittest
 from pathlib import Path
@@ -16,6 +18,50 @@ def load_validator():
 
 
 class ValidatorTest(unittest.TestCase):
+    def test_release_version_is_required_for_every_manifest(self):
+        validator = load_validator()
+        version_paths = (
+            (".claude-plugin/plugin.json", ("version",)),
+            (".claude-plugin/marketplace.json", ("metadata", "version")),
+            (".claude-plugin/marketplace.json", ("plugins", 0, "version")),
+            (".codex-plugin/plugin.json", ("version",)),
+            (".cursor-plugin/plugin.json", ("version",)),
+            ("gemini-extension.json", ("version",)),
+            ("openclaw.plugin.json", ("version",)),
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for relative_path in (
+                ".claude-plugin/plugin.json",
+                ".claude-plugin/marketplace.json",
+                ".codex-plugin/plugin.json",
+                ".cursor-plugin/plugin.json",
+                "gemini-extension.json",
+                "openclaw.plugin.json",
+            ):
+                source = ROOT / relative_path
+                destination = root / relative_path
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(source, destination)
+
+            self.assertEqual([], validator.validate_versions(root))
+
+            for relative_path, version_path in version_paths:
+                with self.subTest(path=relative_path, version_path=version_path):
+                    manifest_path = root / relative_path
+                    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+                    value = manifest
+                    for key in version_path[:-1]:
+                        value = value[key]
+                    value[version_path[-1]] = "0.1.0"
+                    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+                    errors = validator.validate_versions(root)
+
+                    self.assertTrue(any("1.0.0" in error for error in errors), errors)
+                    value[version_path[-1]] = "1.0.0"
+                    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
     def test_repository_passes_validator(self):
         validator = load_validator()
         self.assertEqual([], validator.validate_repository(ROOT))

@@ -19,9 +19,67 @@ REFERENCES = (
     "sources.md",
 )
 RULE_RE = re.compile(r"^## (HY-[A-Z]{2,4}-\d{3})$", re.MULTILINE)
+RELEASE_VERSION = "1.0.0"
+RELEASE_MANIFESTS = (
+    (".claude-plugin/plugin.json", ("version",)),
+    (".claude-plugin/marketplace.json", ("metadata", "version")),
+    (".claude-plugin/marketplace.json", ("plugins", 0, "version")),
+    (".codex-plugin/plugin.json", ("version",)),
+    (".cursor-plugin/plugin.json", ("version",)),
+    ("gemini-extension.json", ("version",)),
+    ("openclaw.plugin.json", ("version",)),
+)
+RELEASE_EVIDENCE = (
+    "tests/golden/scoring.json",
+    "tests/golden/check.json",
+    "tests/calibration/v1.0.0/check-results.json",
+    "tests/calibration/v1.0.0/install-smoke.json",
+    "maximum total deviation <= 0.7",
+    "maximum dimension deviation <= 1.0",
+    "recall >= 0.90",
+    "false-positive rate <= 0.05",
+    "protected-span mutations = 0",
+    "six hermetic packaging checks",
+)
+
+
+def nested_value(data, path):
+    for part in path:
+        data = data[part]
+    return data
 
 
 class RepositoryContractTest(unittest.TestCase):
+    def test_release_manifests_have_the_stable_version(self):
+        for relative_path, version_path in RELEASE_MANIFESTS:
+            with self.subTest(path=relative_path, version_path=version_path):
+                manifest = json.loads((ROOT / relative_path).read_text(encoding="utf-8"))
+                self.assertEqual(RELEASE_VERSION, nested_value(manifest, version_path))
+
+    def test_stable_release_documentation_targets_v1(self):
+        for relative_path in ("README.md", "README.en.md"):
+            with self.subTest(path=relative_path):
+                text = (ROOT / relative_path).read_text(encoding="utf-8")
+                self.assertIn("v1.0.0", text)
+                self.assertNotIn("active development", text.lower())
+                self.assertNotIn("մշակման փուլում", text)
+
+        for relative_path in ("INSTALL.md", "INSTALL.en.md"):
+            with self.subTest(path=relative_path):
+                text = (ROOT / relative_path).read_text(encoding="utf-8")
+                self.assertIn("v1.0.0", text)
+                self.assertIn("--temp-root", text)
+
+    def test_changelog_has_the_dated_stable_release_heading(self):
+        changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+        self.assertIn("## 1.0.0 – 2026-08-15", changelog)
+
+    def test_release_note_links_all_evidence_and_thresholds(self):
+        release_note = (ROOT / "docs" / "releases" / "v1.0.0.md").read_text(encoding="utf-8")
+        for evidence in RELEASE_EVIDENCE:
+            with self.subTest(evidence=evidence):
+                self.assertIn(evidence, release_note)
+
     def test_three_public_skills_exist(self):
         for skill in SKILLS:
             self.assertTrue((ROOT / "skills" / skill / "SKILL.md").is_file(), skill)

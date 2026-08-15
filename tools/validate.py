@@ -78,6 +78,7 @@ REQUIRED_FIELDS = (
     "**Խստություն։**",
     "**Հիմք։**",
 )
+RELEASE_VERSION = "1.0.0"
 
 
 def text_files(root: Path) -> list[Path]:
@@ -143,18 +144,30 @@ def validate_source_ids(rule_paths: list[Path], source_path: Path) -> list[str]:
 
 
 def validate_versions(root: Path) -> list[str]:
-    manifests = [
-        root / ".codex-plugin" / "plugin.json",
-        root / ".claude-plugin" / "plugin.json",
-        root / ".cursor-plugin" / "plugin.json",
-        root / "gemini-extension.json",
-        root / "openclaw.plugin.json",
-    ]
-    missing = [str(path) for path in manifests if not path.is_file()]
+    version_paths = {
+        root / ".claude-plugin" / "plugin.json": (("version",),),
+        root / ".claude-plugin" / "marketplace.json": (("metadata", "version"), ("plugins", 0, "version")),
+        root / ".codex-plugin" / "plugin.json": (("version",),),
+        root / ".cursor-plugin" / "plugin.json": (("version",),),
+        root / "gemini-extension.json": (("version",),),
+        root / "openclaw.plugin.json": (("version",),),
+    }
+    missing = [str(path) for path in version_paths if not path.is_file()]
     if missing:
         return [f"missing manifest: {path}" for path in missing]
-    versions = {json.loads(path.read_text(encoding="utf-8"))["version"] for path in manifests}
-    return [] if len(versions) == 1 else [f"manifest versions differ: {sorted(versions)}"]
+    errors = []
+    for path, paths in version_paths.items():
+        manifest = json.loads(path.read_text(encoding="utf-8"))
+        for version_path in paths:
+            value = manifest
+            for key in version_path:
+                value = value[key]
+            if value != RELEASE_VERSION:
+                dotted_path = ".".join(str(key) for key in version_path)
+                errors.append(
+                    f"{path}: {dotted_path} must equal {RELEASE_VERSION}, found {value!r}"
+                )
+    return errors
 
 
 def validate_placeholders(paths: list[Path]) -> list[str]:

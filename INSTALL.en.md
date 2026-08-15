@@ -1,6 +1,6 @@
 # Installation
 
-> There is no stable release yet. These commands install the development version from `master`.
+The commands below install the stable `v1.0.0` release.
 
 ## Installation verification boundary
 
@@ -19,7 +19,7 @@ This result verifies hermetic package installation. Local Claude, Codex, Cursor,
 For Codex CLI, Cursor, Windsurf, GitHub Copilot, and other compatible agents:
 
 ```bash
-npx skills add arm092/hy-text
+npx skills add arm092/hy-text@v1.0.0
 ```
 
 Alternatively, copy `skills/hy-text`, `skills/hy-check`, and `skills/hy-score` into the user-level `~/.agents/skills/` directory. Start a new session after installation.
@@ -27,7 +27,7 @@ Alternatively, copy `skills/hy-text`, `skills/hy-check`, and `skills/hy-score` i
 Windows PowerShell:
 
 ```powershell
-git clone https://github.com/arm092/hy-text.git
+git clone --branch v1.0.0 --depth 1 https://github.com/arm092/hy-text.git
 New-Item -ItemType Directory -Force "$env:USERPROFILE\.agents\skills" | Out-Null
 Copy-Item -Recurse hy-text\skills\* "$env:USERPROFILE\.agents\skills"
 ```
@@ -35,14 +35,14 @@ Copy-Item -Recurse hy-text\skills\* "$env:USERPROFILE\.agents\skills"
 ## Claude Code
 
 ```text
-/plugin marketplace add arm092/hy-text
+/plugin marketplace add arm092/hy-text@v1.0.0
 /plugin install hy-text@hy-text
 ```
 
 ## Gemini CLI
 
 ```bash
-gemini extensions install https://github.com/arm092/hy-text
+gemini extensions install https://github.com/arm092/hy-text@v1.0.0
 ```
 
 ## Cursor and OpenClaw

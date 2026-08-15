@@ -2,8 +2,7 @@
 
 `hy-text` is an open, source-backed text-quality reference for modern Eastern Armenian in AI agents. It is built for editors and content teams.
 
-> [!WARNING]
-> The project is under active development. There is no stable release until the corpus passes automated gates and manual editorial review.
+`v1.0.0` is the first stable release. It passed the published local validation gates.
 
 It supports only modern Eastern Armenian and the reformed orthography used in the Republic of Armenia. Western Armenian and traditional orthography are explicitly unsupported.
 
