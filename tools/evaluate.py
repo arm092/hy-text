@@ -210,6 +210,39 @@ def _protected_sequence(text: str, spans: list[dict]) -> tuple[int, ...]:
     return tuple(span_index for _, span_index in sorted(occurrences))
 
 
+def _protected_fingerprints(text: str, spans: list[dict]) -> tuple[tuple, ...]:
+    occurrences = sorted(
+        (position, position + len(span["text"]), span_index)
+        for span_index, span in enumerate(spans)
+        for position in _occurrence_positions(text, span["text"])
+    )
+    masked = list(text)
+    for start, end, _ in occurrences:
+        masked[start:end] = " " * (end - start)
+    masked_text = "".join(masked)
+
+    fingerprints = []
+    segment_ordinals: dict[tuple[int, int, int], int] = {}
+    for start, end, span_index in occurrences:
+        line = text.count("\n", 0, start)
+        sentence = text.count("։", 0, start)
+        left_boundary = max(masked_text.rfind("\n", 0, start), masked_text.rfind("։", 0, start))
+        left_words = re.findall(r"[^\W_]+", masked_text[left_boundary + 1:start])
+        ordinal_key = (span_index, line, sentence)
+        ordinal = segment_ordinals.get(ordinal_key, 0)
+        segment_ordinals[ordinal_key] = ordinal + 1
+        fingerprints.append(
+            (
+                span_index,
+                line,
+                sentence,
+                ordinal,
+                len(left_words),
+            )
+        )
+    return tuple(fingerprints)
+
+
 def detection_metrics(golden: list[dict], reported: list[dict]) -> dict:
     """Evaluate one complete blind hy-check run against its golden corpus."""
     if not isinstance(golden, list) or not isinstance(reported, list):
@@ -282,6 +315,14 @@ def detection_metrics(golden: list[dict], reported: list[dict]) -> dict:
             raise ValueError(
                 f"golden check case {case_id} accepted correction reorders protected spans"
             )
+        source_fingerprints = _protected_fingerprints(source_text, protected_spans)
+        if any(
+            _protected_fingerprints(correction, protected_spans) != source_fingerprints
+            for correction in accepted_corrections
+        ):
+            raise ValueError(
+                f"golden check case {case_id} accepted correction relocates protected span"
+            )
         case = dict(case)
         case["accepted_corrections"] = accepted_corrections
         golden_by_id[case_id] = case
@@ -343,13 +384,22 @@ def detection_metrics(golden: list[dict], reported: list[dict]) -> dict:
             correction_failure_count += 1
 
         mutated_spans = []
-        for span in case.get("protected_spans", []):
-            result_positions = _occurrence_positions(result["corrected_text"], span["text"])
-            accepted_positions = {
-                _occurrence_positions(correction, span["text"])
+        result_fingerprints = _protected_fingerprints(
+            result["corrected_text"], case.get("protected_spans", [])
+        )
+        for span_index, span in enumerate(case.get("protected_spans", [])):
+            result_span_fingerprints = tuple(
+                fingerprint for fingerprint in result_fingerprints if fingerprint[0] == span_index
+            )
+            accepted_span_fingerprints = {
+                tuple(
+                    fingerprint
+                    for fingerprint in _protected_fingerprints(correction, case["protected_spans"])
+                    if fingerprint[0] == span_index
+                )
                 for correction in accepted_corrections
             }
-            if result_positions not in accepted_positions:
+            if result_span_fingerprints not in accepted_span_fingerprints:
                 mutated_spans.append(span)
         protected_mutation_count += len(mutated_spans)
         diagnostics.append(

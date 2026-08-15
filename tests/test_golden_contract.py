@@ -1,4 +1,5 @@
 import json
+import re
 import unittest
 from pathlib import Path
 
@@ -84,6 +85,24 @@ class GoldenContractTest(unittest.TestCase):
             "Պատվերը հասել է երկուշաբթի՝ սահմանված ժամկետից ուշ։",
             by_id["marketing-05"]["expected_text"],
         )
+
+    def test_check_corrections_do_not_add_unsupported_times_or_payment_instruments(self):
+        cases = json.loads((ROOT / "tests" / "golden" / "check.json").read_text(encoding="utf-8"))
+        payment_instruments = ("քարտ", "բանկային հաշիվ", "կանխիկ")
+
+        for case in cases:
+            corrections = case.get("accepted_corrections", [case["expected_text"]])
+            source_times = set(re.findall(r"(?<!\d)\d{1,2}:\d{2}(?!\d)", case["text"]))
+            for correction in corrections:
+                with self.subTest(case=case["id"], correction=correction):
+                    self.assertTrue(
+                        set(re.findall(r"(?<!\d)\d{1,2}:\d{2}(?!\d)", correction)).issubset(
+                            source_times
+                        )
+                    )
+                    for instrument in payment_instruments:
+                        if instrument not in case["text"]:
+                            self.assertNotIn(instrument, correction)
 
     def test_check_release_results_are_complete_and_pass_quality_gates(self):
         module = __import__("importlib.util").util

@@ -118,7 +118,7 @@ class EvaluateTest(unittest.TestCase):
             {
                 "id": "protected",
                 "text": "Գործարկեք `php artisan test` հրամանը հիմա։",
-                "expected_text": "Հիմա գործարկեք `php artisan test` հրամանը։",
+                "expected_text": "Գործարկեք `php artisan test` հրամանը։",
                 "expected_rules": ["HY-INF-001"],
                 "protected_spans": [{"type": "command", "text": "php artisan test"}],
             }
@@ -308,6 +308,36 @@ class EvaluateTest(unittest.TestCase):
         ]
 
         with self.assertRaisesRegex(ValueError, "reorders protected spans"):
+            module.detection_metrics(golden, [])
+
+    def test_detection_metrics_reject_accepted_correction_that_moves_one_protected_span(self):
+        module = load_module()
+        golden = [
+            {
+                "id": "protected",
+                "text": "Բացեք app.php ֆայլը և պահեք փոփոխությունը։",
+                "expected_text": "app.php ֆայլը բացեք և պահեք փոփոխությունը։",
+                "expected_rules": ["HY-INF-001"],
+                "protected_spans": [{"type": "filename", "text": "app.php"}],
+            }
+        ]
+
+        with self.assertRaisesRegex(ValueError, "relocates protected span"):
+            module.detection_metrics(golden, [])
+
+    def test_detection_metrics_reject_mutated_identical_occurrence_and_reinserted_copy(self):
+        module = load_module()
+        golden = [
+            {
+                "id": "protected",
+                "text": "Բացեք app.php ֆայլը, ապա պահեք app.php ֆայլը։",
+                "expected_text": "Բացեք app-php ֆայլը, ապա պահեք app.php ֆայլը։ Հղում՝ app.php։",
+                "expected_rules": ["HY-TYP-004"],
+                "protected_spans": [{"type": "filename", "text": "app.php"}],
+            }
+        ]
+
+        with self.assertRaisesRegex(ValueError, "relocates protected span"):
             module.detection_metrics(golden, [])
 
     def test_detection_metrics_reject_duplicate_or_incomplete_results(self):
