@@ -283,11 +283,15 @@ def _protected_alignment_preserved(
         span_index = int(atom.split(":", 2)[1])
         if only_span_index is not None and span_index != only_span_index:
             continue
+        has_stable_anchor = False
         for stable_atom, source_position in source_stable.items():
+            has_stable_anchor = True
             if (source_position < source_protected[atom]) != (
                 target_stable[stable_atom] < target_protected[atom]
             ):
                 return False
+        if not has_stable_anchor:
+            return False
     return True
 
 

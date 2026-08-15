@@ -416,6 +416,45 @@ class EvaluateTest(unittest.TestCase):
         self.assertEqual(0, metrics["protected_mutations"])
         self.assertEqual(0, metrics["correction_failures"])
 
+    def test_detection_metrics_reject_anchorless_accepted_relocation(self):
+        module = load_module()
+        golden = [
+            {
+                "id": "protected",
+                "text": "Բացեք app.php հիմա.",
+                "expected_text": "Խնդրում եմ անմիջապես օգտագործեք app.php։",
+                "expected_rules": ["HY-TYP-001"],
+                "protected_spans": [{"type": "filename", "text": "app.php"}],
+            }
+        ]
+
+        with self.assertRaisesRegex(ValueError, "relocates protected span"):
+            module.detection_metrics(golden, [])
+
+    def test_detection_metrics_flag_anchorless_reported_relocation(self):
+        module = load_module()
+        golden = [
+            {
+                "id": "protected",
+                "text": "Բացեք app.php հիմա.",
+                "expected_text": "Բացեք app.php հիմա։",
+                "expected_rules": ["HY-TYP-001"],
+                "protected_spans": [{"type": "filename", "text": "app.php"}],
+            }
+        ]
+        reported = [
+            {
+                "id": "protected",
+                "reported_rules": ["HY-TYP-001"],
+                "corrected_text": "Խնդրում եմ անմիջապես օգտագործեք app.php։",
+            }
+        ]
+
+        metrics = module.detection_metrics(golden, reported)
+
+        self.assertEqual(1, metrics["protected_mutations"])
+        self.assertEqual(1, metrics["correction_failures"])
+
     def test_detection_metrics_reject_duplicate_or_incomplete_results(self):
         module = load_module()
         golden = [

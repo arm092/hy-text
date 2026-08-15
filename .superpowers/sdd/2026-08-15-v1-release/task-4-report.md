@@ -73,3 +73,18 @@ GREEN evidence after this replacement:
 - full test discovery, repository validation, both relevant skill validators, diff check, and the U+2014 scan pass
 
 The previously added source-support gates for clock times and payment instruments remain active and passing.
+
+## Review fix round 4
+
+The fresh-eyes implementation targeted the remaining anchorless relocation gap from round 3. RED coverage added one accepted-correction control and one reported-result control for the exact case `Բացեք app.php հիմա.` to `Խնդրում եմ անմիջապես օգտագործեք app.php։`. Before the fix, the accepted correction passed protected-span validation and failed only later with `missing check results`, while the reported result incorrectly produced zero protected mutations. The pre-existing comma/question relocation controls stayed red-free, and the legitimate wording edit `Բացեք app.php ֆայլը հիմա.` to `Խնդրում եմ բացել app.php ֆայլը հիմա։` remained the acceptance target.
+
+The evaluator contract now treats protected-span preservation as evidence-based rather than vacuously true. The protected-atom partial-order check still requires every stable non-protected token whose multiplicity is unchanged to remain on the same side of each protected atom, but it now also requires at least one such stable anchor for every checked protected occurrence. If a correction rewrites all surrounding non-protected material so completely that no stable anchor survives, the evaluator rejects the correction as an unverified relocation instead of silently accepting it. This closes the anchorless rewrite bypass while preserving legitimate edits that still keep source-supported anchors on one side of the protected atom.
+
+GREEN evidence after the change:
+
+- the exact anchorless accepted correction now fails with `accepted correction relocates protected span`
+- the exact anchorless reported output now yields one protected mutation and one correction failure
+- the comma and ASCII-question relocation controls remain rejected
+- the duplicate-occurrence substitution/reinsertion control remains rejected
+- the legitimate wording edit before `app.php` remains accepted
+- focused evaluator plus golden tests pass, and the immutable release result remains unchanged
