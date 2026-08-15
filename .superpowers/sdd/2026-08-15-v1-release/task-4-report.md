@@ -105,3 +105,18 @@ GREEN evidence after the round-5 change:
 - comma and question relocation remain rejected
 - duplicate substitution/reinsertion remains rejected
 - the legitimate wording edit before `app.php` remains accepted
+
+## Review fix round 6
+
+The exceptional round-6 review found that round 5 still relied on an enumerated terminal-punctuation set, so other punctuation marks at absolute text end could remain vacuous sole anchors. The exact bypass `Բացեք app.php հիմա,` to `Խնդրում եմ անմիջապես app.php,` reproduced both failure modes again: accepted-correction validation fell through to `missing check results`, and reported-result scoring still produced zero protected mutations. A second RED control using terminal ellipsis `…` proved that the gap was generic rather than comma-specific.
+
+The round-6 fix replaces the hard-coded terminal-mark allowlist with a Unicode structural rule from the Python standard library. Anchor qualification now uses `unicodedata.category(token)` and treats any punctuation token in category `P*` as non-meaningful when it appears at the absolute terminal token position. This applies only to anchor qualification, not to the partial-order comparison itself: terminal punctuation can still expose a relocation when other meaningful anchors survive, but it can no longer act alone as the sole preservation evidence. Exact `source == target` still passes immediately, and lexical anchors continue to prove stationary edits around a protected span.
+
+GREEN evidence after the round-6 change:
+
+- terminal comma-only relocation is rejected in both accepted-correction and reported-result paths
+- terminal ellipsis-only relocation is rejected in both accepted-correction and reported-result paths
+- previously covered final `.` and `։` bypasses remain rejected
+- exact protected-only identity remains accepted
+- anchorless full rewrites remain rejected
+- comma/question boundary relocation, duplicate substitution/reinsertion, and legitimate lexical-anchor edits keep their prior behavior

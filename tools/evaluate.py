@@ -10,6 +10,7 @@ import json
 import math
 import re
 import sys
+import unicodedata
 from pathlib import Path
 
 
@@ -266,8 +267,6 @@ def _protected_alignment_preserved(
         for token, count in source_counts.items()
         if count > 0 and target_counts[token] == count
     }
-    terminal_punctuation = {".", "։", "!", "?", "՞", "՜"}
-
     def positions(tokens: list[str]) -> tuple[dict[str, int], dict[tuple[str, int], int]]:
         protected_positions = {}
         stable_positions = {}
@@ -283,7 +282,9 @@ def _protected_alignment_preserved(
 
     def meaningful_anchor(tokens: list[str], stable_atom: tuple[str, int], position: int) -> bool:
         token = stable_atom[0]
-        return token not in terminal_punctuation or position != len(tokens) - 1
+        return not (
+            position == len(tokens) - 1 and unicodedata.category(token).startswith("P")
+        )
 
     source_protected, source_stable = positions(source_tokens)
     target_protected, target_stable = positions(target_tokens)

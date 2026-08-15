@@ -486,6 +486,8 @@ class EvaluateTest(unittest.TestCase):
         cases = (
             ("Բացեք app.php հիմա.", "Խնդրում եմ անմիջապես app.php."),
             ("Բացեք app.php հիմա։", "Խնդրում եմ անմիջապես app.php։"),
+            ("Բացեք app.php հիմա,", "Խնդրում եմ անմիջապես app.php,"),
+            ("Բացեք app.php հիմա…", "Խնդրում եմ անմիջապես app.php…"),
         )
 
         for source, unsafe_correction in cases:
@@ -508,6 +510,8 @@ class EvaluateTest(unittest.TestCase):
         cases = (
             ("Բացեք app.php հիմա.", "Խնդրում եմ բացել app.php հիմա։", "Խնդրում եմ անմիջապես app.php."),
             ("Բացեք app.php հիմա։", "Խնդրում եմ բացել app.php հիմա։", "Խնդրում եմ անմիջապես app.php։"),
+            ("Բացեք app.php հիմա,", "Խնդրում եմ բացել app.php հիմա։", "Խնդրում եմ անմիջապես app.php,"),
+            ("Բացեք app.php հիմա…", "Խնդրում եմ բացել app.php հիմա։", "Խնդրում եմ անմիջապես app.php…"),
         )
 
         for source, expected, malicious in cases:
