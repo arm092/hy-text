@@ -244,6 +244,9 @@ def _protected_alignment_preserved(
     spans: list[dict],
     only_span_index: int | None = None,
 ) -> bool:
+    if source == target:
+        return True
+
     source_tokens = _protected_alignment_tokens(source, spans)
     target_tokens = _protected_alignment_tokens(target, spans)
     protected_prefix = "\x00PROTECTED:"
@@ -263,6 +266,7 @@ def _protected_alignment_preserved(
         for token, count in source_counts.items()
         if count > 0 and target_counts[token] == count
     }
+    terminal_punctuation = {".", "։", "!", "?", "՞", "՜"}
 
     def positions(tokens: list[str]) -> tuple[dict[str, int], dict[tuple[str, int], int]]:
         protected_positions = {}
@@ -277,20 +281,27 @@ def _protected_alignment_preserved(
                 stable_positions[(token, ordinal)] = index
         return protected_positions, stable_positions
 
+    def meaningful_anchor(tokens: list[str], stable_atom: tuple[str, int], position: int) -> bool:
+        token = stable_atom[0]
+        return token not in terminal_punctuation or position != len(tokens) - 1
+
     source_protected, source_stable = positions(source_tokens)
     target_protected, target_stable = positions(target_tokens)
     for atom in source_atoms:
         span_index = int(atom.split(":", 2)[1])
         if only_span_index is not None and span_index != only_span_index:
             continue
-        has_stable_anchor = False
+        has_meaningful_anchor = False
         for stable_atom, source_position in source_stable.items():
-            has_stable_anchor = True
+            if meaningful_anchor(source_tokens, stable_atom, source_position) and meaningful_anchor(
+                target_tokens, stable_atom, target_stable[stable_atom]
+            ):
+                has_meaningful_anchor = True
             if (source_position < source_protected[atom]) != (
                 target_stable[stable_atom] < target_protected[atom]
             ):
                 return False
-        if not has_stable_anchor:
+        if not has_meaningful_anchor:
             return False
     return True
 

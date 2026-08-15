@@ -88,3 +88,20 @@ GREEN evidence after the change:
 - the duplicate-occurrence substitution/reinsertion control remains rejected
 - the legitimate wording edit before `app.php` remains accepted
 - focused evaluator plus golden tests pass, and the immutable release result remains unchanged
+
+## Review fix round 5
+
+The final breaker round supplied two exact follow-up failures in the round-4 anchor contract. First, byte-identical protected-only clean text such as `app.php` was being rejected because the evaluator required an anchor even when the source and target were identical. Second, a lone terminal punctuation mark at the absolute end of the text could still act as a vacuous anchor, so `Բացեք app.php հիմա.` to `Խնդրում եմ անմիջապես app.php.` slipped through while reporting zero protected mutations.
+
+RED coverage added three generic controls. Protected-only identity now runs for `app.php`, `app.php.`, and `app.php։` and must pass cleanly. Terminal-punctuation-only relocation now fails both as an accepted correction and as a reported result for both ASCII `.` and Armenian `։`. The existing anchorless full rewrite, comma/question relocation, duplicate substitution/reinsertion, and legitimate wording-edit controls stayed in scope.
+
+The round-5 evaluator change qualifies anchors rather than broadening heuristics. Exact byte equality now returns immediate preservation evidence before any anchor analysis. For non-identical source and target, the evaluator still enforces the partial-order relation against every stable token, but it only treats a stable token as sufficient positional evidence when it is not a lone terminal punctuation token at the absolute end of the token stream. Final `.` or `։` can still participate in order checks, but they cannot by themselves justify that a protected atom stayed anchored. This keeps fail-closed behavior for true anchorless rewrites while restoring direct identity preservation and removing the terminal-punctuation bypass.
+
+GREEN evidence after the round-5 change:
+
+- exact protected-only identity now passes for `app.php`, `app.php.`, and `app.php։`
+- terminal-punctuation-only relocation is rejected for both ASCII and Armenian final punctuation in accepted-correction and reported-result paths
+- the anchorless full rewrite remains rejected
+- comma and question relocation remain rejected
+- duplicate substitution/reinsertion remains rejected
+- the legitimate wording edit before `app.php` remains accepted

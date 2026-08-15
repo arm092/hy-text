@@ -455,6 +455,85 @@ class EvaluateTest(unittest.TestCase):
         self.assertEqual(1, metrics["protected_mutations"])
         self.assertEqual(1, metrics["correction_failures"])
 
+    def test_detection_metrics_accept_exact_protected_only_identity(self):
+        module = load_module()
+        for source in ("app.php", "app.php.", "app.php։"):
+            with self.subTest(source=source):
+                golden = [
+                    {
+                        "id": "protected",
+                        "text": source,
+                        "expected_text": source,
+                        "expected_rules": [],
+                        "protected_spans": [{"type": "filename", "text": "app.php"}],
+                    }
+                ]
+                reported = [
+                    {
+                        "id": "protected",
+                        "reported_rules": [],
+                        "corrected_text": source,
+                    }
+                ]
+
+                metrics = module.detection_metrics(golden, reported)
+
+                self.assertEqual(0, metrics["protected_mutations"])
+                self.assertEqual(0, metrics["correction_failures"])
+
+    def test_detection_metrics_reject_terminal_punctuation_only_anchor_bypass(self):
+        module = load_module()
+        cases = (
+            ("Բացեք app.php հիմա.", "Խնդրում եմ անմիջապես app.php."),
+            ("Բացեք app.php հիմա։", "Խնդրում եմ անմիջապես app.php։"),
+        )
+
+        for source, unsafe_correction in cases:
+            with self.subTest(unsafe_correction=unsafe_correction):
+                golden = [
+                    {
+                        "id": "protected",
+                        "text": source,
+                        "expected_text": unsafe_correction,
+                        "expected_rules": ["HY-TYP-001"],
+                        "protected_spans": [{"type": "filename", "text": "app.php"}],
+                    }
+                ]
+
+                with self.assertRaisesRegex(ValueError, "relocates protected span"):
+                    module.detection_metrics(golden, [])
+
+    def test_detection_metrics_flag_terminal_punctuation_only_reported_bypass(self):
+        module = load_module()
+        cases = (
+            ("Բացեք app.php հիմա.", "Խնդրում եմ բացել app.php հիմա։", "Խնդրում եմ անմիջապես app.php."),
+            ("Բացեք app.php հիմա։", "Խնդրում եմ բացել app.php հիմա։", "Խնդրում եմ անմիջապես app.php։"),
+        )
+
+        for source, expected, malicious in cases:
+            with self.subTest(malicious=malicious):
+                golden = [
+                    {
+                        "id": "protected",
+                        "text": source,
+                        "expected_text": expected,
+                        "expected_rules": ["HY-TYP-001"],
+                        "protected_spans": [{"type": "filename", "text": "app.php"}],
+                    }
+                ]
+                reported = [
+                    {
+                        "id": "protected",
+                        "reported_rules": ["HY-TYP-001"],
+                        "corrected_text": malicious,
+                    }
+                ]
+
+                metrics = module.detection_metrics(golden, reported)
+
+                self.assertEqual(1, metrics["protected_mutations"])
+                self.assertEqual(1, metrics["correction_failures"])
+
     def test_detection_metrics_reject_duplicate_or_incomplete_results(self):
         module = load_module()
         golden = [
