@@ -259,7 +259,7 @@ class RepositoryContractTest(unittest.TestCase):
         )
         qualitative_only = anchors_for("`HY-INF-002` – կարճ համոզող")
         dangerous_confirmation = anchors_for("`HY-UX-005` –")
-        dangerous_confirmation_with_language = anchors_for("`HY-UX-005` և `HY-INF-002`")
+        dangerous_confirmation_with_language = anchors_for("`HY-UX-005` և `HY-INF-006`")
 
         self.assertEqual(["–", "`4.0`", "–", "`6.0`", "`2.0`"], anonymous_universal)
         self.assertEqual(["–", "`6.0`", "–", "`7.0`", "`4.0`"], anonymous_only)
@@ -271,7 +271,7 @@ class RepositoryContractTest(unittest.TestCase):
 
         self.assertIn("նորարարության, հեղափոխական փոփոխության կամ համընդհանուր", impact_table)
         self.assertRegex(impact_table, r"`HY-ADD-003`.{0,80}չի կրկնվում")
-        self.assertIn("ինքնուրույն բավարարում է `HY-INF-002`", impact_table)
+        self.assertIn("ինքնուրույն բավարարում է `HY-INF-006`", impact_table)
         self.assertIn("Ճիշտ հայերեն կետադրությամբ", impact_table)
 
         score_skill = (ROOT / "skills" / "hy-score" / "SKILL.md").read_text(encoding="utf-8")
@@ -303,28 +303,48 @@ class RepositoryContractTest(unittest.TestCase):
         impact_table = scoring.split("## Կայուն կանոնների ազդեցության աղյուսակ", 1)[1]
         expected = {
             "դեյքտիկ հղումը": (
-                "`HY-BIZ-005` և `HY-INF-002`",
+                "`HY-BIZ-005` և `HY-INF-006`",
                 "կցված նյութը փոխարինված է միայն անորոշ գնահատականով կամ շտապության բառով",
+                ["–", "`6.0`", "–", "`5.0`", "`3.0`"],
             ),
             "ընդհանուր սխալի դասը": (
-                "`HY-UX-002` և `HY-INF-002`",
+                "`HY-UX-002` և `HY-INF-006`",
                 "սխալը փոխարինված է միայն ընդհանրական գնահատականով",
+                ["–", "`6.0`", "–", "`6.0`", "`2.0`"],
             ),
             "ընդհանուր բացակայության դասը": (
-                "`HY-UX-004` և `HY-INF-002`",
+                "`HY-UX-004` և `HY-INF-006`",
                 "բացակայությունը ձևակերպված է միայն ընդհանրական վիճակով",
+                ["–", "`7.0`", "–", "`6.0`", "`4.0`"],
             ),
             "դեյքտիկ մուտքագրման հրաման": (
-                "`HY-UX-003` և `HY-INF-002`",
+                "`HY-UX-003` և `HY-INF-006`",
                 "հուշումը նաև ընդհանրական է և չի անվանում ակնկալվող արժեքը",
+                ["–", "`6.0`", "–", "`5.0`", "`3.0`"],
             ),
             "միայն որոշակիություն հարցնող հաստատումը": (
-                "`HY-UX-005` և `HY-INF-002`",
+                "`HY-UX-005` և `HY-INF-006`",
                 "հաստատման հարցը նաև փոխարինված է ընդհանրական գնահատականով",
+                ["–", "`7.0`", "–", "`6.0`", "`3.0`"],
+            ),
+            "ընդհանուր հաջողության ծանուցումը": (
+                "`HY-UX-006` և `HY-INF-006`",
+                "արդյունքը փոխարինված է միայն ընդհանրական հաջողության գնահատականով",
+                ["–", "`6.0`", "–", "`6.0`", "`3.0`"],
+            ),
+            "չճշտված լայն թեմաների": (
+                "`HY-ADD-001`",
+                "միայն ապագայում քննարկվելիք չճշտված լայն թեմաներ է խոստանում",
+                ["–", "`5.0`", "–", "`5.0`", "`4.0`"],
+            ),
+            "առանձին ճնշող գործարար պահանջը": (
+                "`HY-BIZ-004` և `HY-BIZ-002`",
+                "ճնշող պահանջը նաև չի բացատրում նամակի նպատակը կամ պահանջվող որոշման համատեքստը",
+                ["–", "`5.0`", "–", "`6.0`", "`4.0`"],
             ),
         }
 
-        for marker, (rule_state, impact_condition) in expected.items():
+        for marker, (rule_state, impact_condition, anchors) in expected.items():
             with self.subTest(marker=marker):
                 cells = state_row_for(marker)
                 self.assertIn(rule_state, cells[2])
@@ -335,6 +355,39 @@ class RepositoryContractTest(unittest.TestCase):
                     if rule_state in line and impact_condition in line
                 ]
                 self.assertEqual(1, len(matching_rows))
+                impact_cells = [cell.strip() for cell in matching_rows[0].strip("|").split("|")]
+                self.assertEqual(anchors, impact_cells[1:])
+
+    def test_hy_inf_006_preserves_link_text_coverage_and_adds_concrete_microcopy_scope(self):
+        reference_dir = ROOT / "skills" / "hy-text" / "references"
+        info_style = (reference_dir / "info-style.md").read_text(encoding="utf-8")
+        self.assertEqual(1, len(re.findall(r"^## HY-INF-006$", info_style, flags=re.MULTILINE)))
+        rule = info_style.split("## HY-INF-006", 1)[1].split("## HY-INF-007", 1)[0]
+
+        for field in (
+            "**Կանոն։**",
+            "**Կիրառություն։**",
+            "**Սխալ։**",
+            "**Ճիշտ։**",
+            "**Բացառություն։**",
+            "**Խստություն։**",
+            "**Հիմք։**",
+        ):
+            self.assertIn(field, rule)
+
+        for fragment in (
+            "Հղման տեքստը պետք է բացատրի նպատակակետը կամ գործողությունը",
+            "ստուգելի առարկան, իրադարձությունը, արժեքը, արդյունքը կամ գործողությունը",
+            "մերկ ընդհանուր կարգավիճակի, դեյքտիկ հղման, միայն որոշակիության կամ միայն շտապեցման պիտակի փոխարեն",
+            "UX և գործարար միկրոտեքստ",
+            "անմիջական համատեքստում",
+            "SRC-EDITORIAL-POLICY",
+        ):
+            self.assertIn(fragment, rule)
+
+        score_skill = (ROOT / "skills" / "hy-score" / "SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("`HY-INF-006`", score_skill)
+        self.assertIn("Before generic UX-only rows", score_skill)
 
     def test_check_and_score_are_read_only(self):
         for skill in ("hy-check", "hy-score"):
