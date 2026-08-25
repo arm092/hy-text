@@ -1,19 +1,21 @@
 [
   {
     "reference": "typography.md",
-    "reviewed_commit": "de16c32b402982048f5a20d225a9287c78b1e911",
+    "reviewed_commit": "37898b95568fc90547de9206ab39323ba46d1588",
     "reviewer": "Arman Khachatryan",
-    "reviewed_at": "2026-08-13",
+    "reviewed_at": "2026-08-25",
     "status": "approved",
-    "through_rule": "HY-TYP-008"
+    "through_rule": "HY-TYP-008",
+    "approved_sha256": "ab8b944c4b729abf857adb044f31f5d58f004534282951697d07bf3b3480eaa8"
   },
   {
     "reference": "editorial-punctuation.md",
-    "reviewed_commit": "de16c32b402982048f5a20d225a9287c78b1e911",
+    "reviewed_commit": "37898b95568fc90547de9206ab39323ba46d1588",
     "reviewer": "Arman Khachatryan",
-    "reviewed_at": "2026-08-13",
+    "reviewed_at": "2026-08-25",
     "status": "approved",
-    "through_rule": "HY-PUN-008"
+    "through_rule": "HY-PUN-008",
+    "approved_sha256": "a6937e438fcbfa59495c9060182b5639488b670ccff80772a92acd56a47f7e0d"
   },
   {
     "reference": "editorial-grammar.md",
@@ -21,15 +23,17 @@
     "reviewer": "Arman Khachatryan",
     "reviewed_at": "2026-08-14",
     "status": "approved",
-    "through_rule": "HY-GRM-008"
+    "through_rule": "HY-GRM-008",
+    "approved_sha256": "6e31c918451db59cb791a692336e3f3e528c6575c509f63777712dfa15dcfef5"
   },
   {
     "reference": "info-style.md",
-    "reviewed_commit": "ee481dd2c9c4313deeb14a50993025a2abdc517e",
+    "reviewed_commit": "37898b95568fc90547de9206ab39323ba46d1588",
     "reviewer": "Arman Khachatryan",
-    "reviewed_at": "2026-08-14",
+    "reviewed_at": "2026-08-25",
     "status": "approved",
-    "through_rule": "HY-INF-007"
+    "through_rule": "HY-INF-007",
+    "approved_sha256": "dd33215830be85aa00b468eb1efa334e243aa0e9fa303270d8c16ad63de18b1c"
   },
   {
     "reference": "ux-writing.md",
@@ -37,7 +41,8 @@
     "reviewer": "Arman Khachatryan",
     "reviewed_at": "2026-08-14",
     "status": "approved",
-    "through_rule": "HY-UX-010"
+    "through_rule": "HY-UX-010",
+    "approved_sha256": "ab7e6d5d75e8402493157efe4cb9c149748c1ad697a164c31a09bb6d2865cb6b"
   },
   {
     "reference": "business-writing.md",
@@ -45,7 +50,8 @@
     "reviewer": "Arman Khachatryan",
     "reviewed_at": "2026-08-14",
     "status": "approved",
-    "through_rule": "HY-BIZ-007"
+    "through_rule": "HY-BIZ-007",
+    "approved_sha256": "fe0f32ac4490e914a59d1a15975bfcd214f02cba487549d19cfec0cb0be0d7d9"
   },
   {
     "reference": "anti-patterns.md",
@@ -53,7 +59,8 @@
     "reviewer": "Arman Khachatryan",
     "reviewed_at": "2026-08-14",
     "status": "approved",
-    "through_rule": "HY-ANT-005"
+    "through_rule": "HY-ANT-005",
+    "approved_sha256": "8fc8034d2b423467e9f1dc5aac294afac6ce94d10cfd25dd832476204e419356"
   },
   {
     "reference": "addenda.md",
@@ -61,22 +68,25 @@
     "reviewer": "Arman Khachatryan",
     "reviewed_at": "2026-08-14",
     "status": "approved",
-    "through_rule": "HY-ADD-006"
+    "through_rule": "HY-ADD-006",
+    "approved_sha256": "9b746d065230f92dd9548055778d58cd5ca2e6bfaf16bad516251ccceb53d2a7"
   },
   {
     "reference": "scoring.md",
-    "reviewed_commit": "ee481dd2c9c4313deeb14a50993025a2abdc517e",
+    "reviewed_commit": "37898b95568fc90547de9206ab39323ba46d1588",
     "reviewer": "Arman Khachatryan",
-    "reviewed_at": "2026-08-14",
+    "reviewed_at": "2026-08-25",
     "status": "approved",
-    "through_rule": null
+    "through_rule": null,
+    "approved_sha256": "84fdcb49b712fc800e0245e3b8ceec45ec3513a8cb9cb94cd29cf8d954f0ff93"
   },
   {
     "reference": "sources.md",
-    "reviewed_commit": "ee481dd2c9c4313deeb14a50993025a2abdc517e",
+    "reviewed_commit": "37898b95568fc90547de9206ab39323ba46d1588",
     "reviewer": "Arman Khachatryan",
-    "reviewed_at": "2026-08-14",
+    "reviewed_at": "2026-08-25",
     "status": "approved",
-    "through_rule": null
+    "through_rule": null,
+    "approved_sha256": "1bfac7a1a4d16d771a930fa7bb57b6fc35a0a31ec936d4a9da548bc2428a34ca"
   }
 ]
