@@ -238,6 +238,51 @@ class RepositoryContractTest(unittest.TestCase):
             self.assertNotIn(case["id"], scoring)
             self.assertNotIn(case["text"], scoring)
 
+    def test_score_rubric_prioritizes_combined_promotional_and_confirmation_states(self):
+        scoring = (ROOT / "skills" / "hy-text" / "references" / "scoring.md").read_text(encoding="utf-8")
+        impact_table = scoring.split("## Կայուն կանոնների ազդեցության աղյուսակ", 1)[1]
+
+        def anchors_for(rule_state):
+            for line in impact_table.splitlines():
+                if rule_state not in line:
+                    continue
+                cells = [cell.strip() for cell in line.strip("|").split("|")]
+                if len(cells) == 6:
+                    return cells[1:]
+            self.fail(f"Missing impact-table state: {rule_state}")
+
+        anonymous_universal = anchors_for("`HY-ADD-004` և `HY-ANT-002`")
+        anonymous_only = anchors_for("`HY-ADD-004` –")
+        false_contrast = anchors_for("`HY-ADD-003` –")
+        unsupported_revolutionary = anchors_for(
+            "`HY-INF-002`, `HY-ANT-002` – կարճ համոզող"
+        )
+        qualitative_only = anchors_for("`HY-INF-002` – կարճ համոզող")
+        dangerous_confirmation = anchors_for("`HY-UX-005` –")
+        dangerous_confirmation_with_language = anchors_for("`HY-UX-005` և `HY-INF-002`")
+
+        self.assertEqual(["–", "`4.0`", "–", "`6.0`", "`2.0`"], anonymous_universal)
+        self.assertEqual(["–", "`6.0`", "–", "`7.0`", "`4.0`"], anonymous_only)
+        self.assertEqual(["–", "`5.0`", "–", "`6.0`", "`4.0`"], false_contrast)
+        self.assertEqual(["–", "`3.0`", "–", "`5.0`", "`2.0`"], unsupported_revolutionary)
+        self.assertEqual(["–", "`4.0`", "–", "`6.0`", "`3.0`"], qualitative_only)
+        self.assertEqual(["–", "–", "–", "`6.0`", "`3.0`"], dangerous_confirmation)
+        self.assertEqual(["–", "`7.0`", "–", "`6.0`", "`3.0`"], dangerous_confirmation_with_language)
+
+        self.assertIn("նորարարության, հեղափոխական փոփոխության կամ համընդհանուր", impact_table)
+        self.assertRegex(impact_table, r"`HY-ADD-003`.{0,80}չի կրկնվում")
+        self.assertIn("ինքնուրույն բավարարում է `HY-INF-002`", impact_table)
+        self.assertIn("Ճիշտ հայերեն կետադրությամբ", impact_table)
+
+        score_skill = (ROOT / "skills" / "hy-score" / "SKILL.md").read_text(encoding="utf-8")
+        for fragment in (
+            "combined `HY-ADD-004` + `HY-ANT-002`",
+            "innovation, revolution, or universal-coverage framing",
+            "false contrast under `HY-ADD-003`",
+            "certainty-only dangerous-action confirmation",
+        ):
+            self.assertIn(fragment, score_skill)
+
     def test_check_and_score_are_read_only(self):
         for skill in ("hy-check", "hy-score"):
             text = (ROOT / "skills" / skill / "SKILL.md").read_text(encoding="utf-8")
