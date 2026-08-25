@@ -1,0 +1,229 @@
+{
+  "release": "v1.0.0",
+  "calibration_date": "2026-08-25",
+  "provenance": {
+    "source_head": "176dd8f459da89a6ed20ead17cba0ea8466c9abe",
+    "golden": {
+      "file": "tests/golden/scoring.json",
+      "sha256": "4ac89b54b0ece5947d906dd7cb25a6d9ddb3ccdac07fa3173c539919e00078f7",
+      "reviewed_cases": 50
+    },
+    "rubric": {
+      "files": {
+        "skills/hy-score/SKILL.md": "c792d5cc77a5923a6e8ee679577fbf6108761db91aca3ec6f6123c6586751de3",
+        "skills/hy-text/references/scoring.md": "459d3d78dbc63b9485f9682c4a867f0f8eb034397190d37479f2bc3ec96b59d5"
+      },
+      "version": "v1.0.0 at source_head"
+    },
+    "protocol": "Three fresh independent blind passes, each split into ten canonical five-case chunks.",
+    "integrity_statement": "All 150 raw scores were retained exactly as generated; no score was edited, filtered, discarded, substituted, or averaged.",
+    "assembled_hash_format": "SHA-256 of compact UTF-8 JSON with sorted object keys; array order is preserved.",
+    "source_hash_format": "JSON uses the assembled hash format; text is UTF-8 with LF-normalized line endings."
+  },
+  "chunk_hashes": {
+    "pass-1": {
+      "chunk-01": {
+        "file": ".task3-round10-temp/pass-1-chunk-01.json",
+        "sha256": "9d83607645e949b2701fe62e1a0e5fd290cf4e6669e251d5381f444638d35bac",
+        "records": 5
+      },
+      "chunk-02": {
+        "file": ".task3-round10-temp/pass-1-chunk-02.json",
+        "sha256": "1f676973dbc288f0931bb0909186c9f08658ee3e96661cc2c9c9eb65b3aa6249",
+        "records": 5
+      },
+      "chunk-03": {
+        "file": ".task3-round10-temp/pass-1-chunk-03.json",
+        "sha256": "bb995eb856e6a821de0a68c29556f376a5c2e2e8699cbd5fca5c01e0d201c1c2",
+        "records": 5
+      },
+      "chunk-04": {
+        "file": ".task3-round10-temp/pass-1-chunk-04.json",
+        "sha256": "831b844f288cf43f7c4d0586b2096c3c643a335b60214802a2271d99ef5c056d",
+        "records": 5
+      },
+      "chunk-05": {
+        "file": ".task3-round10-temp/pass-1-chunk-05.json",
+        "sha256": "d9461f847c6da049cb0d983f3a045f0252285d08acfa957944133144a0e83256",
+        "records": 5
+      },
+      "chunk-06": {
+        "file": ".task3-round10-temp/pass-1-chunk-06.json",
+        "sha256": "6a8d07e2b7fe942fcafbb94fb4fd3403a379d83f1c4e7068921bee0572a018e3",
+        "records": 5
+      },
+      "chunk-07": {
+        "file": ".task3-round10-temp/pass-1-chunk-07.json",
+        "sha256": "5608606cef8039b807f9ced5bf30db1edf6f07c0dc69f8e3c8d6b5cf85d63ff7",
+        "records": 5
+      },
+      "chunk-08": {
+        "file": ".task3-round10-temp/pass-1-chunk-08.json",
+        "sha256": "679e8c8a5bfbb1b1b3e59dec8c62b1c5c2c734523dc5c2bad66565de8639fc21",
+        "records": 5
+      },
+      "chunk-09": {
+        "file": ".task3-round10-temp/pass-1-chunk-09.json",
+        "sha256": "6f414a69b69bc7c14206d552993facd295e8b6c9158ca6c6d8f3cee6270f4a36",
+        "records": 5
+      },
+      "chunk-10": {
+        "file": ".task3-round10-temp/pass-1-chunk-10.json",
+        "sha256": "7bc44c73756ab67853786941c6764ccfcf0bc5ef065ca2abb86df2d174f3ba42",
+        "records": 5
+      }
+    },
+    "pass-2": {
+      "chunk-01": {
+        "file": ".task3-round10-temp/pass-2-chunk-01.json",
+        "sha256": "f5ec866a38ccef2a32309139a65712519edf00bf80c0b186c3a507a366ae57f8",
+        "records": 5
+      },
+      "chunk-02": {
+        "file": ".task3-round10-temp/pass-2-chunk-02.json",
+        "sha256": "d0be100b835621a8a872500b5146981b9ba9e38ac11510f7a01388a16ea09ec3",
+        "records": 5
+      },
+      "chunk-03": {
+        "file": ".task3-round10-temp/pass-2-chunk-03.json",
+        "sha256": "2ac0df90ad7d7736bf5c5c62816d30876033740dd78b614b22fa4b2ff41d254c",
+        "records": 5
+      },
+      "chunk-04": {
+        "file": ".task3-round10-temp/pass-2-chunk-04.json",
+        "sha256": "ab7a55cc194e7aa2e668ba3eb85005d5064ca56827198a6c7ad64e3a877b74db",
+        "records": 5
+      },
+      "chunk-05": {
+        "file": ".task3-round10-temp/pass-2-chunk-05.json",
+        "sha256": "84fc8b9d0c406c979889543f26e210a74e8093e022aba7fecfde68e08f56f2e0",
+        "records": 5
+      },
+      "chunk-06": {
+        "file": ".task3-round10-temp/pass-2-chunk-06.json",
+        "sha256": "9e9b798486bff9aba929739129158b3f5001209ef1a675a7b7f6991cd4bd5d4a",
+        "records": 5
+      },
+      "chunk-07": {
+        "file": ".task3-round10-temp/pass-2-chunk-07.json",
+        "sha256": "83203afb82e44dc705880c6334decc0d1f3cd3d34966dd85a5d213619c617ab9",
+        "records": 5
+      },
+      "chunk-08": {
+        "file": ".task3-round10-temp/pass-2-chunk-08.json",
+        "sha256": "57c4ee9b836e74e157cc1c1d8db598f3e3d28146f0e5a6b27b44adf93ad04a97",
+        "records": 5
+      },
+      "chunk-09": {
+        "file": ".task3-round10-temp/pass-2-chunk-09.json",
+        "sha256": "992e21cc8cd90e68869392c80dbea0e8cd36430a087f3ad7d7548a39a9752cb7",
+        "records": 5
+      },
+      "chunk-10": {
+        "file": ".task3-round10-temp/pass-2-chunk-10.json",
+        "sha256": "9706973973d62ef17e62aad05491016b499507120e6df05ab27d02a52a0cebc6",
+        "records": 5
+      }
+    },
+    "pass-3": {
+      "chunk-01": {
+        "file": ".task3-round10-temp/pass-3-chunk-01.json",
+        "sha256": "fdb114c92433a4fb078e7f5ebf1253ae162eb48a6b2ea167ba7fdf64c0d88d71",
+        "records": 5
+      },
+      "chunk-02": {
+        "file": ".task3-round10-temp/pass-3-chunk-02.json",
+        "sha256": "1d2130652218ebeafe5ad2c74b64a00f133517d9b62a8c6e9b91630c8ee2174e",
+        "records": 5
+      },
+      "chunk-03": {
+        "file": ".task3-round10-temp/pass-3-chunk-03.json",
+        "sha256": "821d38e6c6a5d2f6429845383d67e3c64f65f79dc9511946c3473f303f7f523d",
+        "records": 5
+      },
+      "chunk-04": {
+        "file": ".task3-round10-temp/pass-3-chunk-04.json",
+        "sha256": "f73042d540678cfc4e59e40ddebd089fddf444db3266f077a4baf0d166510844",
+        "records": 5
+      },
+      "chunk-05": {
+        "file": ".task3-round10-temp/pass-3-chunk-05.json",
+        "sha256": "b78a8987fe705495ae5afe8e47485a435a1a6c976bcba3e13f26adeb82e56aab",
+        "records": 5
+      },
+      "chunk-06": {
+        "file": ".task3-round10-temp/pass-3-chunk-06.json",
+        "sha256": "584aebb7f29a8c688c235a14556425671a16625309186be96c92f47494c9124f",
+        "records": 5
+      },
+      "chunk-07": {
+        "file": ".task3-round10-temp/pass-3-chunk-07.json",
+        "sha256": "5b60143c75aa60764cb1089ee28a5c3893dda9cb0cbb99b8c8e081fb113dad2e",
+        "records": 5
+      },
+      "chunk-08": {
+        "file": ".task3-round10-temp/pass-3-chunk-08.json",
+        "sha256": "221a33a25080e393b6f1cfe03d721cc5a89b38d71ce30d7537f04116b9ecd143",
+        "records": 5
+      },
+      "chunk-09": {
+        "file": ".task3-round10-temp/pass-3-chunk-09.json",
+        "sha256": "17d703cf8e4b4bb769b2f277ec327b5e7426e12c9d316e9e440468288ef07264",
+        "records": 5
+      },
+      "chunk-10": {
+        "file": ".task3-round10-temp/pass-3-chunk-10.json",
+        "sha256": "f1d3c336a809eeafa1c8e29ff4ca149f83fea13f32bdca80429b925e3154b368",
+        "records": 5
+      }
+    }
+  },
+  "assembled_hashes": {
+    "pass-1": {
+      "file": "tests/calibration/v1.0.0/pass-1.json",
+      "sha256": "1bd45b76a2eac5abf292fc510490e13714231f9f8a02bb8aecc668be95d6383d",
+      "records": 50
+    },
+    "pass-2": {
+      "file": "tests/calibration/v1.0.0/pass-2.json",
+      "sha256": "471949b53e6f2b88141841a48515f570134328f824c4934e0b357bb47457cde4",
+      "records": 50
+    },
+    "pass-3": {
+      "file": "tests/calibration/v1.0.0/pass-3.json",
+      "sha256": "95ff36ba9f7473054b005e2940b82a179b1c55ed44b2e4c191cca7ccf385202d",
+      "records": 50
+    },
+    "all-runs": {
+      "derived_from": [
+        "tests/calibration/v1.0.0/pass-1.json",
+        "tests/calibration/v1.0.0/pass-2.json",
+        "tests/calibration/v1.0.0/pass-3.json"
+      ],
+      "sha256": "67a82e617697874b2c3cb57f4fa8ecb9099333eaed10b73b4debb54c9721c7e1",
+      "records": 150
+    }
+  },
+  "evaluator": {
+    "command": "python tools/evaluate.py --golden tests/golden/scoring.json --results .task3-round10-temp/all-runs.json --mode score",
+    "exit_code": 0,
+    "thresholds": {
+      "max_total_deviation": 0.7,
+      "max_dimension_deviation": 1.0
+    },
+    "result": {
+      "passed": true,
+      "run_completeness": {
+        "expected_runs": 3,
+        "actual_runs": 3,
+        "reviewed_cases": 50,
+        "expected_results": 150,
+        "actual_results": 150,
+        "complete": true
+      },
+      "max_total_deviation": 0.7,
+      "max_dimension_deviation": 1.0,
+      "failing_cases": []
+    }
+  }
+}
