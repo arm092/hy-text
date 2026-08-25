@@ -19,7 +19,7 @@ This result verifies hermetic package installation. Local Claude, Codex, Cursor,
 For Codex CLI, Cursor, Windsurf, GitHub Copilot, and other compatible agents:
 
 ```bash
-npx skills add arm092/hy-text@v1.0.0
+npx skills add "arm092/hy-text#v1.0.0"
 ```
 
 Alternatively, copy `skills/hy-text`, `skills/hy-check`, and `skills/hy-score` into the user-level `~/.agents/skills/` directory. Start a new session after installation.
@@ -42,7 +42,7 @@ Copy-Item -Recurse hy-text\skills\* "$env:USERPROFILE\.agents\skills"
 ## Gemini CLI
 
 ```bash
-gemini extensions install https://github.com/arm092/hy-text@v1.0.0
+gemini extensions install https://github.com/arm092/hy-text --ref v1.0.0
 ```
 
 ## Cursor and OpenClaw

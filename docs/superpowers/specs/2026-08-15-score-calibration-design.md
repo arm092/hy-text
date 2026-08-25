@@ -1,7 +1,7 @@
 # `hy-score` calibration design
 
 **Date:** 2026-08-15
-**Status:** approved design, pending written-spec review
+**Status:** implemented, calibrated, and reviewed; public release not yet created
 **Scope:** modern Eastern Armenian with the reformed orthography used in the Republic of Armenia
 
 ## Objective

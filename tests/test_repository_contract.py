@@ -1,6 +1,7 @@
 import importlib.util
 import json
 import re
+import subprocess
 import unittest
 from pathlib import Path
 
@@ -62,6 +63,43 @@ def load_evaluator(module_name):
 
 
 class RepositoryContractTest(unittest.TestCase):
+    def test_install_guides_use_supported_pinned_source_syntax(self):
+        agent_skills_command = 'npx skills add "arm092/hy-text#v1.0.0"'
+        gemini_command = (
+            "gemini extensions install https://github.com/arm092/hy-text --ref v1.0.0"
+        )
+        invalid_commands = (
+            "npx skills add arm092/hy-text@v1.0.0",
+            'npx skills add "arm092/hy-text@v1.0.0"',
+            "gemini extensions install https://github.com/arm092/hy-text@v1.0.0",
+        )
+
+        for relative_path in ("INSTALL.md", "INSTALL.en.md"):
+            with self.subTest(path=relative_path):
+                text = (ROOT / relative_path).read_text(encoding="utf-8")
+                self.assertEqual(1, text.count(agent_skills_command))
+                self.assertEqual(1, text.count(gemini_command))
+                for invalid_command in invalid_commands:
+                    self.assertNotIn(invalid_command, text)
+
+    def test_internal_sdd_workspace_is_ignored_and_untracked(self):
+        tracked = subprocess.run(
+            ["git", "ls-files", "--", ".superpowers/sdd"],
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.splitlines()
+        self.assertEqual([], tracked)
+
+        sentinel = ".superpowers/sdd/release-contract/sentinel-report.md"
+        ignored = subprocess.run(
+            ["git", "check-ignore", "--no-index", "-q", "--", sentinel],
+            cwd=ROOT,
+            check=False,
+        )
+        self.assertEqual(0, ignored.returncode)
+
     def test_release_manifests_have_the_stable_version(self):
         for relative_path, version_path in RELEASE_MANIFESTS:
             with self.subTest(path=relative_path, version_path=version_path):

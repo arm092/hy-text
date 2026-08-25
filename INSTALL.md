@@ -19,7 +19,7 @@ python tools/smoke_install.py --root . --temp-root . --output install-smoke.json
 Codex CLI-ի, Cursor-ի, Windsurf-ի, GitHub Copilot-ի և համատեղելի այլ գործակալների համար՝
 
 ```bash
-npx skills add arm092/hy-text@v1.0.0
+npx skills add "arm092/hy-text#v1.0.0"
 ```
 
 Կամ ձեռքով պատճենեք `skills/hy-text`, `skills/hy-check` և `skills/hy-score` պանակները օգտատիրոջ `~/.agents/skills/` պանակ։ Նոր հմտությունները բեռնվում են նոր նստաշրջանում։
@@ -42,7 +42,7 @@ Copy-Item -Recurse hy-text\skills\* "$env:USERPROFILE\.agents\skills"
 ## Gemini CLI
 
 ```bash
-gemini extensions install https://github.com/arm092/hy-text@v1.0.0
+gemini extensions install https://github.com/arm092/hy-text --ref v1.0.0
 ```
 
 ## Cursor և OpenClaw
