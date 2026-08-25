@@ -17,163 +17,217 @@
     },
     "protocol": "Three fresh independent blind passes, each split into ten canonical five-case chunks.",
     "integrity_statement": "All 150 raw scores were retained exactly as generated; no score was edited, filtered, discarded, substituted, or averaged.",
-    "assembled_hash_format": "SHA-256 of compact UTF-8 JSON with sorted object keys; array order is preserved.",
-    "source_hash_format": "JSON uses the assembled hash format; text is UTF-8 with LF-normalized line endings."
+    "hash_algorithms": {
+      "source_raw_sha256": {
+        "algorithm": "SHA-256",
+        "input": "original blind scorer JSON file bytes",
+        "reproducible_from_tracked_records": false
+      },
+      "canonical_records_sha256": {
+        "algorithm": "SHA-256",
+        "encoding": "UTF-8",
+        "serialization": {
+          "ensure_ascii": false,
+          "sort_keys": true,
+          "separators": [
+            ",",
+            ":"
+          ],
+          "trailing_newline": false
+        },
+        "array_order": "preserved"
+      },
+      "normalized_text_sha256": {
+        "algorithm": "SHA-256",
+        "encoding": "UTF-8",
+        "line_endings": "LF"
+      }
+    }
   },
   "chunk_hashes": {
     "pass-1": {
       "chunk-01": {
-        "file": ".task3-round10-temp/pass-1-chunk-01.json",
-        "sha256": "9d83607645e949b2701fe62e1a0e5fd290cf4e6669e251d5381f444638d35bac",
+        "source_file": "pass-1-chunk-01.json",
+        "source_raw_sha256": "9d83607645e949b2701fe62e1a0e5fd290cf4e6669e251d5381f444638d35bac",
+        "canonical_records_sha256": "d01c9d5eb735d17365cb6a57c2d9db21f32a1e48ca5c8e212a2b0edd03ea4983",
         "records": 5
       },
       "chunk-02": {
-        "file": ".task3-round10-temp/pass-1-chunk-02.json",
-        "sha256": "1f676973dbc288f0931bb0909186c9f08658ee3e96661cc2c9c9eb65b3aa6249",
+        "source_file": "pass-1-chunk-02.json",
+        "source_raw_sha256": "1f676973dbc288f0931bb0909186c9f08658ee3e96661cc2c9c9eb65b3aa6249",
+        "canonical_records_sha256": "fb87cc9c073c10414d8591e174e29a6f53f155e6e923201535dad4613c566b19",
         "records": 5
       },
       "chunk-03": {
-        "file": ".task3-round10-temp/pass-1-chunk-03.json",
-        "sha256": "bb995eb856e6a821de0a68c29556f376a5c2e2e8699cbd5fca5c01e0d201c1c2",
+        "source_file": "pass-1-chunk-03.json",
+        "source_raw_sha256": "bb995eb856e6a821de0a68c29556f376a5c2e2e8699cbd5fca5c01e0d201c1c2",
+        "canonical_records_sha256": "5a629bab0f084372e2c4c68671e5ef033a75d5f03efa9cfe7ec2d55d87ccf296",
         "records": 5
       },
       "chunk-04": {
-        "file": ".task3-round10-temp/pass-1-chunk-04.json",
-        "sha256": "831b844f288cf43f7c4d0586b2096c3c643a335b60214802a2271d99ef5c056d",
+        "source_file": "pass-1-chunk-04.json",
+        "source_raw_sha256": "831b844f288cf43f7c4d0586b2096c3c643a335b60214802a2271d99ef5c056d",
+        "canonical_records_sha256": "38f1542bf18399c0a59dc3a790e87b001df3398ba6a9508ca7b0b81347ec87c2",
         "records": 5
       },
       "chunk-05": {
-        "file": ".task3-round10-temp/pass-1-chunk-05.json",
-        "sha256": "d9461f847c6da049cb0d983f3a045f0252285d08acfa957944133144a0e83256",
+        "source_file": "pass-1-chunk-05.json",
+        "source_raw_sha256": "d9461f847c6da049cb0d983f3a045f0252285d08acfa957944133144a0e83256",
+        "canonical_records_sha256": "b003fb1b1311d95447f930ac3718e3ab01c978b3266e2c64793a26761f862832",
         "records": 5
       },
       "chunk-06": {
-        "file": ".task3-round10-temp/pass-1-chunk-06.json",
-        "sha256": "6a8d07e2b7fe942fcafbb94fb4fd3403a379d83f1c4e7068921bee0572a018e3",
+        "source_file": "pass-1-chunk-06.json",
+        "source_raw_sha256": "6a8d07e2b7fe942fcafbb94fb4fd3403a379d83f1c4e7068921bee0572a018e3",
+        "canonical_records_sha256": "b1f40f040097286782e22af4c8c223db19f9931122e1a9fd3e42e77cb3b05da4",
         "records": 5
       },
       "chunk-07": {
-        "file": ".task3-round10-temp/pass-1-chunk-07.json",
-        "sha256": "5608606cef8039b807f9ced5bf30db1edf6f07c0dc69f8e3c8d6b5cf85d63ff7",
+        "source_file": "pass-1-chunk-07.json",
+        "source_raw_sha256": "5608606cef8039b807f9ced5bf30db1edf6f07c0dc69f8e3c8d6b5cf85d63ff7",
+        "canonical_records_sha256": "934520479939201c18bb5927e200ab153b124e86619a5d6c14e5a10809d0a755",
         "records": 5
       },
       "chunk-08": {
-        "file": ".task3-round10-temp/pass-1-chunk-08.json",
-        "sha256": "679e8c8a5bfbb1b1b3e59dec8c62b1c5c2c734523dc5c2bad66565de8639fc21",
+        "source_file": "pass-1-chunk-08.json",
+        "source_raw_sha256": "679e8c8a5bfbb1b1b3e59dec8c62b1c5c2c734523dc5c2bad66565de8639fc21",
+        "canonical_records_sha256": "15b406c4d9bdde90a38312e417d998ca89333111a39b16057cd9af2ff6c14020",
         "records": 5
       },
       "chunk-09": {
-        "file": ".task3-round10-temp/pass-1-chunk-09.json",
-        "sha256": "6f414a69b69bc7c14206d552993facd295e8b6c9158ca6c6d8f3cee6270f4a36",
+        "source_file": "pass-1-chunk-09.json",
+        "source_raw_sha256": "6f414a69b69bc7c14206d552993facd295e8b6c9158ca6c6d8f3cee6270f4a36",
+        "canonical_records_sha256": "c023013ea01c6514ee339e1d98d3bec837837889066e8a6d2fc6387ab96e946e",
         "records": 5
       },
       "chunk-10": {
-        "file": ".task3-round10-temp/pass-1-chunk-10.json",
-        "sha256": "7bc44c73756ab67853786941c6764ccfcf0bc5ef065ca2abb86df2d174f3ba42",
+        "source_file": "pass-1-chunk-10.json",
+        "source_raw_sha256": "7bc44c73756ab67853786941c6764ccfcf0bc5ef065ca2abb86df2d174f3ba42",
+        "canonical_records_sha256": "43cfa4628db60ea2c21abcd4071448e3b1990fd6a90c02e7ef2e3e25d273412d",
         "records": 5
       }
     },
     "pass-2": {
       "chunk-01": {
-        "file": ".task3-round10-temp/pass-2-chunk-01.json",
-        "sha256": "f5ec866a38ccef2a32309139a65712519edf00bf80c0b186c3a507a366ae57f8",
+        "source_file": "pass-2-chunk-01.json",
+        "source_raw_sha256": "f5ec866a38ccef2a32309139a65712519edf00bf80c0b186c3a507a366ae57f8",
+        "canonical_records_sha256": "1e6c09c3bc1279d417f7cd3c48c611c8a1963ef1495ee17bc63f1b1d0c694c6e",
         "records": 5
       },
       "chunk-02": {
-        "file": ".task3-round10-temp/pass-2-chunk-02.json",
-        "sha256": "d0be100b835621a8a872500b5146981b9ba9e38ac11510f7a01388a16ea09ec3",
+        "source_file": "pass-2-chunk-02.json",
+        "source_raw_sha256": "d0be100b835621a8a872500b5146981b9ba9e38ac11510f7a01388a16ea09ec3",
+        "canonical_records_sha256": "364e31e529abbf689a29d8fbff91c2cf7c135c997957ecb06fe0d6a136ca299f",
         "records": 5
       },
       "chunk-03": {
-        "file": ".task3-round10-temp/pass-2-chunk-03.json",
-        "sha256": "2ac0df90ad7d7736bf5c5c62816d30876033740dd78b614b22fa4b2ff41d254c",
+        "source_file": "pass-2-chunk-03.json",
+        "source_raw_sha256": "2ac0df90ad7d7736bf5c5c62816d30876033740dd78b614b22fa4b2ff41d254c",
+        "canonical_records_sha256": "5bbd74e92906d9988248e03fb4c4b19531c664156cef04203280a56859dae9e7",
         "records": 5
       },
       "chunk-04": {
-        "file": ".task3-round10-temp/pass-2-chunk-04.json",
-        "sha256": "ab7a55cc194e7aa2e668ba3eb85005d5064ca56827198a6c7ad64e3a877b74db",
+        "source_file": "pass-2-chunk-04.json",
+        "source_raw_sha256": "ab7a55cc194e7aa2e668ba3eb85005d5064ca56827198a6c7ad64e3a877b74db",
+        "canonical_records_sha256": "b70df264facd636294ecd1dff6d642a68067c1bdead6d8ff732a7a01a363a10d",
         "records": 5
       },
       "chunk-05": {
-        "file": ".task3-round10-temp/pass-2-chunk-05.json",
-        "sha256": "84fc8b9d0c406c979889543f26e210a74e8093e022aba7fecfde68e08f56f2e0",
+        "source_file": "pass-2-chunk-05.json",
+        "source_raw_sha256": "84fc8b9d0c406c979889543f26e210a74e8093e022aba7fecfde68e08f56f2e0",
+        "canonical_records_sha256": "31ed994f82fbb5f12cd38d630a81b3acb96bdb8183045084c55709fe28d2269e",
         "records": 5
       },
       "chunk-06": {
-        "file": ".task3-round10-temp/pass-2-chunk-06.json",
-        "sha256": "9e9b798486bff9aba929739129158b3f5001209ef1a675a7b7f6991cd4bd5d4a",
+        "source_file": "pass-2-chunk-06.json",
+        "source_raw_sha256": "9e9b798486bff9aba929739129158b3f5001209ef1a675a7b7f6991cd4bd5d4a",
+        "canonical_records_sha256": "d401fdfe3986e5db574af64ffd34ccc7cb2c8a5855b8a954cbb1e37e89a11d4d",
         "records": 5
       },
       "chunk-07": {
-        "file": ".task3-round10-temp/pass-2-chunk-07.json",
-        "sha256": "83203afb82e44dc705880c6334decc0d1f3cd3d34966dd85a5d213619c617ab9",
+        "source_file": "pass-2-chunk-07.json",
+        "source_raw_sha256": "83203afb82e44dc705880c6334decc0d1f3cd3d34966dd85a5d213619c617ab9",
+        "canonical_records_sha256": "8f9bfaf9e61baf8e6eaa7098e9a5c9c8388ff0806fd93955c989febea9028001",
         "records": 5
       },
       "chunk-08": {
-        "file": ".task3-round10-temp/pass-2-chunk-08.json",
-        "sha256": "57c4ee9b836e74e157cc1c1d8db598f3e3d28146f0e5a6b27b44adf93ad04a97",
+        "source_file": "pass-2-chunk-08.json",
+        "source_raw_sha256": "57c4ee9b836e74e157cc1c1d8db598f3e3d28146f0e5a6b27b44adf93ad04a97",
+        "canonical_records_sha256": "8d42cc2c48a9f0df612e708fd98b0749bd21bed7a920948889a31a1b205b6986",
         "records": 5
       },
       "chunk-09": {
-        "file": ".task3-round10-temp/pass-2-chunk-09.json",
-        "sha256": "992e21cc8cd90e68869392c80dbea0e8cd36430a087f3ad7d7548a39a9752cb7",
+        "source_file": "pass-2-chunk-09.json",
+        "source_raw_sha256": "992e21cc8cd90e68869392c80dbea0e8cd36430a087f3ad7d7548a39a9752cb7",
+        "canonical_records_sha256": "a8c511077a954a0c99acccafff7ce9d95022efcbdc0dc812e0f0db262a41b741",
         "records": 5
       },
       "chunk-10": {
-        "file": ".task3-round10-temp/pass-2-chunk-10.json",
-        "sha256": "9706973973d62ef17e62aad05491016b499507120e6df05ab27d02a52a0cebc6",
+        "source_file": "pass-2-chunk-10.json",
+        "source_raw_sha256": "9706973973d62ef17e62aad05491016b499507120e6df05ab27d02a52a0cebc6",
+        "canonical_records_sha256": "d407ea3277e35934ef0e0b79f009b95f2e2a025e2257810f99ee53b4179cc0f6",
         "records": 5
       }
     },
     "pass-3": {
       "chunk-01": {
-        "file": ".task3-round10-temp/pass-3-chunk-01.json",
-        "sha256": "fdb114c92433a4fb078e7f5ebf1253ae162eb48a6b2ea167ba7fdf64c0d88d71",
+        "source_file": "pass-3-chunk-01.json",
+        "source_raw_sha256": "fdb114c92433a4fb078e7f5ebf1253ae162eb48a6b2ea167ba7fdf64c0d88d71",
+        "canonical_records_sha256": "0128a7edae5e3b72e726e56856a3234c73e31863c890a33d3ace6defdc38655c",
         "records": 5
       },
       "chunk-02": {
-        "file": ".task3-round10-temp/pass-3-chunk-02.json",
-        "sha256": "1d2130652218ebeafe5ad2c74b64a00f133517d9b62a8c6e9b91630c8ee2174e",
+        "source_file": "pass-3-chunk-02.json",
+        "source_raw_sha256": "1d2130652218ebeafe5ad2c74b64a00f133517d9b62a8c6e9b91630c8ee2174e",
+        "canonical_records_sha256": "34434deee7d8a49f744aafb3cbfbc705eba348128762c11369b493b8c4a78aa5",
         "records": 5
       },
       "chunk-03": {
-        "file": ".task3-round10-temp/pass-3-chunk-03.json",
-        "sha256": "821d38e6c6a5d2f6429845383d67e3c64f65f79dc9511946c3473f303f7f523d",
+        "source_file": "pass-3-chunk-03.json",
+        "source_raw_sha256": "821d38e6c6a5d2f6429845383d67e3c64f65f79dc9511946c3473f303f7f523d",
+        "canonical_records_sha256": "3fe9de7e555daf6cf045e127cacfdba959ace285a15157b44b1a689f1fe5378a",
         "records": 5
       },
       "chunk-04": {
-        "file": ".task3-round10-temp/pass-3-chunk-04.json",
-        "sha256": "f73042d540678cfc4e59e40ddebd089fddf444db3266f077a4baf0d166510844",
+        "source_file": "pass-3-chunk-04.json",
+        "source_raw_sha256": "f73042d540678cfc4e59e40ddebd089fddf444db3266f077a4baf0d166510844",
+        "canonical_records_sha256": "643c3fa59c74dca58308a3bdd30a39ed44af40a64997767024d2dbbe57b2539a",
         "records": 5
       },
       "chunk-05": {
-        "file": ".task3-round10-temp/pass-3-chunk-05.json",
-        "sha256": "b78a8987fe705495ae5afe8e47485a435a1a6c976bcba3e13f26adeb82e56aab",
+        "source_file": "pass-3-chunk-05.json",
+        "source_raw_sha256": "b78a8987fe705495ae5afe8e47485a435a1a6c976bcba3e13f26adeb82e56aab",
+        "canonical_records_sha256": "2377f67cd6e99e9be0325c4bf45a227a98359e96bc5abce9ebaee3dedaa00329",
         "records": 5
       },
       "chunk-06": {
-        "file": ".task3-round10-temp/pass-3-chunk-06.json",
-        "sha256": "584aebb7f29a8c688c235a14556425671a16625309186be96c92f47494c9124f",
+        "source_file": "pass-3-chunk-06.json",
+        "source_raw_sha256": "584aebb7f29a8c688c235a14556425671a16625309186be96c92f47494c9124f",
+        "canonical_records_sha256": "a1469b752ead88e44ad368bd091c44082cb5faeb51e9ac08f9844775c70138b4",
         "records": 5
       },
       "chunk-07": {
-        "file": ".task3-round10-temp/pass-3-chunk-07.json",
-        "sha256": "5b60143c75aa60764cb1089ee28a5c3893dda9cb0cbb99b8c8e081fb113dad2e",
+        "source_file": "pass-3-chunk-07.json",
+        "source_raw_sha256": "5b60143c75aa60764cb1089ee28a5c3893dda9cb0cbb99b8c8e081fb113dad2e",
+        "canonical_records_sha256": "62c1bc96ad23347d585e2f6f77878947d492b34e05f6524cb38783cec26415c8",
         "records": 5
       },
       "chunk-08": {
-        "file": ".task3-round10-temp/pass-3-chunk-08.json",
-        "sha256": "221a33a25080e393b6f1cfe03d721cc5a89b38d71ce30d7537f04116b9ecd143",
+        "source_file": "pass-3-chunk-08.json",
+        "source_raw_sha256": "221a33a25080e393b6f1cfe03d721cc5a89b38d71ce30d7537f04116b9ecd143",
+        "canonical_records_sha256": "b718869876728bff2e167b0f1ea4434ddffb7b5a5d267b2f1cef2b7e7407743e",
         "records": 5
       },
       "chunk-09": {
-        "file": ".task3-round10-temp/pass-3-chunk-09.json",
-        "sha256": "17d703cf8e4b4bb769b2f277ec327b5e7426e12c9d316e9e440468288ef07264",
+        "source_file": "pass-3-chunk-09.json",
+        "source_raw_sha256": "17d703cf8e4b4bb769b2f277ec327b5e7426e12c9d316e9e440468288ef07264",
+        "canonical_records_sha256": "9bb4084dc1ca0e59bfbda61d01892d80212a7d4d6fb86dac00c45da2997fab14",
         "records": 5
       },
       "chunk-10": {
-        "file": ".task3-round10-temp/pass-3-chunk-10.json",
-        "sha256": "f1d3c336a809eeafa1c8e29ff4ca149f83fea13f32bdca80429b925e3154b368",
+        "source_file": "pass-3-chunk-10.json",
+        "source_raw_sha256": "f1d3c336a809eeafa1c8e29ff4ca149f83fea13f32bdca80429b925e3154b368",
+        "canonical_records_sha256": "80689b7144deb8a231ed8a279441b9811e3eca9087d7fb755770c5ccc55df74b",
         "records": 5
       }
     }
