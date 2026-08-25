@@ -12,5 +12,5 @@ This map uses `ru-text` only as a checklist of editorial problem families. No Ru
 | Interface copy | Armenian product samples plus editorial policy | `ux-writing.md` | initial corpus; web aggregates pending |
 | Business correspondence | Armenian workplace samples plus editorial policy | `business-writing.md` | initial corpus; web aggregates pending |
 | Diagnostic before/after patterns | rules above | `anti-patterns.md` | initial corpus |
-| AI-prose tendencies | Armenian examples and counterexamples | `addenda.md` | initial corpus; golden calibration pending |
-| Diagnostic scoring | Armenian golden set | `scoring.md` | contract complete; calibration pending |
+| AI-prose tendencies | Armenian examples and counterexamples | `addenda.md` | initial corpus; golden calibration passed |
+| Diagnostic scoring | Armenian golden set | `scoring.md` | contract complete; calibration passed on 150/150 results |

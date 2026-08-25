@@ -1,3 +1,4 @@
+import importlib.util
 import json
 import re
 import unittest
@@ -31,6 +32,10 @@ RELEASE_MANIFESTS = (
 )
 RELEASE_EVIDENCE = (
     "tests/golden/scoring.json",
+    "tests/calibration/v1.0.0/pass-1.json",
+    "tests/calibration/v1.0.0/pass-2.json",
+    "tests/calibration/v1.0.0/pass-3.json",
+    "tests/calibration/v1.0.0/summary.json",
     "tests/golden/check.json",
     "tests/calibration/v1.0.0/check-results.json",
     "tests/calibration/v1.0.0/install-smoke.json",
@@ -47,6 +52,13 @@ def nested_value(data, path):
     for part in path:
         data = data[part]
     return data
+
+
+def load_evaluator(module_name):
+    spec = importlib.util.spec_from_file_location(module_name, ROOT / "tools" / "evaluate.py")
+    evaluate = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(evaluate)
+    return evaluate
 
 
 class RepositoryContractTest(unittest.TestCase):
@@ -79,6 +91,78 @@ class RepositoryContractTest(unittest.TestCase):
         for evidence in RELEASE_EVIDENCE:
             with self.subTest(evidence=evidence):
                 self.assertIn(evidence, release_note)
+
+    def test_release_note_reports_observed_score_gate_from_tracked_artifacts(self):
+        calibration = ROOT / "tests" / "calibration" / "v1.0.0"
+        golden = json.loads((ROOT / "tests" / "golden" / "scoring.json").read_text(encoding="utf-8"))
+        runs = []
+        for run in range(1, 4):
+            runs.extend(json.loads((calibration / f"pass-{run}.json").read_text(encoding="utf-8")))
+
+        evaluate = load_evaluator("hy_text_evaluate_for_release_contract")
+        metrics = evaluate.score_calibration(golden, runs)
+        summary = json.loads((calibration / "summary.json").read_text(encoding="utf-8"))
+
+        self.assertEqual(metrics, summary["evaluator"]["result"])
+        self.assertEqual(0, summary["evaluator"]["exit_code"])
+        self.assertTrue(metrics["passed"])
+        self.assertEqual([], metrics["failing_cases"])
+        self.assertIn(
+            "no score was edited, filtered, discarded, substituted, or averaged",
+            summary["provenance"]["integrity_statement"],
+        )
+
+        release_note = (ROOT / "docs" / "releases" / "v1.0.0.md").read_text(encoding="utf-8")
+        scoring_row = next(
+            line for line in release_note.splitlines() if line.startswith("| Scoring calibration ")
+        )
+        observed = (
+            f'passed; {metrics["run_completeness"]["actual_results"]}/'
+            f'{metrics["run_completeness"]["expected_results"]} results; '
+            f'maximum total deviation {metrics["max_total_deviation"]}; '
+            f'maximum dimension deviation {metrics["max_dimension_deviation"]}; '
+            f'failures {len(metrics["failing_cases"])}; no filtering'
+        )
+        self.assertIn(observed, scoring_row)
+
+    def test_release_note_reports_observed_check_and_install_gates(self):
+        evaluate = load_evaluator("hy_text_evaluate_for_release_quality")
+
+        golden = json.loads((ROOT / "tests" / "golden" / "check.json").read_text(encoding="utf-8"))
+        results = json.loads(
+            (ROOT / "tests" / "calibration" / "v1.0.0" / "check-results.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        metrics = evaluate.detection_metrics(golden, results)
+        smoke = json.loads(
+            (ROOT / "tests" / "calibration" / "v1.0.0" / "install-smoke.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        passed_smoke = sum(item["hermetic"] == "passed" for item in smoke)
+
+        release_note = (ROOT / "docs" / "releases" / "v1.0.0.md").read_text(encoding="utf-8")
+        check_row = next(
+            line for line in release_note.splitlines() if line.startswith("| Armenian proofreading quality ")
+        )
+        install_row = next(
+            line for line in release_note.splitlines() if line.startswith("| Cross-platform package installation ")
+        )
+        self.assertIn(
+            "passed; "
+            f'recall {metrics["recall"]}; false-positive rate {metrics["clean_false_positive_rate"]}; '
+            f'protected mutations {metrics["protected_mutations"]}; '
+            f'correction failures {metrics["correction_failures"]}; '
+            f'correction accuracy {metrics["correction_accuracy"]}',
+            check_row,
+        )
+        self.assertIn(f"passed; {passed_smoke}/{len(smoke)} hermetic packaging checks", install_row)
+
+    def test_coverage_map_does_not_call_passing_calibration_pending(self):
+        coverage = (ROOT / "docs" / "coverage-map.md").read_text(encoding="utf-8")
+        self.assertNotIn("golden calibration pending", coverage)
+        self.assertNotIn("calibration pending", coverage)
 
     def test_three_public_skills_exist(self):
         for skill in SKILLS:
