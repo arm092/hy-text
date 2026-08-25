@@ -1,4 +1,5 @@
 import json
+import hashlib
 import re
 import unittest
 from pathlib import Path
@@ -155,6 +156,48 @@ class GoldenContractTest(unittest.TestCase):
         readme = (ROOT / "tests" / "golden" / "README.md").read_text(encoding="utf-8")
         self.assertIn("article-03", readme)
         self.assertIn("human re-review on 2026-08-15", readme)
+
+    def test_second_human_adjudication_is_exact_and_preserves_fixture_identity(self):
+        cases = json.loads((ROOT / "tests" / "golden" / "scoring.json").read_text(encoding="utf-8"))
+        self.assertEqual(50, len(cases))
+        self.assertEqual(
+            [
+                f"{domain}-{number:02d}"
+                for domain in ("article", "business", "marketing", "mixed", "ux")
+                for number in range(1, 11)
+            ],
+            [case["id"] for case in cases],
+        )
+        self.assertTrue(all(case["reviewed"] for case in cases))
+
+        identity = hashlib.sha256(
+            "".join(f'{case["id"]}\0{case["text"]}\n' for case in cases).encode()
+        ).hexdigest()
+        self.assertEqual(
+            "07386b8a8135abc5065d624b4063950304e3ec528ffb3d40a1141dcf274b4219",
+            identity,
+        )
+
+        by_id = {case["id"]: case for case in cases}
+        expected = {
+            "article-05": {"typography": 9, "language": 4, "grammar": 9, "structure": 6, "reader": 2},
+            "marketing-04": {"typography": 9, "language": 3, "grammar": 9, "structure": 5, "reader": 2},
+            "ux-02": {"typography": 9, "language": 7, "grammar": 9, "structure": 6, "reader": 3},
+        }
+        for case_id, scores in expected.items():
+            self.assertEqual(scores, by_id[case_id]["scores"])
+
+        unchanged = hashlib.sha256(
+            "".join(
+                f'{case["id"]}\0{json.dumps(case["scores"], sort_keys=True, separators=(",", ":"))}\n'
+                for case in cases
+                if case["id"] not in expected
+            ).encode()
+        ).hexdigest()
+        self.assertEqual(
+            "198c414c4f711999f3099d5bc8f704ebdf7fc54c24ca0ecfe3b0c4abcbe7b704",
+            unchanged,
+        )
 
     def test_protected_content_cases_cover_all_types(self):
         cases = json.loads((ROOT / "tests" / "golden" / "protected.json").read_text(encoding="utf-8"))
