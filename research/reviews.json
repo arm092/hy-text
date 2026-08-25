@@ -6,7 +6,8 @@
     "reviewed_at": "2026-08-25",
     "status": "approved",
     "through_rule": "HY-TYP-008",
-    "approved_sha256": "ab8b944c4b729abf857adb044f31f5d58f004534282951697d07bf3b3480eaa8"
+    "hash_algorithm": "sha256-utf8-lf-v1",
+    "approved_sha256": "d914676c2a5e085b26144bdcefdd6b421191caa1bc1b9af98d4f85b2e2ad5baf"
   },
   {
     "reference": "editorial-punctuation.md",
@@ -15,7 +16,8 @@
     "reviewed_at": "2026-08-25",
     "status": "approved",
     "through_rule": "HY-PUN-008",
-    "approved_sha256": "a6937e438fcbfa59495c9060182b5639488b670ccff80772a92acd56a47f7e0d"
+    "hash_algorithm": "sha256-utf8-lf-v1",
+    "approved_sha256": "e74f5f053963908bc45b7184af92b2809a1497c6deb58d976b81e3dc964792cc"
   },
   {
     "reference": "editorial-grammar.md",
@@ -24,7 +26,8 @@
     "reviewed_at": "2026-08-14",
     "status": "approved",
     "through_rule": "HY-GRM-008",
-    "approved_sha256": "6e31c918451db59cb791a692336e3f3e528c6575c509f63777712dfa15dcfef5"
+    "hash_algorithm": "sha256-utf8-lf-v1",
+    "approved_sha256": "da2ffe2b0194dff3c1a9dc8dd37460b3d13ed27d5aa09b80a73b08f63effc3d8"
   },
   {
     "reference": "info-style.md",
@@ -33,7 +36,8 @@
     "reviewed_at": "2026-08-25",
     "status": "approved",
     "through_rule": "HY-INF-007",
-    "approved_sha256": "dd33215830be85aa00b468eb1efa334e243aa0e9fa303270d8c16ad63de18b1c"
+    "hash_algorithm": "sha256-utf8-lf-v1",
+    "approved_sha256": "cd4848b49738e5cd5b549b902b94cc3df5d4919693a16a6ee2288547ba66faaf"
   },
   {
     "reference": "ux-writing.md",
@@ -42,7 +46,8 @@
     "reviewed_at": "2026-08-14",
     "status": "approved",
     "through_rule": "HY-UX-010",
-    "approved_sha256": "ab7e6d5d75e8402493157efe4cb9c149748c1ad697a164c31a09bb6d2865cb6b"
+    "hash_algorithm": "sha256-utf8-lf-v1",
+    "approved_sha256": "c41e101bb33f9d0d3b4279b986ea96cf622ed8799fc4251a177e2a1f5052e025"
   },
   {
     "reference": "business-writing.md",
@@ -51,7 +56,8 @@
     "reviewed_at": "2026-08-14",
     "status": "approved",
     "through_rule": "HY-BIZ-007",
-    "approved_sha256": "fe0f32ac4490e914a59d1a15975bfcd214f02cba487549d19cfec0cb0be0d7d9"
+    "hash_algorithm": "sha256-utf8-lf-v1",
+    "approved_sha256": "46f1be58da38b05cfe0f5c52a60b1235103ef576181f4299eaca3528ce5ee97a"
   },
   {
     "reference": "anti-patterns.md",
@@ -60,7 +66,8 @@
     "reviewed_at": "2026-08-14",
     "status": "approved",
     "through_rule": "HY-ANT-005",
-    "approved_sha256": "8fc8034d2b423467e9f1dc5aac294afac6ce94d10cfd25dd832476204e419356"
+    "hash_algorithm": "sha256-utf8-lf-v1",
+    "approved_sha256": "16b11fe03666ee5948ba441e94ded012b5a47112df7e3cef380566f85a01760c"
   },
   {
     "reference": "addenda.md",
@@ -69,7 +76,8 @@
     "reviewed_at": "2026-08-14",
     "status": "approved",
     "through_rule": "HY-ADD-006",
-    "approved_sha256": "9b746d065230f92dd9548055778d58cd5ca2e6bfaf16bad516251ccceb53d2a7"
+    "hash_algorithm": "sha256-utf8-lf-v1",
+    "approved_sha256": "be56ec6e9a97c2daf006dc538173ff5e22ac12ccc337c5885a255fe92cb6e097"
   },
   {
     "reference": "scoring.md",
@@ -78,7 +86,8 @@
     "reviewed_at": "2026-08-25",
     "status": "approved",
     "through_rule": null,
-    "approved_sha256": "84fdcb49b712fc800e0245e3b8ceec45ec3513a8cb9cb94cd29cf8d954f0ff93"
+    "hash_algorithm": "sha256-utf8-lf-v1",
+    "approved_sha256": "459d3d78dbc63b9485f9682c4a867f0f8eb034397190d37479f2bc3ec96b59d5"
   },
   {
     "reference": "sources.md",
@@ -87,6 +96,7 @@
     "reviewed_at": "2026-08-25",
     "status": "approved",
     "through_rule": null,
-    "approved_sha256": "1bfac7a1a4d16d771a930fa7bb57b6fc35a0a31ec936d4a9da548bc2428a34ca"
+    "hash_algorithm": "sha256-utf8-lf-v1",
+    "approved_sha256": "5f2d84af70cd61700f9e02a0c05069dacf63ed29d551231e1f4ab1536d048cbe"
   }
 ]

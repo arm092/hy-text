@@ -2,7 +2,7 @@
 
 This map uses `ru-text` only as a checklist of editorial problem families. No Russian language rule is imported by default.
 
-All ten normative references are expert-reviewed by Arman Khachatryan. The immutable approval hashes are recorded in `research/reviews.json` and checked against the current files by the test suite.
+All ten normative references are expert-reviewed by Arman Khachatryan. The immutable approval hashes are recorded in `research/reviews.json` and checked against the current files by the test suite. `sha256-utf8-lf-v1` means: decode UTF-8 text, normalize CRLF and bare CR line endings to LF, encode as UTF-8, then calculate SHA-256.
 
 | Area | Armenian evidence required | hy-text destination | Status |
 |---|---|---|---|
