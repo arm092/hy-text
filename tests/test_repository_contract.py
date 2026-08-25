@@ -283,6 +283,59 @@ class RepositoryContractTest(unittest.TestCase):
         ):
             self.assertIn(fragment, score_skill)
 
+    def test_score_rubric_classifies_generalized_ux_and_business_states(self):
+        scoring = (ROOT / "skills" / "hy-text" / "references" / "scoring.md").read_text(encoding="utf-8")
+        heading = "## Ընդհանրացված UX և գործարար ձևակերպումների դասակարգում"
+        self.assertIn(heading, scoring)
+        state_table = scoring.split(heading, 1)[1].split(
+            "## Կայուն կանոնների ազդեցության աղյուսակ", 1
+        )[0]
+
+        def state_row_for(marker):
+            for line in state_table.splitlines():
+                if marker not in line:
+                    continue
+                cells = [cell.strip() for cell in line.strip("|").split("|")]
+                if len(cells) == 4:
+                    return cells
+            self.fail(f"Missing generalized scoring state: {marker}")
+
+        impact_table = scoring.split("## Կայուն կանոնների ազդեցության աղյուսակ", 1)[1]
+        expected = {
+            "դեյքտիկ հղումը": (
+                "`HY-BIZ-005` և `HY-INF-002`",
+                "կցված նյութը փոխարինված է միայն անորոշ գնահատականով կամ շտապության բառով",
+            ),
+            "ընդհանուր սխալի դասը": (
+                "`HY-UX-002` և `HY-INF-002`",
+                "սխալը փոխարինված է միայն ընդհանրական գնահատականով",
+            ),
+            "ընդհանուր բացակայության դասը": (
+                "`HY-UX-004` և `HY-INF-002`",
+                "բացակայությունը ձևակերպված է միայն ընդհանրական վիճակով",
+            ),
+            "դեյքտիկ մուտքագրման հրաման": (
+                "`HY-UX-003` և `HY-INF-002`",
+                "հուշումը նաև ընդհանրական է և չի անվանում ակնկալվող արժեքը",
+            ),
+            "միայն որոշակիություն հարցնող հաստատումը": (
+                "`HY-UX-005` և `HY-INF-002`",
+                "հաստատման հարցը նաև փոխարինված է ընդհանրական գնահատականով",
+            ),
+        }
+
+        for marker, (rule_state, impact_condition) in expected.items():
+            with self.subTest(marker=marker):
+                cells = state_row_for(marker)
+                self.assertIn(rule_state, cells[2])
+                self.assertIn(impact_condition, cells[3])
+                matching_rows = [
+                    line
+                    for line in impact_table.splitlines()
+                    if rule_state in line and impact_condition in line
+                ]
+                self.assertEqual(1, len(matching_rows))
+
     def test_check_and_score_are_read_only(self):
         for skill in ("hy-check", "hy-score"):
             text = (ROOT / "skills" / skill / "SKILL.md").read_text(encoding="utf-8")
