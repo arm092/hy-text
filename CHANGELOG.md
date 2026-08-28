@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 1.1.0 – 2026-08-28
+
+- Added approved rule `HY-GRM-009`: in all-caps modern Eastern Armenian text, write `ԵՎ` instead of U+0587 `և` or traditional `ԵՒ`.
+- Added the narrowly scoped Unicode evidence record `SRC-UNICODE-ECH-YIWN` and retained the rule's basis as an editorial decision.
+
 ## 1.0.0 – 2026-08-15
 
 - Started the independent Eastern Armenian corpus and cross-platform skill packaging.

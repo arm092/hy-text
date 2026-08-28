@@ -46,10 +46,10 @@ class ReviewLedgerTest(unittest.TestCase):
                 "approved_sha256": "e74f5f053963908bc45b7184af92b2809a1497c6deb58d976b81e3dc964792cc",
             },
             "editorial-grammar.md": {
-                "reviewed_commit": "3771480a6fc7d1106462d8e8aaeacc1e9ad1de64",
-                "reviewed_at": "2026-08-14",
-                "through_rule": "HY-GRM-008",
-                "approved_sha256": "da2ffe2b0194dff3c1a9dc8dd37460b3d13ed27d5aa09b80a73b08f63effc3d8",
+                "reviewed_commit": "c4e628b7744ee15817fd5df88bf9eb75871eb3f7",
+                "reviewed_at": "2026-08-28",
+                "through_rule": "HY-GRM-009",
+                "approved_sha256": "2a5989df20b8116a14f9278bc6b2439d6dc87f1ba53ce1382f2eb05040baf260",
             },
             "info-style.md": {
                 "reviewed_commit": "37898b95568fc90547de9206ab39323ba46d1588",
@@ -88,10 +88,10 @@ class ReviewLedgerTest(unittest.TestCase):
                 "approved_sha256": "459d3d78dbc63b9485f9682c4a867f0f8eb034397190d37479f2bc3ec96b59d5",
             },
             "sources.md": {
-                "reviewed_commit": "37898b95568fc90547de9206ab39323ba46d1588",
-                "reviewed_at": "2026-08-25",
+                "reviewed_commit": "c4e628b7744ee15817fd5df88bf9eb75871eb3f7",
+                "reviewed_at": "2026-08-28",
                 "through_rule": None,
-                "approved_sha256": "5f2d84af70cd61700f9e02a0c05069dacf63ed29d551231e1f4ab1536d048cbe",
+                "approved_sha256": "b5ce4d84796355a2ce7a1e0858326c7914098538569ee74af25e36ea9f669a21",
             },
         }
         self.assertEqual(set(expected_reviews), set(by_name))

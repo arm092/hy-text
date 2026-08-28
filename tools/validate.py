@@ -78,7 +78,7 @@ REQUIRED_FIELDS = (
     "**Խստություն։**",
     "**Հիմք։**",
 )
-RELEASE_VERSION = "1.0.0"
+RELEASE_VERSION = "1.1.0"
 
 
 def text_files(root: Path) -> list[Path]:

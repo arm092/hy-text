@@ -21,7 +21,7 @@ REFERENCES = (
     "sources.md",
 )
 RULE_RE = re.compile(r"^## (HY-[A-Z]{2,4}-\d{3})$", re.MULTILINE)
-RELEASE_VERSION = "1.0.0"
+RELEASE_VERSION = "1.1.0"
 RELEASE_MANIFESTS = (
     (".claude-plugin/plugin.json", ("version",)),
     (".claude-plugin/marketplace.json", ("metadata", "version")),
@@ -64,14 +64,14 @@ def load_evaluator(module_name):
 
 class RepositoryContractTest(unittest.TestCase):
     def test_install_guides_use_supported_pinned_source_syntax(self):
-        agent_skills_command = 'npx skills add "arm092/hy-text#v1.0.0"'
+        agent_skills_command = 'npx skills add "arm092/hy-text#v1.1.0"'
         gemini_command = (
-            "gemini extensions install https://github.com/arm092/hy-text --ref v1.0.0"
+            "gemini extensions install https://github.com/arm092/hy-text --ref v1.1.0"
         )
         invalid_commands = (
-            "npx skills add arm092/hy-text@v1.0.0",
-            'npx skills add "arm092/hy-text@v1.0.0"',
-            "gemini extensions install https://github.com/arm092/hy-text@v1.0.0",
+            "npx skills add arm092/hy-text@v1.1.0",
+            'npx skills add "arm092/hy-text@v1.1.0"',
+            "gemini extensions install https://github.com/arm092/hy-text@v1.1.0",
         )
 
         for relative_path in ("INSTALL.md", "INSTALL.en.md"):
@@ -106,23 +106,36 @@ class RepositoryContractTest(unittest.TestCase):
                 manifest = json.loads((ROOT / relative_path).read_text(encoding="utf-8"))
                 self.assertEqual(RELEASE_VERSION, nested_value(manifest, version_path))
 
-    def test_stable_release_documentation_targets_v1(self):
+    def test_stable_release_documentation_targets_v1_1(self):
         for relative_path in ("README.md", "README.en.md"):
             with self.subTest(path=relative_path):
                 text = (ROOT / relative_path).read_text(encoding="utf-8")
-                self.assertIn("v1.0.0", text)
+                self.assertIn("v1.1.0", text)
                 self.assertNotIn("active development", text.lower())
                 self.assertNotIn("մշակման փուլում", text)
 
         for relative_path in ("INSTALL.md", "INSTALL.en.md"):
             with self.subTest(path=relative_path):
                 text = (ROOT / relative_path).read_text(encoding="utf-8")
-                self.assertIn("v1.0.0", text)
+                self.assertIn("v1.1.0", text)
                 self.assertIn("--temp-root", text)
 
     def test_changelog_has_the_dated_stable_release_heading(self):
         changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+        self.assertIn("## 1.1.0 – 2026-08-28", changelog)
         self.assertIn("## 1.0.0 – 2026-08-15", changelog)
+
+    def test_v1_1_release_note_describes_uppercase_ev_change(self):
+        release_note = (ROOT / "docs" / "releases" / "v1.1.0.md").read_text(encoding="utf-8")
+        for fragment in (
+            "HY-GRM-009",
+            "ԵՎ",
+            "SRC-UNICODE-ECH-YIWN",
+            "166",
+            "six hermetic packaging checks",
+        ):
+            with self.subTest(fragment=fragment):
+                self.assertIn(fragment, release_note)
 
     def test_release_note_links_all_evidence_and_thresholds(self):
         release_note = (ROOT / "docs" / "releases" / "v1.0.0.md").read_text(encoding="utf-8")

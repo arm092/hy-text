@@ -1,6 +1,6 @@
 # Տեղադրում
 
-Ստորև հրամանները տեղադրում են `v1.0.0` կայուն տարբերակը։
+Ստորև հրամանները տեղադրում են `v1.1.0` կայուն տարբերակը։
 
 ## Տեղադրման ստուգման սահմանը
 
@@ -19,7 +19,7 @@ python tools/smoke_install.py --root . --temp-root . --output install-smoke.json
 Codex CLI-ի, Cursor-ի, Windsurf-ի, GitHub Copilot-ի և համատեղելի այլ գործակալների համար՝
 
 ```bash
-npx skills add "arm092/hy-text#v1.0.0"
+npx skills add "arm092/hy-text#v1.1.0"
 ```
 
 Կամ ձեռքով պատճենեք `skills/hy-text`, `skills/hy-check` և `skills/hy-score` պանակները օգտատիրոջ `~/.agents/skills/` պանակ։ Նոր հմտությունները բեռնվում են նոր նստաշրջանում։
@@ -27,7 +27,7 @@ npx skills add "arm092/hy-text#v1.0.0"
 Windows PowerShell՝
 
 ```powershell
-git clone --branch v1.0.0 --depth 1 https://github.com/arm092/hy-text.git
+git clone --branch v1.1.0 --depth 1 https://github.com/arm092/hy-text.git
 New-Item -ItemType Directory -Force "$env:USERPROFILE\.agents\skills" | Out-Null
 Copy-Item -Recurse hy-text\skills\* "$env:USERPROFILE\.agents\skills"
 ```
@@ -35,14 +35,14 @@ Copy-Item -Recurse hy-text\skills\* "$env:USERPROFILE\.agents\skills"
 ## Claude Code
 
 ```text
-/plugin marketplace add arm092/hy-text@v1.0.0
+/plugin marketplace add arm092/hy-text@v1.1.0
 /plugin install hy-text@hy-text
 ```
 
 ## Gemini CLI
 
 ```bash
-gemini extensions install https://github.com/arm092/hy-text --ref v1.0.0
+gemini extensions install https://github.com/arm092/hy-text --ref v1.1.0
 ```
 
 ## Cursor և OpenClaw

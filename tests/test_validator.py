@@ -58,8 +58,8 @@ class ValidatorTest(unittest.TestCase):
 
                     errors = validator.validate_versions(root)
 
-                    self.assertTrue(any("1.0.0" in error for error in errors), errors)
-                    value[version_path[-1]] = "1.0.0"
+                    self.assertTrue(any("1.1.0" in error for error in errors), errors)
+                    value[version_path[-1]] = "1.1.0"
                     manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
 
     def test_repository_passes_validator(self):

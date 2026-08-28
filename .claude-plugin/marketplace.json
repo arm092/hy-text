@@ -2,7 +2,7 @@
   "name": "hy-text",
   "metadata": {
     "description": "Eastern Armenian text quality for AI agents.",
-    "version": "1.0.0"
+    "version": "1.1.0"
   },
   "owner": {
     "name": "Arman Khachatryan",
@@ -13,7 +13,7 @@
     {
       "name": "hy-text",
       "source": "./",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "description": "Eastern Armenian text quality for AI agents.",
       "category": "productivity",
       "homepage": "https://github.com/arm092/hy-text",
