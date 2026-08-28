@@ -12,6 +12,18 @@
     "status": "verified"
   },
   {
+    "id": "SRC-UNICODE-ECH-YIWN",
+    "evidence_type": "technical standard",
+    "authority": "Unicode Consortium",
+    "title": "L2/20-143: Uppercase of U+0587 ARMENIAN SMALL LIGATURE ECH YIWN",
+    "locator": "https://www.unicode.org/L2/L2020/20143-armenian-ech-yiwn.pdf",
+    "scope": "Expert feedback submitted to the Unicode Technical Committee identifies U+0535 U+054E (`ԵՎ`) for Eastern Armenia and U+0535 U+0552 (`ԵՒ`) for Western Armenian and Iranian Eastern Armenian; evidence for locale-specific editorial casing, not an official Republic of Armenia orthography decree or a universal Unicode case mapping.",
+    "accessed_at": "2026-08-28",
+    "availability": "direct",
+    "provenance": "Direct Unicode-hosted UTC document inspected on 2026-08-28; the project uses only its explicit Eastern-Armenia distinction and keeps the rule basis editorial.",
+    "status": "verified"
+  },
+  {
     "id": "SRC-CLDR-HY",
     "evidence_type": "technical standard",
     "authority": "Unicode Consortium",

@@ -614,6 +614,25 @@ class RepositoryContractTest(unittest.TestCase):
         for disallowed_separator in ("\u058a", "\u2010", "\u2014"):
             self.assertNotIn(disallowed_separator, rule)
 
+    def test_grammar_009_expands_ev_in_all_caps_eastern_armenian(self):
+        text = (ROOT / "skills" / "hy-text" / "references" / "editorial-grammar.md").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("## HY-GRM-009", text)
+        after_heading = text.split("## HY-GRM-009", 1)[1]
+        rule = re.split(r"(?=^## HY-)", after_heading, maxsplit=1, flags=re.MULTILINE)[0]
+
+        self.assertIn("U+0587", rule)
+        self.assertIn("`ԵՎ`", rule)
+        self.assertIn("`ԵՐԵՎԱՆԻ ՏԵՍԱՐԺԱՆ ՎԱՅՐԵՐԸ և ԹԱՆԳԱՐԱՆՆԵՐԸ`", rule)
+        self.assertIn("`ԵՐԵՎԱՆԻ ՏԵՍԱՐԺԱՆ ՎԱՅՐԵՐԸ ԵՎ ԹԱՆԳԱՐԱՆՆԵՐԸ`", rule)
+        self.assertIn("`Երևանի տեսարժան վայրերը և թանգարանները`", rule)
+        self.assertIn("`ԵՒ`", rule)
+        self.assertIn("պաշտպանված", rule)
+        self.assertIn("**Խստություն։** high", rule)
+        self.assertIn("**Հիմք։** խմբագրական որոշում – SRC-EDITORIAL-POLICY։", rule)
+        self.assertIn("SRC-UNICODE-ECH-YIWN", rule)
+
     def test_business_006_omits_terminal_marks_only_from_non_question_subjects(self):
         path = ROOT / "skills" / "hy-text" / "references" / "business-writing.md"
         after_heading = path.read_text(encoding="utf-8").split("## HY-BIZ-006", 1)[1]
