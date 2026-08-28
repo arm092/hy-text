@@ -40,7 +40,7 @@ Reference paths are relative to this file.
 | Task | Read |
 |---|---|
 | Typography, Unicode, numbers | `references/typography.md` |
-| Clarity, structure, stop-words | `references/info-style.md` |
+| Clarity, terminology, translation, stop-words | `references/info-style.md` |
 | Armenian punctuation | `references/editorial-punctuation.md` |
 | Grammar, spelling, capitalization | `references/editorial-grammar.md` |
 | Interfaces and product copy | `references/ux-writing.md` |

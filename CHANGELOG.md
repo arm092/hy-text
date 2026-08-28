@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added `HY-UX-011` to distinguish Armenian UX verbs for watching content, viewing more items, and looking at an object.
+- Added `HY-INF-008` to retain `լոնգսլիվ` as a standalone garment or category name while keeping `երկարաթև` for an adjectival property.
+- Routed translation and terminology tasks through the information-style reference.
+
 ## 1.1.0 – 2026-08-28
 
 - Added approved rule `HY-GRM-009`: in all-caps modern Eastern Armenian text, write `ԵՎ` instead of U+0587 `և` or traditional `ԵՒ`.

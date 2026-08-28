@@ -527,6 +527,32 @@ class RepositoryContractTest(unittest.TestCase):
         self.assertIn("`HY-INF-006`", score_skill)
         self.assertIn("Before generic UX-only rows", score_skill)
 
+    def test_translation_tasks_load_info_style_reference(self):
+        skill = (ROOT / "skills" / "hy-text" / "SKILL.md").read_text(encoding="utf-8")
+        routing = skill.split("## Load references by task", 1)[1].split("## Full review", 1)[0]
+        self.assertRegex(
+            routing,
+            r"\| Clarity, terminology, translation, stop-words \| `references/info-style\.md` \|",
+        )
+
+    def test_info_008_keeps_longsleeve_as_product_noun(self):
+        path = ROOT / "skills" / "hy-text" / "references" / "info-style.md"
+        after_heading = path.read_text(encoding="utf-8").split("## HY-INF-008", 1)[1]
+        rule = re.split(r"(?=^## HY-)", after_heading, maxsplit=1, flags=re.MULTILINE)[0]
+
+        for fragment in (
+            "հագուստի առարկայի անվանումը հատկանիշից",
+            "longsleeve",
+            "`լոնգսլիվ`",
+            "`երկարաթև`",
+            "`երկարաթև շապիկ`",
+            "ապրանքատեսակ կամ կատեգորիա",
+            "պաշտպանված",
+            "**Խստություն։** medium",
+            "**Հիմք։** խմբագրական որոշում – SRC-EDITORIAL-POLICY։",
+        ):
+            self.assertIn(fragment, rule)
+
     def test_check_and_score_are_read_only(self):
         for skill in ("hy-check", "hy-score"):
             text = (ROOT / "skills" / skill / "SKILL.md").read_text(encoding="utf-8")
@@ -751,6 +777,28 @@ class RepositoryContractTest(unittest.TestCase):
         self.assertIn("`Ֆայլի բեռնում`", loading)
         self.assertIn("`Բեռնված է 3-ը 10-ից։`", loading)
         self.assertIn("Կախման կետերը ներկայացման միջոց են", loading)
+
+    def test_ux_011_distinguishes_watch_view_and_look(self):
+        path = ROOT / "skills" / "hy-text" / "references" / "ux-writing.md"
+        after_heading = path.read_text(encoding="utf-8").split("## HY-UX-011", 1)[1]
+        rule = re.split(r"(?=^## HY-)", after_heading, maxsplit=1, flags=re.MULTILINE)[0]
+
+        for fragment in (
+            "`դիտել`",
+            "`տեսնել`",
+            "`նայել`",
+            "`ԴԻՏԵԼ ՀՈՒԴԻՆԵՐԸ`",
+            "`ՏԵՍՆԵԼ ՀՈՒԴԻՆԵՐԸ`",
+            "`Դիտել ավելին`",
+            "`Տեսնել ավելին`",
+            "`Դիտել ֆիլմը`",
+            "`Նայել նկարին`",
+            "կոճակ",
+            "պաշտպանված",
+            "**Խստություն։** medium",
+            "**Հիմք։** խմբագրական որոշում – SRC-UX-POLICY։",
+        ):
+            self.assertIn(fragment, rule)
 
 
 if __name__ == "__main__":
